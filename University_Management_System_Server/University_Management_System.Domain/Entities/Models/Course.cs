@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using University_Management_System.Domain.Enums;
+
+namespace University_Management_System.Domain.Entities.Models
+{
+    public class Course : BaseEntities<int>
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public int Credits { get; set; }
+        public CourseStatus Status { get; set; }
+        public int DepartmentId { get; set; }
+        public Department Department { get; set; } = null!;
+
+        public ICollection<Registration> Registrations { get; set; } = new List<Registration>();
+        public ICollection<CourseUpload> CourseUpload { get; set; } = new List<CourseUpload>();
+        public ICollection<CoursePrerequisite> PrerequisiteFor { get; set; } = new List<CoursePrerequisite>();
+        public ICollection<CoursePrerequisite> DependentCourses { get; set; } = new List<CoursePrerequisite>();
+        public ICollection<DepartmentCourse> DepartmentCourses { get; set; } = new List<DepartmentCourse>();
+        public ICollection<SpecializationCourse> SpecializationCourses { get; set; } = new List<SpecializationCourse>();
+    }
+}

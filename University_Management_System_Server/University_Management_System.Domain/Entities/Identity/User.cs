@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using University_Management_System.Domain.Entities.Models;
+using University_Management_System.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
+
+namespace University_Management_System.Domain.Entities.Identity
+{
+    public class User : IdentityUser
+    {
+        public string DisplayName { get; set; } = string.Empty;
+        public string ProfilePicture { get; set; } = string.Empty;
+        public string AcademicCode { get; set; } = string.Empty;
+        public Gender Gender { get; set; }
+        public Levels? Level { get; set; } // if he study eng will prep year any other will start from first year
+        public int? TotalCredits { get; set; } // the total credits that the student has registered for in the current study year
+        public int? AllowedCredits { get; set; } // the total credits updated every semester depend on gpa and the level of the student
+        public decimal? TotalGPA { get; set; } // the gpa of the student updated every semester
+        // if he study eng will prep year any other will start from first year second year he choose his specialization and the department will be the one of the specialization
+        public int? DepartmentId { get; set; }
+        public Department? Department { get; set; }
+        public ICollection<Registration> Registrations { get; set; } = new List<Registration>();
+        public ICollection<AcademicSchedule> AcademicSchedules { get; set; } = new List<AcademicSchedule>();
+        public ICollection<CourseUpload> CourseUpload { get; set; } = new List<CourseUpload>();
+        public ICollection<SemesterGPA> SemesterGPAs { get; set; } = new List<SemesterGPA>();
+        public ICollection<UserStudyYear> UserStudyYears { get; set; } = new List<UserStudyYear>(); 
+        public ICollection<UserRole> UserRoles { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        // user related to specialization through department and might be null if the user is in prep year or the user is in a department that doesn't have specializations
+        public int? SpecializationId { get; set; }
+        public Specialization? Specialization { get; set; }
+    }
+}

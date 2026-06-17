@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using University_Management_System.Application.Dtos.UserDtos;
+using University_Management_System.Domain.Queries;
+
+namespace University_Management_System.Application.Contracts
+{
+    public interface IUserService
+    {
+        Task<userProfileDetailsDto> GetUserProfileByAcademicCodeAsync(string academicCode);
+        Task<string> UpdateProfilePictureAsync(string userId, UpdateProfilePictureDto dto);
+        Task<IEnumerable<UserWithDepartmentDto>> GetAllUsers(string userId, UserQueries query);
+        Task<(IEnumerable<UserWithDepartmentDto> Data, int TotalCount)> GetAllUsersWithPaginationAsync(string userId, UserQueries query);
+        Task<IEnumerable<StudentUserDto>> GetUnGraduateStudentUsers(string userId, StudentQueries query);
+        Task<(IEnumerable<StudentUserDto> Data, int TotalCount)> GetUnGraduateStudentUsersWithPaginationAsync(string userId, StudentQueries query);
+        Task<IEnumerable<StudentUserDto>> GetAllStudentUsers(string userId, StudentQueries query);
+        Task<(IEnumerable<StudentUserDto> Data, int TotalCount)> GetAllStudentUsersWithPaginationAsync(string userId, StudentQueries query);
+        Task DeleteProfilePictureAsync(string userId);
+    }
+}
