@@ -1,4 +1,4 @@
-# AYA University Information System (UIS)
+# University Management System (UMS)
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-19.2.1-61DAFB.svg)](https://reactjs.org/)
@@ -8,7 +8,7 @@
 
 ## 🎯 Overview
 
-AYA-UIS is a comprehensive, modern university information system designed to streamline academic operations and administrative processes. The system provides a unified platform for managing departments, courses, academic schedules, fee structures, and user authentication with role-based access control.
+University Management System is a comprehensive, modern university information system designed to streamline academic operations and administrative processes. The system provides a unified platform for managing departments, courses, academic schedules, fee structures, and user authentication with role-based access control.
 
 ## ✨ Key Features
 
@@ -55,14 +55,14 @@ AYA-UIS is a comprehensive, modern university information system designed to str
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
-│                 Backend (.NET 8 API)                       │
+│                 Backend (.NET 8 API)                        │
 │                Clean Architecture                           │
-│                   CQRS Pattern                             │
+│                   CQRS Pattern                              │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌──────────────────────┬──────────────────────────────────────┐
 │     SQL Server       │          Identity Store              │
-│   Main Database      │       (User Management)             │
+│   Main Database      │       (User Management)              │
 │                      │                                      │
 └──────────────────────┴──────────────────────────────────────┘
 ```
@@ -70,28 +70,28 @@ AYA-UIS is a comprehensive, modern university information system designed to str
 ### Backend Architecture (Clean Architecture + CQRS)
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        API Layer                             │
-│                    (AYA_UIS.API)                            │
+│                        API Layer                            │
+│             (University_Management_System.API)              │
 │         Controllers, Middleware, Authentication             │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
-│                   Application Layer                          │
-│                (AYA_UIS.Application)                        │
+│                   Application Layer                         │
+│         (University_Management_System.Application)          │
 │        Commands, Queries, Handlers (CQRS)                   │
 │              Business Logic & Use Cases                     │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
 │                      Core Layer                             │
-│                   (AYA_UIS.Core)                           │
+│            (University_Management_System.Core)              │
 │           Domain Entities, Services, Contracts              │
 │                  Domain Business Rules                      │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
 │                 Infrastructure Layer                        │
-│                (AYA_UIS.Infrastructure)                     │
+│        (University_Management_System.Infrastructure)        │
 │        Data Access, External Services, Repositories         │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -127,31 +127,31 @@ AYA-UIS is a comprehensive, modern university information system designed to str
 ### Root Structure
 ```
 AYA-UIS/
-├── AYA_UIS_Frontend/          # React frontend application
-├── AYA_UIS_Server/            # .NET backend solution
+├── University_Management_System_Frontend/          # React frontend application
+├── University_Management_System_Server/            # .NET backend solution
 ├── README.md                  # Main documentation
 └── docs/                      # Additional documentation
 ```
 
-### Backend Structure (`AYA_UIS_Server/`)
+### Backend Structure (`University_Management_System_Server/`)
 ```
-AYA_UIS_Server/
-├── AYA_UIS.sln               # Solution file
-├── AYA_UIS.API/              # Web API layer
+University_Management_System_Server/
+├── University_Management_System.sln               # Solution file
+├── University_Management_System.API/              # Web API layer
 │   ├── Controllers/          # API controllers
 │   ├── MiddelWares/          # Custom middleware
 │   ├── Factories/            # Response factories
 │   └── Keys/                 # RSA encryption keys
-├── AYA_UIS.Application/      # Application layer (CQRS)
+├── University_Management_System.Application/      # Application layer (CQRS)
 │   ├── Commands/             # Command handlers
 │   ├── Queries/              # Query handlers
 │   ├── Handlers/             # Business logic handlers
 │   └── Contracts/            # Service contracts
-├── AYA_UIS.Core/             # Domain layer
+├── University_Management_System.Core/             # Domain layer
 │   ├── Domain/               # Domain entities
 │   ├── Abstractions/         # Interfaces
 │   └── Services/             # Domain services
-├── AYA_UIS.Infrastructure/   # Infrastructure layer
+├── University_Management_System.Infrastructure/   # Infrastructure layer
 │   ├── Persistence/          # Database context & repositories
 │   └── Services/             # External service implementations
 └── Shared/                   # Shared DTOs and models
@@ -162,7 +162,7 @@ AYA_UIS_Server/
 
 ### Frontend Structure (Professional - To Be Implemented)
 ```
-AYA_UIS_Frontend/
+University_Management_System_Frontend/
 ├── public/                   # Static assets
 ├── src/
 │   ├── components/           # Reusable UI components
@@ -265,7 +265,7 @@ AYA_UIS_Frontend/
 1. **Clone the repository**
    ```bash
    git clone [repository-url]
-   cd AYA-UIS/AYA_UIS_Server
+   cd AYA-UIS/University_Management_System_Server
    ```
 
 2. **Configure database connections**
@@ -282,13 +282,13 @@ AYA_UIS_Frontend/
 
 4. **Start the API**
    ```bash
-   dotnet run --project AYA_UIS.API
+   dotnet run --project University_Management_System.API
    ```
 
 ### Frontend Setup
 1. **Navigate to frontend directory**
    ```bash
-   cd AYA-UIS/AYA_UIS_Frontend
+   cd AYA-UIS/University_Management_System_Frontend
    ```
 
 2. **Install dependencies**

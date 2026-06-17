@@ -1,4 +1,4 @@
-# AYA-UIS Frontend
+# University Management System Frontend
 
 A modern React application for the AYA University Information System, designed with scalability and maintainability in mind.
 
@@ -86,7 +86,7 @@ Formats code using Prettier.
 
 ## 🔗 Integration with Backend
 
-The frontend communicates with the AYA-UIS .NET Core API:
+The frontend communicates with the University Management System .NET Core API:
 - **Base URL**: `http://localhost:5282` (development)
 - **Authentication**: JWT token-based
 - **API Format**: RESTful JSON API

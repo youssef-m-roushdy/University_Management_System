@@ -1,4 +1,4 @@
-# AYA-UIS - University Information System
+# University Management System Server
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-12.0-purple.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -24,7 +24,7 @@ A comprehensive university information system built with ASP.NET Core 8.0, imple
 
 ## 🎯 Overview
 
-AYA-UIS is a modern university information system designed to manage academic operations including departments, grade levels, fee management, academic schedules, and user authentication. The system follows industry best practices with a focus on scalability, maintainability, and security.
+University Management System is a modern university information system designed to manage academic operations including departments, grade levels, fee management, academic schedules, and user authentication. The system follows industry best practices with a focus on scalability, maintainability, and security.
 
 ## 🏗️ Architecture
 
@@ -33,25 +33,25 @@ The project follows **Clean Architecture** principles with **CQRS (Command Query
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        API Layer                             │
-│                    (AYA-UIS.API)                            │
+│                    (University Management System.API)         │
 │         Controllers, Middleware, Configuration              │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
 │                   Application Layer                          │
-│                (AYA-UIS.Application)                        │
+│                (University Management System.Application)    │
 │        Commands, Queries, Handlers (CQRS)                   │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌──────────────────────┬──────────────────────────────────────┐
 │   Presentation       │        Core Layer                     │
-│  (Controllers)       │    (AYA-UIS.Core)                    │
+│  (Controllers)       │    (University Management System.Core) │
 │                      │  Domain, Services, Contracts          │
 └──────────────────────┴──────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
 │              Infrastructure Layer                            │
-│           (AYA-UIS.Infrastructure)                          │
+│           (University Management System.Infrastructure)    │
 │      Persistence, Identity, Data Access                     │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -118,13 +118,13 @@ The project follows **Clean Architecture** principles with **CQRS (Command Query
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Moustafa24/AYA-UIS.git
-   cd AYA-UIS
+   git clone https://github.com/Moustafa24/University Management System.git
+   cd University Management System
    ```
 
 2. **Configure database connection**
    
-   Update `appsettings.json` in `AYA-UIS.API` folder:
+   Update `appsettings.json` in `University Management System.API` folder:
    ```json
    {
      "ConnectionStrings": {
@@ -136,7 +136,7 @@ The project follows **Clean Architecture** principles with **CQRS (Command Query
 
 3. **Generate RSA keys for JWT (if not exists)**
    
-   Place `public_key.pem` and `private_key.pem` in `AYA-UIS.API/Keys/` folder.
+   Place `public_key.pem` and `private_key.pem` in `University Management System.API/Keys/` folder.
 
 4. **Restore dependencies**
    ```bash
@@ -146,15 +146,15 @@ The project follows **Clean Architecture** principles with **CQRS (Command Query
 5. **Apply database migrations**
    ```bash
    # Info Database
-   dotnet ef database update --context AYA_UIS_InfoDbContext --project ./AYA-UIS.Infrastructure/Presistence/Presistence.csproj --startup-project ./AYA-UIS.API/AYA-UIS.csproj
+   dotnet ef database update --context AYA_UIS_InfoDbContext --project ./University Management System.Infrastructure/Presistence/Presistence.csproj --startup-project ./University Management System.API/University Management System.csproj
    
    # Identity Database
-   dotnet ef database update --context IdentityAYADbContext --project ./AYA-UIS.Infrastructure/Presistence/Presistence.csproj --startup-project ./AYA-UIS.API/AYA-UIS.csproj
+   dotnet ef database update --context IdentityAYADbContext --project ./University Management System.Infrastructure/Presistence/Presistence.csproj --startup-project ./University Management System.API/University Management System.csproj
    ```
 
 6. **Run the application**
    ```bash
-   cd AYA-UIS.API
+   cd University Management System.API
    dotnet run
    ```
 
@@ -165,8 +165,8 @@ The project follows **Clean Architecture** principles with **CQRS (Command Query
 ## 📁 Project Structure
 
 ```
-AYA-UIS/
-├── AYA-UIS.API/                      # Main API project
+University Management System/
+├── University Management System.API/                      # Main API project
 │   ├── Controllers/                  # (Legacy - moved to Presentation)
 │   ├── Factories/                    # Response factories
 │   ├── MiddelWares/                  # Custom middleware
@@ -174,7 +174,7 @@ AYA-UIS/
 │   ├── wwwroot/                      # Static files
 │   └── Program.cs                    # Application entry point
 │
-├── AYA-UIS.Application/              # CQRS Application layer
+├── University Management System.Application/              # CQRS Application layer
 │   ├── Commands/                     # Write operations
 │   │   └── DepartmentFees/
 │   ├── Queries/                      # Read operations
@@ -182,7 +182,7 @@ AYA-UIS/
 │   └── Handlers/                     # Command/Query handlers
 │       └── DepartmentFees/
 │
-├── AYA-UIS.Core/                     # Core business logic
+├── University Management System.Core/                     # Core business logic
 │   ├── Domain/                       # Domain entities
 │   │   ├── Contracts/                # Repository interfaces
 │   │   ├── Entities/                 # Domain models
@@ -194,7 +194,7 @@ AYA-UIS/
 │   └── Services.Abstraction/         # Service contracts
 │       └── Contracts/
 │
-├── AYA-UIS.Infrastructure/           # Infrastructure layer
+├── University Management System.Infrastructure/           # Infrastructure layer
 │   ├── Presistence/                  # Data access
 │   │   ├── Data/                     # DbContext & Configurations
 │   │   ├── Identity/                 # Identity DbContext
@@ -295,12 +295,12 @@ public class UpdateDepartmentFeeCommandHandler
 
 **Create new migration**:
 ```bash
-dotnet ef migrations add MigrationName --context AYA_UIS_InfoDbContext --project ./AYA-UIS.Infrastructure/Presistence/Presistence.csproj --startup-project ./AYA-UIS.API/AYA-UIS.csproj
+dotnet ef migrations add MigrationName --context AYA_UIS_InfoDbContext --project ./University Management System.Infrastructure/Presistence/Presistence.csproj --startup-project ./University Management System.API/University Management System.csproj
 ```
 
 **Update database**:
 ```bash
-dotnet ef database update --context AYA_UIS_InfoDbContext --project ./AYA-UIS.Infrastructure/Presistence/Presistence.csproj --startup-project ./AYA-UIS.API/AYA-UIS.csproj
+dotnet ef database update --context AYA_UIS_InfoDbContext --project ./University Management System.Infrastructure/Presistence/Presistence.csproj --startup-project ./University Management System.API/University Management System.csproj
 ```
 
 ## 🔐 Authentication & Authorization
@@ -368,7 +368,7 @@ builder.Services.AddCors(options =>
 
 ### Running in Development Mode
 ```bash
-dotnet watch run --project ./AYA-UIS.API/AYA-UIS.csproj
+dotnet watch run --project ./University Management System.API/University Management System.csproj
 ```
 
 ### Build Solution
