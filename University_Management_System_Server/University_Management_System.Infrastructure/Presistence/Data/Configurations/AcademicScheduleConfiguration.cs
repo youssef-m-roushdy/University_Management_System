@@ -15,13 +15,13 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
                    .HasForeignKey(a => a.DepartmentId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Map UploadedBy → UploadedByUserId so EF does not generate a shadow UserId column
-            builder.HasOne(a => a.UploadedBy)
+            // Map Admin → AdminId so EF does not generate a shadow UserId column
+            builder.HasOne(a => a.Admin)
                    .WithMany(u => u.AcademicSchedules)
-                   .HasForeignKey(a => a.UploadedByUserId)
+                   .HasForeignKey(a => a.AdminId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Property(a => a.UploadedByUserId)
+            builder.Property(a => a.AdminId)
                    .IsRequired()
                    .HasMaxLength(450);
 

@@ -32,7 +32,7 @@ namespace University_Management_System.Infrastructure.Presistence
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            builder.Entity<User>()
+            builder.Entity<Student>()
                    .HasIndex(u => u.AcademicCode)
                    .IsUnique();
         }
@@ -51,9 +51,18 @@ namespace University_Management_System.Infrastructure.Presistence
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<CourseUpload> CourseUploads { get; set; }
         public DbSet<SemesterGPA> SemesterGPAs { get; set; }
-        public DbSet<UserStudyYear> UserStudyYears { get; set; }
+        public DbSet<StudentStudyYear> StudentStudyYears { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
         public DbSet<SpecializationCourse> SpecializationCourses { get; set; }
         public DbSet<DepartmentCourse> DepartmentCourses { get; set; }
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Instructor> Instructors { get; set; }
+        public DbSet<Assistant> Assistants { get; set; }
+        public DbSet<InstructorCourseUpload> InstructorCourseUploads { get; set; }
+        public DbSet<AssistantCourseUpload> AssistantCourseUploads { get; set; }
+        public DbSet<CourseInstructor> CourseInstructors { get; set; }
+        public DbSet<CourseAssistant> CourseAssistants { get; set; }
+        
     }
 }

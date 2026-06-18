@@ -19,5 +19,9 @@ namespace University_Management_System.Domain.Entities.Models
         public ICollection<AcademicSchedule> AcademicSchedules { get; set; } = new List<AcademicSchedule>();
         public ICollection<Registration> Registrations { get; set; } = new List<Registration>();
         public ICollection<SemesterGPA> SemesterGPAs { get; set; } = new List<SemesterGPA>();
+        public ICollection<CourseAssistant> CourseAssistants { get; set; } = new List<CourseAssistant>();
+        public ICollection<CourseInstructor> CourseInstructors { get; set; } = new List<CourseInstructor>();
+        public ICollection<InstructorCourseUpload> InstructorCourseUploads { get; set; } = new List<InstructorCourseUpload>();
+        public ICollection<AssistantCourseUpload> AssistantCourseUploads { get; set; } = new List<AssistantCourseUpload>();
     }
 }

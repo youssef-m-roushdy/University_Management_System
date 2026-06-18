@@ -16,8 +16,8 @@ namespace University_Management_System.Domain.Entities.Models
         public string? Description { get; set; }
         public int DepartmentId { get; set; }
         public Department Department { get; set; } = null!;
-        public string UploadedByUserId { get; set; } = string.Empty;
-        public User UploadedBy { get; set; } = null!;
+        public string AdminId { get; set; } = string.Empty;
+        public Admin Admin { get; set; } = null!;
         public int SemesterId { get; set; } // Foreign key to Semester
         public Semester Semester { get; set; } = null!; // semester for which this schedule is relevant (lectures, finals, etc.)
         public int StudyYearId { get; set; } // Foreign key to StudyYear

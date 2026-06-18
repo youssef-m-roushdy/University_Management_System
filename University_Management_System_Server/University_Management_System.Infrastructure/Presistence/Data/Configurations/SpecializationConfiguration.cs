@@ -29,7 +29,7 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
                    .OnDelete(DeleteBehavior.Cascade);
 
             // Specialization → Users (1:M)
-            builder.HasMany(s => s.Users)
+            builder.HasMany(s => s.Students)
                    .WithOne(u => u.Specialization)
                    .HasForeignKey(u => u.SpecializationId)
                    .IsRequired(false)

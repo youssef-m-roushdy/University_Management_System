@@ -17,7 +17,7 @@ namespace University_Management_System.Domain.Entities.Models
         public ICollection<Course> Courses { get; set; } = new List<Course>(); // mean the department has multiple courses and the course belongs to one department that gets the main department courses
         public ICollection<Fee> Fees { get; set; } = new List<Fee>(); // mean the depratment has multiple fees for different levels and academic years
         public ICollection<AcademicSchedule> AcademicSchedules { get; set; } = new List<AcademicSchedule>();
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<Student> Users { get; set; } = new List<Student>();
         public ICollection<Specialization> Specializations { get; set; } = new List<Specialization>();
         // that get main deparmtment courses and plus the courses that are major or minor or elective for the department
         public ICollection<DepartmentCourse> DepartmentCourses { get; set; } = new List<DepartmentCourse>(); // many to many relationship between department and courses because the course can be major in one department and minor in another department or elective in another department

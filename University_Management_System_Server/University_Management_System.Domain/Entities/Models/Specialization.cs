@@ -16,6 +16,6 @@ namespace University_Management_System.Domain.Entities.Models
 
         // Navigation properties
         public ICollection<SpecializationCourse> SpecializationCourses { get; set; } = new List<SpecializationCourse>();
-        public ICollection<User> Users { get; set; } = new List<User>(); // mean the specialization has multiple users and the user belongs to one specialization
+        public ICollection<Student> Students { get; set; } = new List<Student>(); // mean the specialization has multiple users and the user belongs to one specialization
     }
 }

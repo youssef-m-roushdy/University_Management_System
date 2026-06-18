@@ -6,8 +6,8 @@ namespace University_Management_System.Domain.Entities.Models
 {
     public class SemesterGPA : BaseEntities<int>
     {
-        public string UserId { get; set; } = string.Empty;
-        public User User { get; set; } = null!;
+        public string StudentId { get; set; } = string.Empty;
+        public Student Student { get; set; } = null!;
         
         public int SemesterId { get; set; }
         public Semester Semester { get; set; } = null!;

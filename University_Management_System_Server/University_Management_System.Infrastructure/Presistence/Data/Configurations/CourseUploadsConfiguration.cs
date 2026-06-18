@@ -15,15 +15,6 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
                    .HasForeignKey(cu => cu.CourseId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Property(cu => cu.UploadedByUserId)
-                   .IsRequired()
-                   .HasMaxLength(450);
-
-            builder.HasOne(cu => cu.UploadedBy)
-                   .WithMany(u => u.CourseUpload)
-                   .HasForeignKey(cu => cu.UploadedByUserId)
-                   .OnDelete(DeleteBehavior.Restrict);
-
             builder.Property(cu => cu.Title)
                    .IsRequired()
                    .HasMaxLength(200);

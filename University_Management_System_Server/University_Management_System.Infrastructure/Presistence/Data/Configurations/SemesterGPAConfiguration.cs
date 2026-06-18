@@ -11,16 +11,16 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
             builder.HasKey(g => g.Id);
 
             // Unique constraint: one GPA record per student per semester per study year
-            builder.HasIndex(g => new { g.UserId, g.SemesterId, g.StudyYearId })
+            builder.HasIndex(g => new { g.StudentId, g.SemesterId, g.StudyYearId })
                    .IsUnique();
 
-            builder.Property(g => g.UserId)
+            builder.Property(g => g.StudentId)
                    .IsRequired()
                    .HasMaxLength(450);
 
-            builder.HasOne(g => g.User)
-                   .WithMany(u => u.SemesterGPAs)
-                   .HasForeignKey(g => g.UserId)
+            builder.HasOne(g => g.Student)
+                   .WithMany(s => s.SemesterGPAs)
+                   .HasForeignKey(g => g.StudentId)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(g => g.GPA)

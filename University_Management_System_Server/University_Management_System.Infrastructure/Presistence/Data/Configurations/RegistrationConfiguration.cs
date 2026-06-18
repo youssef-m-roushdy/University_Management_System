@@ -10,13 +10,13 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
         {
             builder.HasKey(r => r.Id);
 
-            builder.Property(r => r.UserId)
+            builder.Property(r => r.StudentId)
                    .IsRequired()
                    .HasMaxLength(450);
 
-            builder.HasOne(r => r.User)
-                   .WithMany(u => u.Registrations)
-                   .HasForeignKey(r => r.UserId)
+            builder.HasOne(r => r.Student)
+                   .WithMany(s => s.Registrations)
+                   .HasForeignKey(r => r.StudentId)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(r => r.Course)

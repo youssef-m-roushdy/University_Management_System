@@ -54,7 +54,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             _emailService = emailService;
         }
 
-        // ── Login ──────────────────────────────────────────────────────────────
+        // ── Login As Admin ──────────────────────────────────────────────────────────────
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
             var user = await _userManager.Users
@@ -67,11 +67,25 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            var department = user.DepartmentId.HasValue
-                ? await _unitOfWork.Departments.GetByIdAsync(user.DepartmentId.Value)
-                : null;
 
-            return await BuildAuthResponseAsync(user, roles, department);
+
+        }
+
+        // ── Login As Student ──────────────────────────────────────────────────────────────
+        public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
+        {
+            var user = await _userManager.Users
+                .Include(u => u.RefreshTokens)          // ← load tokens
+                .FirstOrDefaultAsync(u => u.Email == dto.Email)
+                ?? throw new NotFoundException($"No user with email '{dto.Email}'.");
+
+            if (!await _userManager.CheckPasswordAsync(user, dto.Password))
+                throw new UnauthorizedAccessException("Invalid credentials.");
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+
+
         }
 
         // ── Register (admin / staff) ────────────────────────────────────────────
@@ -85,7 +99,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 Email = dto.Email,
                 UserName = dto.UserName,
                 PhoneNumber = dto.PhoneNumber,
-                AcademicCode = dto.AcademicCode,
                 Gender = dto.Gender
             };
 
@@ -118,13 +131,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 Email = dto.Email,
                 UserName = dto.UserName,
                 PhoneNumber = dto.PhoneNumber,
-                AcademicCode = dto.AcademicCode,
-                Gender = dto.Gender,
-                Level = startingLevel,
-                TotalCredits = 0,
-                AllowedCredits = 0,
-                TotalGPA = 0,
-                DepartmentId = departmentId
+                
             };
 
             await CreateUserAsync(user, dto.Password, "Student");

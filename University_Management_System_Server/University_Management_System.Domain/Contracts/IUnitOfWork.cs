@@ -12,7 +12,7 @@ namespace University_Management_System.Domain.Contracts
         IRegistrationRepository Registrations { get; }
         ICourseUploadsRepository CourseUploads { get; }
         ISemesterRepository Semesters { get; }
-        IUserStudyYearRepository UserStudyYears { get; }
+        IStudentStudyYearRepository UserStudyYears { get; }
         ISpecializationRepository Specializations { get; }   // ← added
 
         Task<int> SaveChangesAsync();

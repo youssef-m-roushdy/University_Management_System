@@ -939,38 +939,45 @@ namespace University_Management_System.Infrastructure.Presistence.Data
         }
 
         public async Task SeedIdentityDataAsync()
+{
+    var pendingMigrations = await _dbContext.Database.GetPendingMigrationsAsync();
+    if (pendingMigrations.Any())
+        await _dbContext.Database.MigrateAsync();
+
+    string[] roleNames = { "Admin", "Student", "Instructor", "InstructorAssistant" };
+    foreach (var roleName in roleNames)
+    {
+        if (!await _roleManager.RoleExistsAsync(roleName))
+            await _roleManager.CreateAsync(new Role { Name = roleName });
+    }
+
+    if (!_userManager.Users.Any())
+    {
+        var user = new User()
         {
-            var pendingMigrations = await _dbContext.Database.GetPendingMigrationsAsync();
-            if (pendingMigrations.Any())
-                await _dbContext.Database.MigrateAsync();
+            Email       = "admin@akhbaracademy.com",
+            UserName    = "Admin123",
+            PhoneNumber = "0123456789",
+        };
 
-            string[] roleNames = { "Admin", "Instructor", "Student" };
-            foreach (var roleName in roleNames)
+        // Step 1: create the User via Identity (hashes password, assigns Id, etc.)
+        var result = await _userManager.CreateAsync(user, "Admin@123");
+
+        if (result.Succeeded)
+        {
+            // Step 2: create the Admin profile and link it to the created User
+            var adminProfile = new Admin()
             {
-                if (!await _roleManager.RoleExistsAsync(roleName))
-                    await _roleManager.CreateAsync(new Role { Name = roleName });
-            }
+                UserId = user.Id  // user.Id is now populated after CreateAsync
+            };
 
-            if (!_userManager.Users.Any())
-            {
-                var adminUser = new User()
-                {
-                    DisplayName   = "Admin User",
-                    Email         = "admin@akhbaracademy.com",
-                    UserName      = "Admin123",
-                    PhoneNumber   = "0123456789",
-                    AcademicCode  = "220500",
-                    Level         = null,
-                    Specialization  = null,
-                    TotalCredits  = null,
-                    DepartmentId  = null,
-                    AllowedCredits = null,
-                };
+            await _dbContext.Admins.AddAsync(adminProfile);
+            await _dbContext.SaveChangesAsync();
 
-                var result = await _userManager.CreateAsync(adminUser, "Admin@123");
-                if (result.Succeeded)
-                    await _userManager.AddToRoleAsync(adminUser, "Admin");
-            }
+            // Step 3: assign the role to the User
+            await _userManager.AddToRoleAsync(user, "Admin");
         }
+    }
+}
     }
 }

@@ -8,13 +8,13 @@ namespace University_Management_System.Domain.Entities.Models
     /// Tracks a user's enrollment in a specific study year, recording which academic level
     /// they were at during that year. This provides a full history from enrollment to graduation.
     /// </summary>
-    public class UserStudyYear : BaseEntities<int>
+    public class StudentStudyYear : BaseEntities<int>
     {
         // This entity represents a user's enrollment in a specific study year, tracking their academic level and status during that year.
         // so it can prevent issues like registering for courses in the wrong study year or semester, and allows us to maintain a full history of the user's academic journey.
         public bool IsActive { get; set; }
-        public string UserId { get; set; } = string.Empty;
-        public User User { get; set; } = null!;
+        public string StudentId { get; set; } = string.Empty;
+        public Student Student { get; set; } = null!;
 
         public int StudyYearId { get; set; }
         public StudyYear StudyYear { get; set; } = null!;
