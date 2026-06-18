@@ -1,0 +1,13 @@
+1. Go to server folder
+2. Open terminal
+3. Put the Migration command in terminal:
+dotnet ef migrations add InitialCreate \
+--project University_Management_System.Infrastructure/Presistence/Presistence.csproj \
+--startup-project University_Management_System.API/University_Management_System.API.csproj \
+--output-dir Migrations
+
+4. Update database commnad:
+dotnet ef database update \
+--project University_Management_System.Infrastructure/Presistence/Presistence.csproj \
+--startup-project University_Management_System.API/University_Management_System.API.csproj
+
