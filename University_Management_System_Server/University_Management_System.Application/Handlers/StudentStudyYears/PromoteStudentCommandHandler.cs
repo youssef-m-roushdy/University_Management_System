@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using University_Management_System.Application.Commands.UserStudyYears;
+using University_Management_System.Application.Commands.StudentStudyYears;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,14 +11,14 @@ using University_Management_System.Domain.Entities.Identity;
 using University_Management_System.Domain.Enums;
 using University_Management_System.Domain.Entities.Models;
 
-namespace University_Management_System.Application.Handlers.UserStudyYears
+namespace University_Management_System.Application.Handlers.StudentStudyYears
 {
     public class PromoteStudentCommandHandler : IRequestHandler<PromoteStudentCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Student> _userManager;
 
-        public PromoteStudentCommandHandler(IUnitOfWork unitOfWork, UserManager<User> userManager)
+        public PromoteStudentCommandHandler(IUnitOfWork unitOfWork, UserManager<Student> userManager)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -26,12 +26,12 @@ namespace University_Management_System.Application.Handlers.UserStudyYears
 
         public async Task<Unit> Handle(PromoteStudentCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.AcademicCode == request.AcademicCode);
+            var Student = await _userManager.Users.FirstOrDefaultAsync(u => u.AcademicCode == request.AcademicCode);
 
-            if (user == null)
-                throw new Exception("User not found");
+            if (Student == null)
+                throw new Exception("Student not found");
 
-            if (user.Level == Levels.Graduate)
+            if (Student.Level == Levels.Graduate)
                 throw new Exception("Student has already graduated");
 
             var currentStudyYear = await _unitOfWork.StudyYears.GetCurrentStudyYearAsync();
@@ -39,21 +39,21 @@ namespace University_Management_System.Application.Handlers.UserStudyYears
             if (currentStudyYear == null)
                 throw new Exception("Current study year not found");
 
-            var userStudyYear = await _unitOfWork.UserStudyYears.GetByUserAndStudyYearAsync(user.Id, currentStudyYear.Id);
+            var StudentStudyYear = await _unitOfWork.StudentStudyYears.GetByStudentAndStudyYearAsync(Student.Id, currentStudyYear.Id);
 
-            if (userStudyYear != null)
-                throw new Exception("User is already assigned to the current study year");
+            if (StudentStudyYear != null)
+                throw new Exception("Student is already assigned to the current study year");
 
             // Assign student to current study year with their existing level
-            var newUserStudyYear = new UserStudyYear
+            var newStudentStudyYear = new StudentStudyYear
             {
-                UserId = user.Id,
+                StudentId = Student.Id,
                 StudyYearId = currentStudyYear.Id,
-                Level = user.Level.GetValueOrDefault(),
+                Level = Student.Level, // now keep level because student now is independent from the user model and can be promoted without changing the user level
                 EnrolledAt = DateTime.UtcNow
             };
 
-            await _unitOfWork.UserStudyYears.AddRangeAsync(new List<UserStudyYear> { newUserStudyYear });
+            await _unitOfWork.StudentStudyYears.AddRangeAsync(new List<StudentStudyYear> { newStudentStudyYear });
             await _unitOfWork.SaveChangesAsync();
 
             return Unit.Value;

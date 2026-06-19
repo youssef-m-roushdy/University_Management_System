@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using University_Management_System.Application.Dtos.UserDtos;
 using University_Management_System.Domain.Queries;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Infrastructure.Presentation.Controllers
 {

@@ -1,36 +1,36 @@
-using University_Management_System.Application.Dtos.UserStudyYearDtos;
-using University_Management_System.Application.Queries.UserStudyYears;
+using University_Management_System.Application.Dtos.StudentStudyYearDtos;
+using University_Management_System.Application.Queries.StudentStudyYears;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using MediatR;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
-namespace University_Management_System.Application.Handlers.UserStudyYears
+namespace University_Management_System.Application.Handlers.StudentStudyYears
 {
-    public class GetCurrentUserStudyYearQueryHandler : IRequestHandler<GetCurrentUserStudyYearQuery, Response<UserStudyYearDto>>
+    public class GetCurrentStudentStudyYearQueryHandler : IRequestHandler<GetCurrentStudentStudyYearQuery, ApiResponse<StudentStudyYearDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public GetCurrentUserStudyYearQueryHandler(IUnitOfWork unitOfWork)
+        public GetCurrentStudentStudyYearQueryHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Response<UserStudyYearDto>> Handle(GetCurrentUserStudyYearQuery request, CancellationToken cancellationToken)
+        public async Task<ApiResponse<StudentStudyYearDto>> Handle(GetCurrentStudentStudyYearQuery request, CancellationToken cancellationToken)
         {
-            var current = await _unitOfWork.UserStudyYears.GetCurrentByUserIdAsync(request.UserId);
+            var current = await _unitOfWork.StudentStudyYears.GetCurrentByStudentIdAsync(request.StudentId);
             if (current is null)
-                return Response<UserStudyYearDto>.ErrorResponse("No current study year found for this user.");
+                return ApiResponse<StudentStudyYearDto>.ErrorResponse("No current study year found for this Student.");
 
-            return Response<UserStudyYearDto>.SuccessResponse(MapToDto(current));
+            return ApiResponse<StudentStudyYearDto>.SuccessResponse(MapToDto(current));
         }
 
-        private static UserStudyYearDto MapToDto(UserStudyYear entity)
+        private static StudentStudyYearDto MapToDto(StudentStudyYear entity)
         {
-            return new UserStudyYearDto
+            return new StudentStudyYearDto
             {
                 Id = entity.Id,
-                UserId = entity.UserId,
+                StudentId = entity.StudentId,
                 StudyYearId = entity.StudyYearId,
                 StartYear = entity.StudyYear?.StartYear ?? 0,
                 EndYear = entity.StudyYear?.EndYear ?? 0,

@@ -19,7 +19,10 @@ using University_Management_System.Domain.Enums;
 using University_Management_System.Application.Dtos.AuthDtos;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Shared.Settings;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Application.Dtos.StudentDtos;
+using University_Management_System.Application.Dtos.AdminDtos;
+using University_Management_System.Application.Dtos.InstructorDtos;
+using University_Management_System.Application.Dtos.AssistantDtos;
 
 namespace University_Management_System.Infrastructure.Presistence.Services
 {
@@ -54,149 +57,95 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             _emailService = emailService;
         }
 
-        // ── Login As Admin ──────────────────────────────────────────────────────────────
+        // AuthService.cs — completed LoginAsync
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
-            var user = await _userManager.Users
-                .Include(u => u.RefreshTokens)          // ← load tokens
-                .FirstOrDefaultAsync(u => u.Email == dto.Email)
-                ?? throw new NotFoundException($"No user with email '{dto.Email}'.");
+            // 1. Get user with projection
+            var userQuery = from u in _userManager.Users
+                            where u.Email == dto.Email
+                            select new
+                            {
+                                User = u,
+                                Student = u.Student != null ? new
+                                {
+                                    u.Student.AcademicCode,
+                                    u.Student.Level,
+                                    u.Student.TotalGPA,
+                                    u.Student.DepartmentId,
+                                    DepartmentName = u.Student.Department.Name,
+                                    u.Student.SpecializationId,
+                                    SpecializationName = u.Student.Specialization.Name
+                                } : null,
+                                Instructor = u.Instructor != null ? new
+                                {
+                                    u.Instructor.DepartmentId,
+                                    DepartmentName = u.Instructor.Department.Name
+                                } : null,
+                                Assistant = u.Assistant != null ? new
+                                {
+                                    u.Assistant.DepartmentId,
+                                    DepartmentName = u.Assistant.Department.Name
+                                } : null,
+                                HasAdmin = u.Admin != null
+                            };
 
-            if (!await _userManager.CheckPasswordAsync(user, dto.Password))
+            var userData = await userQuery.FirstOrDefaultAsync();
+
+            if (userData == null)
+                throw new NotFoundException($"No user with email '{dto.Email}'.");
+
+            // 2. Verify password
+            if (!await _userManager.CheckPasswordAsync(userData.User, dto.Password))
                 throw new UnauthorizedAccessException("Invalid credentials.");
 
-            var roles = await _userManager.GetRolesAsync(user);
+            // 3. Get roles
+            var roles = await _userManager.GetRolesAsync(userData.User);
 
+            // 4. Generate tokens
+            var accessToken = await _jwtService.GenerateAccessTokenAsync(userData.User);
+            var refreshToken = await _jwtService.GenerateRefreshTokenAsync(userData.User.Id);
 
-
-        }
-
-        // ── Login As Student ──────────────────────────────────────────────────────────────
-        public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
-        {
-            var user = await _userManager.Users
-                .Include(u => u.RefreshTokens)          // ← load tokens
-                .FirstOrDefaultAsync(u => u.Email == dto.Email)
-                ?? throw new NotFoundException($"No user with email '{dto.Email}'.");
-
-            if (!await _userManager.CheckPasswordAsync(user, dto.Password))
-                throw new UnauthorizedAccessException("Invalid credentials.");
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-
-
-        }
-
-        // ── Register (admin / staff) ────────────────────────────────────────────
-        public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto, string role = "Student")
-        {
-            await ValidateUniqueFieldsAsync(dto.AcademicCode, dto.UserName, dto.Email);
-
-            var user = new User
+            // 5. Build response
+            return new AuthResponseDto
             {
-                DisplayName = dto.DisplayName,
-                Email = dto.Email,
-                UserName = dto.UserName,
-                PhoneNumber = dto.PhoneNumber,
-                Gender = dto.Gender
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                AccessTokenExpiry = _jwtService.GetAccessTokenExpiryTime(),
+                UserId = userData.User.Id,
+                Email = userData.User.Email!,
+                Name = userData.User.Name,
+                ProfilePicture = userData.User.ProfilePicture,
+                Roles = roles.ToList(),
+                StudentProfile = userData.Student != null ? new StudentProfileDto
+                {
+                    AcademicCode = userData.Student.AcademicCode,
+                    Level = userData.Student.Level,
+                    TotalGPA = userData.Student.TotalGPA,
+                    DepartmentId = userData.Student.DepartmentId,
+                    DepartmentName = userData.Student.DepartmentName,
+                    SpecializationId = userData.Student.SpecializationId,
+                    SpecializationName = userData.Student.SpecializationName
+                } : null,
+                InstructorProfile = userData.Instructor != null ? new InstructorProfileDto
+                {
+                    DepartmentId = userData.Instructor.DepartmentId,
+                    DepartmentName = userData.Instructor.DepartmentName
+                } : null,
+                AssistantProfile = userData.Assistant != null ? new AssistantProfileDto
+                {
+                    DepartmentId = userData.Assistant.DepartmentId,
+                    DepartmentName = userData.Assistant.DepartmentName
+                } : null,
+                AdminProfile = userData.HasAdmin ? new AdminProfileDto() : null
             };
-
-            await CreateUserAsync(user, dto.Password, role);
-
-            // Reload with RefreshTokens tracked
-            var trackedUser = await _userManager.Users
-                .Include(u => u.RefreshTokens)
-                .FirstAsync(u => u.Id == user.Id);
-
-            var roles = await _userManager.GetRolesAsync(trackedUser);
-            return await BuildAuthResponseAsync(trackedUser, roles, department: null);
         }
 
-        // ── Register student ───────────────────────────────────────────────────
-        public async Task<AuthResponseDto> RegisterStudentAsync(int departmentId, RegisterStudentDto dto)
-        {
-            await ValidateUniqueFieldsAsync(dto.AcademicCode, dto.UserName, dto.Email);
-
-            var department = await _unitOfWork.Departments.GetByIdAsync(departmentId)
-                ?? throw new NotFoundException($"No department with id '{departmentId}'.");
-
-            var startingLevel = department.HasPreparatoryYear
-                ? Levels.Preparatory_Year
-                : Levels.First_Year;
-
-            var user = new User
-            {
-                DisplayName = dto.DisplayName,
-                Email = dto.Email,
-                UserName = dto.UserName,
-                PhoneNumber = dto.PhoneNumber,
-                
-            };
-
-            await CreateUserAsync(user, dto.Password, "Student");
-
-            // Reload with RefreshTokens tracked
-            var trackedUser = await _userManager.Users
-                .Include(u => u.RefreshTokens)
-                .FirstAsync(u => u.Id == user.Id);
-
-            var roles = await _userManager.GetRolesAsync(trackedUser);
-            return await BuildAuthResponseAsync(trackedUser, roles, department);
-        }
-
-        // ── Refresh token ──────────────────────────────────────────────────────
-        public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
-        {
-            // DEBUG — remove after fixing
-            var allTokens = await _userManager.Users
-                .Include(u => u.RefreshTokens)
-                .SelectMany(u => u.RefreshTokens)
-                .ToListAsync();
-
-            Console.WriteLine($"Total refresh tokens in DB: {allTokens.Count}");
-            Console.WriteLine($"Looking for token: {refreshToken[..20]}...");
-            foreach (var t in allTokens)
-                Console.WriteLine($"  DB token: {t.Token[..20]}... | Active: {t.IsActive} | Revoked: {t.IsRevoked} | Expired: {t.IsExpired}");
-
-            var user = await _userManager.Users
-                .Include(u => u.RefreshTokens)
-                .FirstOrDefaultAsync(u => u.RefreshTokens.Any(rt => rt.Token == refreshToken))
-                ?? throw new UnauthorizedAccessException("Invalid refresh token.");
-
-            var stored = user.RefreshTokens.First(rt => rt.Token == refreshToken);
-
-            if (!stored.IsActive)
-                throw new UnauthorizedAccessException("Refresh token is expired or revoked.");
-
-            // Rotate — revoke old, issue new
-            stored.IsRevoked = true;
-            await _userManager.UpdateAsync(user);
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var department = user.DepartmentId.HasValue
-                ? await _unitOfWork.Departments.GetByIdAsync(user.DepartmentId.Value)
-                : null;
-
-            return await BuildAuthResponseAsync(user, roles, department);
-        }
-
-        // ── Revoke (logout) ────────────────────────────────────────────────────
-        public async Task RevokeTokenAsync(string refreshToken)
-        {
-            var token = await _context.Set<RefreshToken>()
-                .FirstOrDefaultAsync(rt => rt.Token == refreshToken)
-                ?? throw new UnauthorizedAccessException("Token not found.");
-
-            token.IsRevoked = true;
-            await _context.SaveChangesAsync();
-        }
-
+      
         // ── Forgot password ────────────────────────────────────────────────────────
         public async Task ForgotPasswordAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) 
+            if (user == null)
                 throw new NotFoundException("No user not found use that email."); // silent — never reveal if email exists
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -206,7 +155,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             await _emailService.SendPasswordResetEmailAsync(
                 to: email,
-                displayName: user.DisplayName ?? user.UserName ?? "Student",
+                displayName: user.Name ?? user.UserName ?? "Student",
                 resetLink: resetLink
             );
         }
@@ -226,7 +175,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             // Send confirmation email
             await _emailService.SendPasswordChangedConfirmationAsync(
                 to: email,
-                displayName: user.DisplayName ?? user.UserName ?? "Student"
+                displayName: user.Name ?? user.UserName ?? "Student"
             );
 
             return "Password reset successfully.";
@@ -246,94 +195,13 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             // Send confirmation email
             await _emailService.SendPasswordChangedConfirmationAsync(
                 to: email,
-                displayName: user.DisplayName ?? user.UserName ?? "Student"
+                displayName: user.Name ?? user.UserName ?? "Student"
             );
 
             return "Password changed successfully.";
         }
 
         // ── Private helpers ────────────────────────────────────────────────────
-
-        private async Task ValidateUniqueFieldsAsync(string academicCode, string userName, string email)
-        {
-            var errors = new List<string>();
-
-            if (await _userManager.Users.AnyAsync(u => u.AcademicCode == academicCode))
-                errors.Add("Academic code already exists.");
-            if (await _userManager.Users.AnyAsync(u => u.UserName == userName))
-                errors.Add("Username already exists.");
-            if (await _userManager.Users.AnyAsync(u => u.Email == email))
-                errors.Add("Email already exists.");
-
-            if (errors.Any()) throw new ValidationException(errors);
-        }
-
-        private async Task CreateUserAsync(User user, string password, string role)
-        {
-            var result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-                throw new ValidationException(result.Errors.Select(e => e.Description).ToList());
-
-            if (await _roleManager.RoleExistsAsync(role))
-                await _userManager.AddToRoleAsync(user, role);
-        }
-
-        private async Task<AuthResponseDto> BuildAuthResponseAsync(
-            User user,
-            IList<string> roles,
-            dynamic? department)
-        {
-            var accessToken = await _jwtService.GenerateAccessTokenAsync(user);
-            var refreshToken = _jwtService.GenerateRefreshToken();
-
-            refreshToken.UserId = user.Id;
-
-            // ← Save directly to DbContext, NOT via UpdateAsync
-            await _context.Set<RefreshToken>().AddAsync(refreshToken);
-            await _context.SaveChangesAsync();
-
-            PruneOldTokens(user);
-
-            bool isStudent = department != null;
-
-            return new AuthResponseDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken.Token,
-                AccessTokenExpiry = DateTime.UtcNow.AddMinutes(_settings.AccessTokenExpirationMinutes),
-                User = new UserInfoDto
-                {
-                    Id = user.Id,
-                    UserName = user.UserName ?? string.Empty,
-                    Email = user.Email ?? string.Empty,
-                    DisplayName = user.DisplayName ?? string.Empty,
-                    ProfilePicture = user.ProfilePicture,
-                    AcademicCode = user.AcademicCode,
-                    PhoneNumber = user.PhoneNumber,
-                    Gender = user.Gender,
-                    Roles = roles.ToList(),
-                    Level = isStudent ? user.Level : null,
-                    TotalCredits = isStudent ? user.TotalCredits : null,
-                    AllowedCredits = isStudent ? user.AllowedCredits : null,
-                    TotalGPA = isStudent ? user.TotalGPA : null,
-                    DepartmentId = isStudent ? user.DepartmentId : null,
-                    Department = isStudent ? department!.Code : null,
-                }
-            };
-        }
-
-        private static void PruneOldTokens(User user)
-        {
-            var toRemove = user.RefreshTokens
-                .Where(t => !t.IsActive)
-                .OrderBy(t => t.CreatedAt)
-                .SkipLast(5)
-                .ToList();
-
-            foreach (var t in toRemove)
-                user.RefreshTokens.Remove(t);
-        }
-
 
 
     }

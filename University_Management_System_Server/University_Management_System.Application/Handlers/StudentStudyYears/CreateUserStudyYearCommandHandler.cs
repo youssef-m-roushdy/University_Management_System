@@ -3,11 +3,11 @@ using University_Management_System.Application.Dtos.StudentStudyYearDtos;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using MediatR;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Handlers.StudentStudyYears
 {
-    public class CreateStudentStudyYearCommandHandler : IRequestHandler<CreateStudentStudyYearCommand, Response<StudentStudyYearDto>>
+    public class CreateStudentStudyYearCommandHandler : IRequestHandler<CreateStudentStudyYearCommand, ApiResponse<StudentStudyYearDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -16,19 +16,19 @@ namespace University_Management_System.Application.Handlers.StudentStudyYears
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Response<StudentStudyYearDto>> Handle(CreateStudentStudyYearCommand request, CancellationToken cancellationToken)
+        public async Task<ApiResponse<StudentStudyYearDto>> Handle(CreateStudentStudyYearCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Dto;
 
             // Validate StudyYear exists
             var studyYear = await _unitOfWork.StudyYears.GetByIdAsync(dto.StudyYearId);
             if (studyYear is null)
-                return Response<StudentStudyYearDto>.ErrorResponse("Study year not found.");
+                return ApiResponse<StudentStudyYearDto>.ErrorResponse("Study year not found.");
 
             // Check if already enrolled in this study year
             var existing = await _unitOfWork.StudentStudyYears.GetByStudentAndStudyYearAsync(dto.StudentId, dto.StudyYearId);
             if (existing is not null)
-                return Response<StudentStudyYearDto>.ErrorResponse("Student is already enrolled in this study year.");
+                return ApiResponse<StudentStudyYearDto>.ErrorResponse("Student is already enrolled in this study year.");
 
             var entity = new StudentStudyYear
             {
@@ -45,7 +45,7 @@ namespace University_Management_System.Application.Handlers.StudentStudyYears
             var saved = await _unitOfWork.StudentStudyYears.GetByStudentAndStudyYearAsync(dto.StudentId, dto.StudyYearId);
 
             var resultDto = MapToDto(saved!);
-            return Response<StudentStudyYearDto>.SuccessResponse(resultDto);
+            return ApiResponse<StudentStudyYearDto>.SuccessResponse(resultDto);
         }
 
         private static StudentStudyYearDto MapToDto(StudentStudyYear entity)

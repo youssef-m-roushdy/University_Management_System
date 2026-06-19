@@ -9,11 +9,11 @@ using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Handlers.Courses
 {
-    public class GetCourseUploadsQueryHandler : IRequestHandler<GetCourseUploadsQuery, Response<CourseWithUploadsDto>>
+    public class GetCourseUploadsQueryHandler : IRequestHandler<GetCourseUploadsQuery, ApiResponse<CourseWithUploadsDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<User> _userManager;
@@ -24,20 +24,12 @@ namespace University_Management_System.Application.Handlers.Courses
             _userManager = userManager;
         }
 
-        public async Task<Response<CourseWithUploadsDto>> Handle(GetCourseUploadsQuery request, CancellationToken cancellationToken)
+        public async Task<ApiResponse<CourseWithUploadsDto>> Handle(GetCourseUploadsQuery request, CancellationToken cancellationToken)
         {
             var course = await _unitOfWork.Courses.GetCourseUplaodsAsync(request.CourseId);
             
             if (course is null)
-                return Response<CourseWithUploadsDto>.ErrorResponse("Course not found");
-
-            var userIds = course.CourseUpload.Select(u => u.UploadedByUserId).Distinct().ToList();
-            var users = new Dictionary<string, string>();
-            foreach (var userId in userIds)
-            {
-                var user = await _userManager.FindByIdAsync(userId);
-                users[userId] = user?.DisplayName ?? "Unknown";
-            }
+                return ApiResponse<CourseWithUploadsDto>.ErrorResponse("Course not found");
 
             var result = new CourseWithUploadsDto
             {
@@ -52,12 +44,10 @@ namespace University_Management_System.Application.Handlers.Courses
                     Description = u.Description,
                     Type = u.Type,
                     Url = u.Url,
-                    UploadedAt = u.UploadedAt,
-                    UploadedBy = users.GetValueOrDefault(u.UploadedByUserId, "Unknown")
                 }).ToList()
             };
 
-            return Response<CourseWithUploadsDto>.SuccessResponse(result);
+            return ApiResponse<CourseWithUploadsDto>.SuccessResponse(result);
         }
     }
 }

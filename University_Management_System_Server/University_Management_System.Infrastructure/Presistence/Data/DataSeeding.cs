@@ -968,7 +968,7 @@ namespace University_Management_System.Infrastructure.Presistence.Data
             // Step 2: create the Admin profile and link it to the created User
             var adminProfile = new Admin()
             {
-                UserId = user.Id  // user.Id is now populated after CreateAsync
+                Id = user.Id  // user.Id is now populated after CreateAsync
             };
 
             await _dbContext.Admins.AddAsync(adminProfile);

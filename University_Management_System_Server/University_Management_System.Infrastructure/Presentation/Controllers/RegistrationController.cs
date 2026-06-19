@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Infrastructure.Presentation.Controllers
 {

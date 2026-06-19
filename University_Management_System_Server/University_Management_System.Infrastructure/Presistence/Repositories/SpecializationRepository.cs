@@ -63,9 +63,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
 
         public async Task<IEnumerable<User>> GetStudentsAsync(int specializationId)
         {
-            return await _dbContext.Users
-                .AsNoTracking()
-                .Where(u => u.SpecializationId == specializationId)
+            return await _dbContext.Students.Include(s => s.User).AsNoTracking().Where(s => s.SpecializationId == specializationId).Select(s => s.User)
                 .ToListAsync();
         }
 

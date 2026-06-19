@@ -17,7 +17,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public async Task<IEnumerable<Registration>> GetByUserIdAsync(string userId)
         {
             return await _dbContext.Registrations
-                .Where(r => r.UserId == userId)
+                .Where(r => r.StudentId == userId)
                 .Include(r => r.Course)
                 .Include(r => r.StudyYear)
                 .AsNoTracking()
@@ -35,25 +35,25 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public async Task<Registration?> GetByUserAndCourseAsync(string userId, int courseId, int studyYearId)
         {
             return await _dbContext.Registrations
-                .FirstOrDefaultAsync(r => r.UserId == userId && r.CourseId == courseId && r.StudyYearId == studyYearId);
+                .FirstOrDefaultAsync(r => r.StudentId == userId && r.CourseId == courseId && r.StudyYearId == studyYearId);
         }
 
         public async Task<bool> IsUserRegisteredInCourseAsync(string userId, int courseId)
         {
             return await _dbContext.Registrations
-                .AnyAsync(r => r.UserId == userId && r.CourseId == courseId);
+                .AnyAsync(r => r.StudentId == userId && r.CourseId == courseId);
         }
 
         public async Task<bool> IsCourseCompletedByUserAsync(string userId, int courseId)
         {
             return await _dbContext.Registrations
-                .AnyAsync(r => r.UserId == userId && r.CourseId == courseId && r.IsPassed && r.Progress == CourseProgress.Completed);
+                .AnyAsync(r => r.StudentId == userId && r.CourseId == courseId && r.IsPassed && r.Progress == CourseProgress.Completed);
         }
 
         public async Task<IEnumerable<Registration>> GetByUserAndStudyYearAsync(string userId, int studyYearId)
         {
             return await _dbContext.Registrations
-                .Where(r => r.UserId == userId && r.StudyYearId == studyYearId)
+                .Where(r => r.StudentId == userId && r.StudyYearId == studyYearId)
                 .Include(r => r.Course)
                 .AsNoTracking()
                 .ToListAsync();
@@ -62,7 +62,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public async Task<IEnumerable<Registration>> GetByUserAndStudyYearAndSemseterAsync(string userId, int studyYearId, int semesterId)
         {
             return await _dbContext.Registrations
-                .Where(r => r.UserId == userId && r.StudyYearId == studyYearId && r.SemesterId == semesterId)
+                .Where(r => r.StudentId == userId && r.StudyYearId == studyYearId && r.SemesterId == semesterId)
                 .Include(r => r.Course)
                 .AsNoTracking()
                 .ToListAsync();
@@ -71,7 +71,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public async Task<IEnumerable<Registration>> GetByUserAsync(string userId, int? studyYearId = null)
         {
             var query = _dbContext.Registrations
-                .Where(r => r.UserId == userId)
+                .Where(r => r.StudentId == userId)
                 .Include(r => r.Course)
                 .Include(r => r.StudyYear)
                 .Include(r => r.Semester)
@@ -89,7 +89,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
                 .Include(r => r.Course)
                 .Include(r => r.StudyYear)
                 .Include(r => r.Semester)
-                .Include(r => r.User)
+                .Include(r => r.Student).ThenInclude(s => s.User)
                 .AsNoTracking();
 
             if (courseId.HasValue)
@@ -99,7 +99,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
             if (semesterId.HasValue)
                 query = query.Where(r => r.SemesterId == semesterId.Value);
             if (!string.IsNullOrEmpty(userId))
-                query = query.Where(r => r.UserId == userId);
+                query = query.Where(r => r.StudentId == userId);
 
             return await query.ToListAsync();
         }
@@ -116,16 +116,16 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
             var query = _dbContext.Registrations
                 .Where(r => r.SemesterId == semesterId && r.StudyYearId == studyYearId)
                 .Include(r => r.Course)
-                .Include(r => r.User)
+                .Include(r => r.Student).ThenInclude(s => s.User)
                 .AsNoTracking()
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(registrationQuery.StudentUserName))
-                query = query.Where(r => r.User.UserName.Contains(registrationQuery.StudentUserName));
+                query = query.Where(r => r.Student.User.UserName.Contains(registrationQuery.StudentUserName));
             if (!string.IsNullOrEmpty(registrationQuery.CourseName))
                 query = query.Where(r => r.Course.Name.Contains(registrationQuery.CourseName));
             if (!string.IsNullOrEmpty(registrationQuery.AcademicCode))
-                query = query.Where(r => r.User.AcademicCode.Contains(registrationQuery.AcademicCode));
+                query = query.Where(r => r.Student.AcademicCode.Contains(registrationQuery.AcademicCode));
             if (!string.IsNullOrEmpty(registrationQuery.CourseCode))
                 query = query.Where(r => r.Course.Code.Contains(registrationQuery.CourseCode));
             if (registrationQuery.Status.HasValue)
@@ -149,7 +149,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public async Task<IEnumerable<Registration>> GetStudentPassedCoursesAsync(string userId)
         {
             return await _dbContext.Registrations
-                .Where(r => r.UserId == userId && r.IsPassed)
+                .Where(r => r.StudentId == userId && r.IsPassed)
                 .Include(r => r.Course)
                 .AsNoTracking()
                 .ToListAsync();
@@ -159,7 +159,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
             string userId, int studyYearId, int semesterId)
         {
             return await _dbContext.Registrations
-                .Where(r => r.UserId == userId
+                .Where(r => r.StudentId == userId
                          && r.StudyYearId == studyYearId
                          && r.SemesterId == semesterId
                         )

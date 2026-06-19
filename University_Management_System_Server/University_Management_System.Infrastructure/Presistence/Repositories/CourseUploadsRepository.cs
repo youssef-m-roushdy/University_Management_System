@@ -18,12 +18,5 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<CourseUpload>> GetByUserIdAsync(string userId)
-        {
-            return await _dbContext.CourseUploads
-                .Where(cu => cu.UploadedByUserId == userId)
-                .AsNoTracking()
-                .ToListAsync();
-        }
     }
 }

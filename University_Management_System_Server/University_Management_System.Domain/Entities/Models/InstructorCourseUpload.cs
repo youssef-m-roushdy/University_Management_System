@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using University_Management_System.Domain.Entities.Identity;
 
 namespace University_Management_System.Domain.Entities.Models
 {
@@ -18,7 +19,6 @@ namespace University_Management_System.Domain.Entities.Models
 
         public int StudyYearId { get; set; }
         public StudyYear StudyYear { get; set; } = null!;
-
         public Collection<CourseUpload> CourseUploads { get; set; } = new Collection<CourseUpload>();
     }
 }

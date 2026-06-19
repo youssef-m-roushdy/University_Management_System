@@ -1,10 +1,10 @@
 using University_Management_System.Application.Dtos.DepartmentDtos;
 using MediatR;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Commands.Departments
 {
-    public class UpdateDeparmentCommand : IRequest<Response<DepartmentDto>>
+    public class UpdateDeparmentCommand : IRequest<ApiResponse<DepartmentDto>>
     {        
         public int Id { get; set; }
         public UpdateDepartmentDto Department { get; set; }

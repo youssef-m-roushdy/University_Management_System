@@ -3,19 +3,24 @@ using Microsoft.AspNetCore.Identity;
 using University_Management_System.Domain.Entities.Identity;
 using University_Management_System.Domain.Enums;
 
-public class User : IdentityUser
+namespace University_Management_System.Domain.Entities.Identity
 {
-    public string Name { get; set; } = string.Empty;
-    public string ProfilePicture { get; set; } = string.Empty;
-    public string Address { get; set; }
-    public Gender Gender { get; set; }
+    public class User : IdentityUser
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ProfilePicture { get; set; } = string.Empty;
+        public string Address { get; set; }
+        public Gender Gender { get; set; }
 
-    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
-    // navigation to the extended profiles
-    public Student? Student { get; set; }
-    public Admin? Admin { get; set; }
-    public Instructor? Instructor { get; set; }
-    public Assistant? Assistant { get; set; }
+        // navigation to the extended profiles
+        public Student? Student { get; set; }
+        public Admin? Admin { get; set; }
+        public Instructor? Instructor { get; set; }
+        public Assistant? Assistant { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
 }

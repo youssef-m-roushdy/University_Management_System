@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using University_Management_System.Domain.Entities.Identity;
 
 namespace University_Management_System.Infrastructure.Presistence.Data.Configurations
 {
@@ -11,17 +12,17 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
     {
         public void Configure(EntityTypeBuilder<Student> builder)
         {
-            builder.HasKey(s => s.UserId);
+            builder.HasKey(s => s.Id);
 
             builder.HasOne(s => s.User)
                 .WithOne(u => u.Student)
-                .HasForeignKey<Student>(s => s.UserId)
+                .HasForeignKey<Student>(s => s.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(s => s.Department)
-                .WithMany()
-                .HasForeignKey(s => s.DepartmentId)
-                .OnDelete(DeleteBehavior.SetNull);
+            .WithMany()
+            .HasForeignKey(s => s.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(s => s.Specialization)
                 .WithMany()

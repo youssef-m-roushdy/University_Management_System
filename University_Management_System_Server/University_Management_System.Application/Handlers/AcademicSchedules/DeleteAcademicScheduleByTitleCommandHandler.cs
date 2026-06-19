@@ -24,9 +24,6 @@ namespace University_Management_System.Application.Handlers.AcademicSchedules
             if (schedule is null)
                 throw new NotFoundException($"Academic schedule '{request.ScheduleTitle}' not found.");
 
-            // Delete file from Cloudinary
-            if (!string.IsNullOrEmpty(schedule.FileId))
-                await _cloudinaryService.DeleteImageAsync(schedule.FileId, cancellationToken);
 
             await _unitOfWork.AcademicSchedules.Delete(schedule);
             await _unitOfWork.SaveChangesAsync();

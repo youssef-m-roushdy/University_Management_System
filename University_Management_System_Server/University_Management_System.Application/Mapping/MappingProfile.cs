@@ -7,7 +7,7 @@ using University_Management_System.Application.Dtos.DepartmentDtos.FeeDtos;
 using University_Management_System.Application.Dtos.RegistrationDtos;
 using University_Management_System.Application.Dtos.StudyYearDtos;
 using University_Management_System.Application.Dtos.UserDtos;
-using University_Management_System.Application.Dtos.UserStudyYearDtos;
+using University_Management_System.Application.Dtos.StudentStudyYearDtos;
 using University_Management_System.Domain.Entities.Identity;
 using University_Management_System.Domain.Entities.Models;
 
@@ -49,15 +49,15 @@ namespace University_Management_System.Application.Mapping
             // Registration mappings
             CreateMap<Registration, RegistrationCourseDto>();
             CreateMap<Registration, RegistrationDto>()
-                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student.User))
                 .ForMember(dest => dest.Course, opt => opt.MapFrom(src => src.Course))
                 .ReverseMap();
 
             // StudyYear mappings
             CreateMap<StudyYear, StudyYearDto>().ReverseMap();
 
-            // UserStudyYear mappings
-            CreateMap<UserStudyYear, UserStudyYearDetailsDto>();
+            // StudentStudyYear mappings
+            CreateMap<StudentStudyYear, StudentStudyYearDetailsDto>();
 
             // User mappings
             CreateMap<User, UserDto>()
@@ -67,21 +67,6 @@ namespace University_Management_System.Application.Mapping
                     : new List<string>()))
                 .ReverseMap();
 
-            CreateMap<User, UserWithDepartmentDto>()
-                .ForMember(dest => dest.Roles, opt => opt.MapFrom(src =>
-                    src.UserRoles != null
-                    ? src.UserRoles.Select(ur => ur.Role.Name).ToList()
-                    : new List<string>()))
-                .ForMember(dest => dest.Department, opt => opt.MapFrom(src =>
-                    src.Department != null ? src.Department.Code : null));
-
-            CreateMap<User, StudentUserDto>()
-                .ForMember(dest => dest.Roles, opt => opt.MapFrom(src =>
-                    src.UserRoles != null
-                    ? src.UserRoles.Select(ur => ur.Role.Name).ToList()
-                    : new List<string>()))
-                .ForMember(dest => dest.Department, opt => opt.MapFrom(src =>
-                    src.Department != null ? src.Department.Code : null));
         }
     }
 }

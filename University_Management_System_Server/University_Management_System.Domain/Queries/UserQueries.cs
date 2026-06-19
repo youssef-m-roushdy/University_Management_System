@@ -8,7 +8,7 @@ namespace University_Management_System.Domain.Queries
 {
     public class UserQueries : PaginationQuery
     {
-        public string? Academic_Code { get; set; }
+        public string? AcademicCode { get; set; }
         public string? Name { get; set; }
         public Gender? Gender { get; set; }
         public Levels? Level { get; set; } 

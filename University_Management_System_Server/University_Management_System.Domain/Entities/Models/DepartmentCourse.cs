@@ -10,7 +10,6 @@ namespace University_Management_System.Domain.Entities.Models
     {
         public int DepartmentId { get; set; }
         public int CourseId { get; set; }
-
         // Navigation properties
         public Department Department { get; set; } = null!;
         public Course Course { get; set; } = null!;

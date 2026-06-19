@@ -7,7 +7,7 @@ using University_Management_System.Application.Dtos.CourseDtos;
 using University_Management_System.Application.Queries.Courses;
 using University_Management_System.Domain.Contracts;
 using MediatR;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Handlers.Courses
 {

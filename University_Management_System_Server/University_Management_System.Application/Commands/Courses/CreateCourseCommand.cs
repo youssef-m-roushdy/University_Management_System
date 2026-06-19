@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using University_Management_System.Application.Dtos.CourseDtos;
 using MediatR;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Commands.Courses
 {
-    public class CreateCourseCommand: IRequest<Response<CourseDto>>
+    public class CreateCourseCommand: IRequest<ApiResponse<CourseDto>>
     {
         public CreateCourseDto Course { get; set; }
 

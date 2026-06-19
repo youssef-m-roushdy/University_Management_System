@@ -63,6 +63,20 @@ namespace University_Management_System.Infrastructure.Presistence
         public DbSet<AssistantCourseUpload> AssistantCourseUploads { get; set; }
         public DbSet<CourseInstructor> CourseInstructors { get; set; }
         public DbSet<CourseAssistant> CourseAssistants { get; set; }
-        
+
+        // ===== Instructor ↔ Assistant Supervision (M:M, time-scoped) =====
+        public DbSet<InstructorAssistant> InstructorAssistant { get; set; }
+
+        // ===== Assignments =====
+        public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
+
+        // ===== Quizzes =====
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
+        public DbSet<QuizAttempt> QuizAttempts { get; set; }
+        public DbSet<StudentAnswer> StudentAnswers { get; set; }
     }
+
 }

@@ -52,7 +52,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             {
                 // Get all registrations for this student in this semester and study year
                 var registrations = await _dbContext.Registrations
-                    .Where(r => r.UserId == userId && r.SemesterId == semesterId && r.StudyYearId == studyYearId)
+                    .Where(r => r.StudentId == userId && r.SemesterId == semesterId && r.StudyYearId == studyYearId)
                     .Include(r => r.Course)
                     .ToListAsync();
 
@@ -83,7 +83,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
                 // Check if SemesterGPA already exists for this combination
                 var existingGPA = await _dbContext.SemesterGPAs
-                    .FirstOrDefaultAsync(g => g.UserId == userId && g.SemesterId == semesterId && g.StudyYearId == studyYearId);
+                    .FirstOrDefaultAsync(g => g.StudentId == userId && g.SemesterId == semesterId && g.StudyYearId == studyYearId);
 
                 if (existingGPA != null)
                 {
@@ -98,7 +98,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                     // Create new record
                     var semesterGPA = new SemesterGPA
                     {
-                        UserId = userId,
+                        StudentId = userId,
                         SemesterId = semesterId,
                         StudyYearId = studyYearId,
                         GPA = gpa,
@@ -128,7 +128,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             return await _dbContext.SemesterGPAs
                 .Include(g => g.Semester)
                 .Include(g => g.StudyYear)
-                .FirstOrDefaultAsync(g => g.UserId == userId && g.SemesterId == semesterId && g.StudyYearId == studyYearId);
+                .FirstOrDefaultAsync(g => g.StudentId == userId && g.SemesterId == semesterId && g.StudyYearId == studyYearId);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         public async Task<IEnumerable<SemesterGPA>> GetAllStudentGPAsAsync(string userId)
         {
             return await _dbContext.SemesterGPAs
-                .Where(g => g.UserId == userId)
+                .Where(g => g.StudentId == userId)
                 .Include(g => g.Semester)
                 .Include(g => g.StudyYear)
                 .OrderBy(g => g.StudyYear.StartYear)

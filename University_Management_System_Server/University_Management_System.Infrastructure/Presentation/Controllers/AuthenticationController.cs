@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -19,19 +19,19 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             _serviceManager = serviceManager;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto, [FromQuery] string role = "Student")
-        {
-            var result = await _serviceManager.AuthenticationService.RegisterAsync(dto, role);
-            return Ok(result);
-        }
+        // [HttpPost("register")]
+        // public async Task<IActionResult> Register([FromBody] RegisterDto dto, [FromQuery] string role = "Student")
+        // {
+        //     var result = await _serviceManager.AuthenticationService.RegisterAsync(dto, role);
+        //     return Ok(result);
+        // }
 
-        [HttpPost("register/student/{departmentId:int}")]
-        public async Task<IActionResult> RegisterStudent(int departmentId, [FromBody] RegisterStudentDto dto)
-        {
-            var result = await _serviceManager.AuthenticationService.RegisterStudentAsync(departmentId, dto);
-            return Ok(result);
-        }
+        // [HttpPost("register/student/{departmentId:int}")]
+        // public async Task<IActionResult> RegisterStudent(int departmentId, [FromBody] RegisterStudentDto dto)
+        // {
+        //     var result = await _serviceManager.AuthenticationService.RegisterStudentAsync(departmentId, dto);
+        //     return Ok(result);
+        // }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
@@ -40,20 +40,20 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             return Ok(result);
         }
 
-        [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto dto)
-        {
-            var result = await _serviceManager.AuthenticationService.RefreshTokenAsync(dto.RefreshToken);
-            return Ok(result);
-        }
+        // [HttpPost("refresh")]
+        // public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto dto)
+        // {
+        //     var result = await _serviceManager.AuthenticationService.RefreshTokenAsync(dto.RefreshToken);
+        //     return Ok(result);
+        // }
 
-        [Authorize]
-        [HttpPost("revoke")]
-        public async Task<IActionResult> Revoke([FromBody] RefreshTokenRequestDto dto)
-        {
-            await _serviceManager.AuthenticationService.RevokeTokenAsync(dto.RefreshToken);
-            return Ok(new { message = "Token revoked successfully." });
-        }
+        // [Authorize]
+        // [HttpPost("revoke")]
+        // public async Task<IActionResult> Revoke([FromBody] RefreshTokenRequestDto dto)
+        // {
+        //     await _serviceManager.AuthenticationService.RevokeTokenAsync(dto.RefreshToken);
+        //     return Ok(new { message = "Token revoked successfully." });
+        // }
 
         // ── No auth required ───────────────────────────────────────────────────
 

@@ -117,7 +117,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public Task<IEnumerable<Course>> GetPassedCoursesByUserAsync(string userId)
         {
             return _dbContext.Registrations
-                .Where(r => r.UserId == userId && r.IsPassed)
+                .Where(r => r.StudentId == userId && r.IsPassed)
                 .Include(r => r.Course)
                 .AsNoTracking()
                 .Select(r => r.Course)

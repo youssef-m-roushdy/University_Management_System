@@ -8,11 +8,11 @@ using University_Management_System.Application.Dtos.CourseDtos;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using MediatR;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Handlers.Courses
 {
-    public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, Response<CourseDto>>
+    public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, ApiResponse<CourseDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -22,7 +22,7 @@ namespace University_Management_System.Application.Handlers.Courses
             _mapper = mapper;
         }
 
-        public async Task<Response<CourseDto>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
+        public async Task<ApiResponse<CourseDto>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
         {
             var course = _mapper.Map<Course>(request.Course);
 
@@ -34,7 +34,7 @@ namespace University_Management_System.Application.Handlers.Courses
             await _unitOfWork.SaveChangesAsync();
 
             var result = _mapper.Map<CourseDto>(course);
-            return Response<CourseDto>.SuccessResponse(result);
+            return ApiResponse<CourseDto>.SuccessResponse(result);
         }
     }
 }

@@ -29,10 +29,6 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
                    .IsRequired()
                    .HasMaxLength(200);
 
-            builder.Property(a => a.FileId)
-                   .IsRequired()
-                   .HasMaxLength(200);
-
             builder.Property(a => a.Url)
                    .IsRequired()
                    .HasMaxLength(500);

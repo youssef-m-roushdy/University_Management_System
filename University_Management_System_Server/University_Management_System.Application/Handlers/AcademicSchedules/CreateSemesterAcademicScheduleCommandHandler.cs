@@ -36,10 +36,8 @@ namespace University_Management_System.Application.Handlers.AcademicSchedules
             var entity = new AcademicSchedule
             {
                 Title = request.CreateAcademicScheduleDto.Title,
-                FileId = fileId,
                 Url = fileUrl,
                 Description = request.CreateAcademicScheduleDto.Description,
-                UploadedByUserId = request.UploadedByUserId,
                 DepartmentId = request.DepartmentId,
                 StudyYearId = request.StudyYearId,
                 SemesterId = request.SemesterId,

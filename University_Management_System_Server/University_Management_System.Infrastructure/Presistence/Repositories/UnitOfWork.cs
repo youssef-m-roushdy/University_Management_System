@@ -8,7 +8,6 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
     {
         private readonly UniversityDbContext _dbContext;
         private readonly ConcurrentDictionary<string, object> _repositories;
-
         private IDepartmentRepository?       _departments;
         private ICourseRepository?           _courses;
         private IAcademicScheduleRepository? _academicSchedules;
@@ -17,8 +16,12 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         private IRegistrationRepository?     _registrations;
         private ICourseUploadsRepository?    _courseUploads;
         private ISemesterRepository?         _semesters;
-        private IUserStudyYearRepository?    _userStudyYears;
+        private IStudentStudyYearRepository?    _studentStudyYears;
         private ISpecializationRepository?   _specializations;   // ← added
+        private IStudentRepository?         _students;
+        private IInstructorRepository?      _instructors;
+        private IAssistantRepository?        _assistants;
+        private IAdminRepository?            _admins;
 
         public UnitOfWork(UniversityDbContext dbContext)
         {
@@ -50,11 +53,23 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public ISemesterRepository Semesters
             => _semesters ??= new SemesterRepository(_dbContext);
 
-        public IUserStudyYearRepository UserStudyYears
-            => _userStudyYears ??= new UserStudyYearRepository(_dbContext);
+        public IStudentStudyYearRepository StudentStudyYears
+            => _studentStudyYears ??= new StudentStudyYearRepository(_dbContext);
 
         public ISpecializationRepository Specializations                    // ← added
             => _specializations ??= new SpecializationRepository(_dbContext);
+        
+        public IStudentRepository Students
+            => _students ??= new StudentRepository(_dbContext);
+
+        public IInstructorRepository Instructors
+            => _instructors ??= new InstructorRepository(_dbContext);
+        
+        public IAssistantRepository Assistants
+            => _assistants ??= new AssistantRepository(_dbContext);
+        
+        public IAdminRepository Admins
+            => _admins ??= new AdminRepository(_dbContext);
 
         public IGenericRepository<TEntity, TKey> GetRepository<TEntity, TKey>()
             where TEntity : BaseEntities<TKey>

@@ -24,15 +24,7 @@ namespace University_Management_System.Application.Handlers.AcademicSchedules
             if (schedule is null)
                 throw new NotFoundException($"Academic schedule '{request.Title}' not found.");
 
-            // Delete old file and upload new one
-            if (!string.IsNullOrEmpty(schedule.FileId))
-                await _cloudinaryService.DeleteImageAsync(schedule.FileId, cancellationToken);
-
-            var newFileId = Guid.NewGuid().ToString();
-            var newFileUrl = await _cloudinaryService.UploadAcademicScheduleAsync(request.File, newFileId, cancellationToken);
-
-            schedule.FileId = newFileId;
-            schedule.Url = newFileUrl;
+            //upload to cloudflare r2
             schedule.Title = request.Title;
             schedule.Description = request.Description;
             schedule.UpdatedAt = DateTime.UtcNow;

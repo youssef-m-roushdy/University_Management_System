@@ -41,7 +41,9 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 .Where(u => u.Id != userId)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .Include(u => u.Department)
+                .Include(u => u.Student).ThenInclude(s => s.Department)
+                .Include(u => u.Instructor).ThenInclude(i => i.Department)
+                .Include(u => u.Assistant).ThenInclude(a => a.Department)
                 .AsQueryable();
 
             // Filter by Role
@@ -49,12 +51,12 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 usersQuery = usersQuery.Where(u => u.UserRoles.Any(ur => ur.Role.Name == query.Role));
 
             // Filter by Academic Code
-            if (!string.IsNullOrEmpty(query.Academic_Code))
-                usersQuery = usersQuery.Where(u => u.AcademicCode == query.Academic_Code);
+            if (!string.IsNullOrEmpty(query.AcademicCode))
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.AcademicCode == query.AcademicCode);
 
             // Filter by Name
             if (!string.IsNullOrEmpty(query.Name))
-                usersQuery = usersQuery.Where(u => u.DisplayName.Contains(query.Name));
+                usersQuery = usersQuery.Where(u => u.Name.Contains(query.Name));
 
             // Filter by Gender
             if (query.Gender.HasValue)
@@ -62,11 +64,11 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             // Filter by Level
             if (query.Level.HasValue)
-                usersQuery = usersQuery.Where(u => u.Level == query.Level.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.Level == query.Level.Value);
 
             // Filter by DepartmentId
             if (query.DepartmentId.HasValue)
-                usersQuery = usersQuery.Where(u => u.DepartmentId == query.DepartmentId.Value);
+                usersQuery = usersQuery.Where(u => (u.Student != null && u.Student.DepartmentId == query.DepartmentId.Value) || (u.Instructor != null && u.Instructor.DepartmentId == query.DepartmentId.Value) || (u.Assistant != null && u.Assistant.DepartmentId == query.DepartmentId.Value));
 
             var users = await usersQuery.ToListAsync();
 
@@ -79,7 +81,9 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 .Where(u => u.Id != userId)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .Include(u => u.Department)
+                .Include(u => u.Student).ThenInclude(s => s.Department)
+                .Include(u => u.Instructor).ThenInclude(i => i.Department)
+                .Include(u => u.Assistant).ThenInclude(a => a.Department)
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -88,12 +92,12 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 usersQuery = usersQuery.Where(u => u.UserRoles.Any(ur => ur.Role.Name == query.Role));
 
             // Filter by Academic Code
-            if (!string.IsNullOrEmpty(query.Academic_Code))
-                usersQuery = usersQuery.Where(u => u.AcademicCode.Contains(query.Academic_Code));
+            if (!string.IsNullOrEmpty(query.AcademicCode))
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.AcademicCode.Contains(query.AcademicCode));
 
             // Filter by Name
             if (!string.IsNullOrEmpty(query.Name))
-                usersQuery = usersQuery.Where(u => u.DisplayName.Contains(query.Name));
+                usersQuery = usersQuery.Where(u => u.Name.Contains(query.Name));
 
             // Filter by Gender
             if (query.Gender.HasValue)
@@ -101,15 +105,15 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             // Filter by Level
             if (query.Level.HasValue)
-                usersQuery = usersQuery.Where(u => u.Level == query.Level.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.Level == query.Level.Value);
 
 
             // Filter by DepartmentId
             if (query.DepartmentId.HasValue)
-                usersQuery = usersQuery.Where(u => u.DepartmentId == query.DepartmentId.Value);
+                usersQuery = usersQuery.Where(u => (u.Student != null && u.Student.DepartmentId == query.DepartmentId.Value) || (u.Instructor != null && u.Instructor.DepartmentId == query.DepartmentId.Value) || (u.Assistant != null && u.Assistant.DepartmentId == query.DepartmentId.Value));
 
             // Apply sorting
-            usersQuery = usersQuery.ApplySorting(query.SortBy ?? "DisplayName", query.SortDirection);
+            usersQuery = usersQuery.ApplySorting(query.SortBy ?? "Name", query.SortDirection);
 
             // Get total count before pagination
             var totalCount = await usersQuery.CountAsync();
@@ -127,22 +131,24 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         {
             
             var usersQuery = _dbContext.Users
-                .Where(u => u.Id != userId && u.Level != Levels.Graduate)
+                .Where(u => u.Id != userId && u.Student != null && u.Student.Level != Levels.Graduate)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .Include(u => u.Department)
+                .Include(u => u.Student).ThenInclude(s => s.Department)
+                .Include(u => u.Instructor).ThenInclude(i => i.Department)
+                .Include(u => u.Assistant).ThenInclude(a => a.Department)
                 .AsQueryable();
 
          
             usersQuery = usersQuery.Where(u => u.UserRoles.Any(ur => ur.Role.Name == "Student"));
 
             // Filter by Academic Code
-            if (!string.IsNullOrEmpty(query.Academic_Code))
-                usersQuery = usersQuery.Where(u => u.AcademicCode.Contains(query.Academic_Code));
+            if (!string.IsNullOrEmpty(query.AcademicCode))
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.AcademicCode.Contains(query.AcademicCode));
 
             // Filter by Name
             if (!string.IsNullOrEmpty(query.Name))
-                usersQuery = usersQuery.Where(u => u.DisplayName.Contains(query.Name));
+                usersQuery = usersQuery.Where(u => u.Name.Contains(query.Name));
 
             // Filter by Gender
             if (query.Gender.HasValue)
@@ -150,27 +156,27 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             // Filter by Level
             if (query.Level.HasValue)
-                usersQuery = usersQuery.Where(u => u.Level == query.Level.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.Level == query.Level.Value);
 
             // Filter by Min GPA
             if (query.MinGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA >= query.MinGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA >= query.MinGPA.Value);
 
             // Filter by Max GPA
             if (query.MaxGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA <= query.MaxGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA <= query.MaxGPA.Value);
 
             // Filter by Min Credits
             if (query.MinCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits >= query.MinCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits >= query.MinCredits.Value);
 
             // Filter by Max Credits
             if (query.MaxCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits <= query.MaxCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits <= query.MaxCredits.Value);
 
             // Filter by DepartmentId
             if (query.DepartmentId.HasValue)
-                usersQuery = usersQuery.Where(u => u.DepartmentId == query.DepartmentId.Value);
+                usersQuery = usersQuery.Where(u => (u.Student != null && u.Student.DepartmentId == query.DepartmentId.Value) || (u.Instructor != null && u.Instructor.DepartmentId == query.DepartmentId.Value) || (u.Assistant != null && u.Assistant.DepartmentId == query.DepartmentId.Value));
 
             var users = await usersQuery.ToListAsync();
 
@@ -180,22 +186,24 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         public async Task<(IEnumerable<StudentUserDto> Data, int TotalCount)> GetUnGraduateStudentUsersWithPaginationAsync(string userId, StudentQueries query)
         {
             var usersQuery = _dbContext.Users
-                .Where(u => u.Id != userId && u.Level != Levels.Graduate)
+                .Where(u => u.Id != userId && u.Student != null && u.Student.Level != Levels.Graduate)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .Include(u => u.Department)
+                .Include(u => u.Student).ThenInclude(s => s.Department)
+                .Include(u => u.Instructor).ThenInclude(i => i.Department)
+                .Include(u => u.Assistant).ThenInclude(a => a.Department)
                 .AsNoTracking()
                 .AsQueryable();
 
             usersQuery = usersQuery.Where(u => u.UserRoles.Any(ur => ur.Role.Name == "Student"));
 
             // Filter by Academic Code
-            if (!string.IsNullOrEmpty(query.Academic_Code))
-                usersQuery = usersQuery.Where(u => u.AcademicCode.Contains(query.Academic_Code));
+            if (!string.IsNullOrEmpty(query.AcademicCode))
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.AcademicCode.Contains(query.AcademicCode));
 
             // Filter by Name
             if (!string.IsNullOrEmpty(query.Name))
-                usersQuery = usersQuery.Where(u => u.DisplayName.Contains(query.Name));
+                usersQuery = usersQuery.Where(u => u.Name.Contains(query.Name));
 
             // Filter by Gender
             if (query.Gender.HasValue)
@@ -203,30 +211,30 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             // Filter by Level
             if (query.Level.HasValue)
-                usersQuery = usersQuery.Where(u => u.Level == query.Level.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.Level == query.Level.Value);
 
             // Filter by Min GPA
             if (query.MinGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA >= query.MinGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA >= query.MinGPA.Value);
 
             // Filter by Max GPA
             if (query.MaxGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA <= query.MaxGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA <= query.MaxGPA.Value);
 
             // Filter by Min Credits
             if (query.MinCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits >= query.MinCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits >= query.MinCredits.Value);
 
             // Filter by Max Credits
             if (query.MaxCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits <= query.MaxCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits <= query.MaxCredits.Value);
 
             // Filter by DepartmentId
             if (query.DepartmentId.HasValue)
-                usersQuery = usersQuery.Where(u => u.DepartmentId == query.DepartmentId.Value);
+                usersQuery = usersQuery.Where(u => (u.Student != null && u.Student.DepartmentId == query.DepartmentId.Value) || (u.Instructor != null && u.Instructor.DepartmentId == query.DepartmentId.Value) || (u.Assistant != null && u.Assistant.DepartmentId == query.DepartmentId.Value));
 
             // Apply sorting
-            usersQuery = usersQuery.ApplySorting(query.SortBy ?? "DisplayName", query.SortDirection);
+            usersQuery = usersQuery.ApplySorting(query.SortBy ?? "Name", query.SortDirection);
 
             // Get total count before pagination
             var totalCount = await usersQuery.CountAsync();
@@ -247,19 +255,21 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 .Where(u => u.Id != userId)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .Include(u => u.Department)
+                .Include(u => u.Student).ThenInclude(s => s.Department)
+                .Include(u => u.Instructor).ThenInclude(i => i.Department)
+                .Include(u => u.Assistant).ThenInclude(a => a.Department)
                 .AsQueryable();
 
          
             usersQuery = usersQuery.Where(u => u.UserRoles.Any(ur => ur.Role.Name == "Student"));
 
             // Filter by Academic Code
-            if (!string.IsNullOrEmpty(query.Academic_Code))
-                usersQuery = usersQuery.Where(u => u.AcademicCode.Contains(query.Academic_Code));
+            if (!string.IsNullOrEmpty(query.AcademicCode))
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.AcademicCode.Contains(query.AcademicCode));
 
             // Filter by Name
             if (!string.IsNullOrEmpty(query.Name))
-                usersQuery = usersQuery.Where(u => u.DisplayName.Contains(query.Name));
+                usersQuery = usersQuery.Where(u => u.Name.Contains(query.Name));
 
             // Filter by Gender
             if (query.Gender.HasValue)
@@ -267,27 +277,27 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             // Filter by Level
             if (query.Level.HasValue)
-                usersQuery = usersQuery.Where(u => u.Level == query.Level.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.Level == query.Level.Value);
 
             // Filter by Min GPA
             if (query.MinGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA >= query.MinGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA >= query.MinGPA.Value);
 
             // Filter by Max GPA
             if (query.MaxGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA <= query.MaxGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA <= query.MaxGPA.Value);
 
             // Filter by Min Credits
             if (query.MinCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits >= query.MinCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits >= query.MinCredits.Value);
 
             // Filter by Max Credits
             if (query.MaxCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits <= query.MaxCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits <= query.MaxCredits.Value);
 
             // Filter by DepartmentId
             if (query.DepartmentId.HasValue)
-                usersQuery = usersQuery.Where(u => u.DepartmentId == query.DepartmentId.Value);
+                usersQuery = usersQuery.Where(u => (u.Student != null && u.Student.DepartmentId == query.DepartmentId.Value) || (u.Instructor != null && u.Instructor.DepartmentId == query.DepartmentId.Value) || (u.Assistant != null && u.Assistant.DepartmentId == query.DepartmentId.Value));
 
             var users = await usersQuery.ToListAsync();
 
@@ -300,19 +310,21 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 .Where(u => u.Id != userId)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .Include(u => u.Department)
+                .Include(u => u.Student).ThenInclude(s => s.Department)
+                .Include(u => u.Instructor).ThenInclude(i => i.Department)
+                .Include(u => u.Assistant).ThenInclude(a => a.Department)
                 .AsNoTracking()
                 .AsQueryable();
 
             usersQuery = usersQuery.Where(u => u.UserRoles.Any(ur => ur.Role.Name == "Student"));
 
             // Filter by Academic Code
-            if (!string.IsNullOrEmpty(query.Academic_Code))
-                usersQuery = usersQuery.Where(u => u.AcademicCode.Contains(query.Academic_Code));
+            if (!string.IsNullOrEmpty(query.AcademicCode))
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.AcademicCode.Contains(query.AcademicCode));
 
             // Filter by Name
             if (!string.IsNullOrEmpty(query.Name))
-                usersQuery = usersQuery.Where(u => u.DisplayName.Contains(query.Name));
+                usersQuery = usersQuery.Where(u => u.Name.Contains(query.Name));
 
             // Filter by Gender
             if (query.Gender.HasValue)
@@ -320,30 +332,30 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             // Filter by Level
             if (query.Level.HasValue)
-                usersQuery = usersQuery.Where(u => u.Level == query.Level.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.Level == query.Level.Value);
 
             // Filter by Min GPA
             if (query.MinGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA >= query.MinGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA >= query.MinGPA.Value);
 
             // Filter by Max GPA
             if (query.MaxGPA.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalGPA <= query.MaxGPA.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalGPA <= query.MaxGPA.Value);
 
             // Filter by Min Credits
             if (query.MinCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits >= query.MinCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits >= query.MinCredits.Value);
 
             // Filter by Max Credits
             if (query.MaxCredits.HasValue)
-                usersQuery = usersQuery.Where(u => u.TotalCredits <= query.MaxCredits.Value);
+                usersQuery = usersQuery.Where(u => u.Student != null && u.Student.TotalCredits <= query.MaxCredits.Value);
 
             // Filter by DepartmentId
             if (query.DepartmentId.HasValue)
-                usersQuery = usersQuery.Where(u => u.DepartmentId == query.DepartmentId.Value);
+                usersQuery = usersQuery.Where(u => (u.Student != null && u.Student.DepartmentId == query.DepartmentId.Value) || (u.Instructor != null && u.Instructor.DepartmentId == query.DepartmentId.Value) || (u.Assistant != null && u.Assistant.DepartmentId == query.DepartmentId.Value));
 
             // Apply sorting
-            usersQuery = usersQuery.ApplySorting(query.SortBy ?? "DisplayName", query.SortDirection);
+            usersQuery = usersQuery.ApplySorting(query.SortBy ?? "Name", query.SortDirection);
 
             // Get total count before pagination
             var totalCount = await usersQuery.CountAsync();
@@ -363,32 +375,32 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             {
                 var user = await _userManager.Users
                     
-                    .FirstOrDefaultAsync(u => u.AcademicCode == academicCode);
+                    .FirstOrDefaultAsync(u => u.Student != null && u.Student.AcademicCode == academicCode);
 
                 if (user == null)
                     throw new NotFoundException($"User with academic code '{academicCode}' not found.");
 
-                var department = user.DepartmentId.HasValue
-                    ? await _unitOfWork.Departments.GetByIdAsync(user.DepartmentId.Value)
+                var department = (user.Student?.DepartmentId ?? user.Instructor?.DepartmentId ?? user.Assistant?.DepartmentId).HasValue
+                    ? await _unitOfWork.Departments.GetByIdAsync((user.Student?.DepartmentId ?? user.Instructor?.DepartmentId ?? user.Assistant?.DepartmentId).Value)
                     : null;
                 if(department == null)
-                    throw new NotFoundException($"Department with ID '{user.DepartmentId}' not found.");
+                    throw new NotFoundException($"Department with ID '{(user.Student?.DepartmentId ?? user.Instructor?.DepartmentId ?? user.Assistant?.DepartmentId)}' not found.");
 
                 var roles = await _userManager.GetRolesAsync(user);
 
                 return new userProfileDetailsDto
                 {
                     Id = user.Id,
-                    DisplayName = user.DisplayName,
+                    DisplayName = user.Name,
                     Email = user.Email,
                     UserName = user.UserName,
                     PhoneNumber = user.PhoneNumber,
                     ProfilePicture = user.ProfilePicture,
-                    AcademicCode = user.AcademicCode,
-                    Level = user.Level,
-                    TotalCredits = user.TotalCredits,
-                    AllowedCredits = user.AllowedCredits,
-                    TotalGPA = user.TotalGPA,
+                    AcademicCode = user.Student != null ? user.Student.AcademicCode : string.Empty,
+                    Level = user.Student != null ? user.Student.Level : default(Levels),
+                    TotalCredits = user.Student != null ? user.Student.TotalCredits : 0,
+                    AllowedCredits = user.Student != null ? user.Student.AllowedCredits : 0,
+                    TotalGPA = user.Student != null ? user.Student.TotalGPA : 0m,
                     DepartmentName = department.Name,
                     Role = roles.FirstOrDefault(),
                     

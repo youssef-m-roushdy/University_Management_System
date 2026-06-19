@@ -6,7 +6,7 @@ using University_Management_System.Application.Commands.Registrations;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Shared.Exceptions;
 using MediatR;
-using University_Management_System.Shared.Respones;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Handlers.Registrations
 {

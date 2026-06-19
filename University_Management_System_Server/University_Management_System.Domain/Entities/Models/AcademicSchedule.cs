@@ -11,7 +11,6 @@ namespace University_Management_System.Domain.Entities.Models
     public class AcademicSchedule : BaseEntities<int>
     {
         public string Title { get; set; } = string.Empty;
-        public string FileId { get; set; } = string.Empty; // for cloud storage reference
         public string Url { get; set; } = string.Empty; // URL to access the file, can be generated from FileId
         public string? Description { get; set; }
         public int DepartmentId { get; set; }
@@ -23,7 +22,5 @@ namespace University_Management_System.Domain.Entities.Models
         public int StudyYearId { get; set; } // Foreign key to StudyYear
         public StudyYear StudyYear { get; set; } = null!; // 2023-2024, 2024-2025, etc.
         public DateTime ScheduleDate { get; set; } // Date when the schedule is effective or published
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }
