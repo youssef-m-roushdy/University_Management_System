@@ -58,13 +58,13 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // LOGIN
+        // LOGIN - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
-            // 1. Get user with projection
+            // 1. Get user with projection (only active users)
             var userQuery = from u in _userManager.Users
-                            where u.Email == dto.Email
+                            where u.Email == dto.Email && u.IsActive == true
                             select new
                             {
                                 User = u,
@@ -94,7 +94,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             var userData = await userQuery.FirstOrDefaultAsync();
 
             if (userData == null)
-                throw new NotFoundException($"No user with email '{dto.Email}'.");
+                throw new NotFoundException($"No active user with email '{dto.Email}'.");
 
             // 2. Verify password
             if (!await _userManager.CheckPasswordAsync(userData.User, dto.Password))
@@ -151,15 +151,17 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         // ────────────────────────────────────────────────────────────────────────
         public async Task LogoutAsync(string userId, string refreshToken)
         {
+            // Check if user exists and is active
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !user.IsActive)
+                return; // Silent return for security
+
             // Revoke the specific refresh token
             await _jwtService.RevokeRefreshTokenAsync(refreshToken);
-            
-            // Optionally revoke all user tokens for security
-            // await _jwtService.RevokeAllUserRefreshTokensAsync(userId);
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // REFRESH TOKEN
+        // REFRESH TOKEN - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken, string userId)
         {
@@ -173,21 +175,25 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             if (user == null)
                 throw new NotFoundException($"User with ID '{userId}' not found.");
 
-            // 3. Check if user is active
+            // 3. ✅ Check if user is active
             if (!user.IsActive)
-                throw new UnauthorizedAccessException("Account is deactivated.");
+                throw new UnauthorizedAccessException("Account is deactivated. Please contact support.");
 
-            // 4. Generate new tokens
+            // 4. Check if email is confirmed
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+                throw new UnauthorizedAccessException("Email not confirmed.");
+
+            // 5. Generate new tokens
             var newAccessToken = await _jwtService.GenerateAccessTokenAsync(user);
             var newRefreshToken = await _jwtService.GenerateRefreshTokenAsync(userId);
 
-            // 5. Revoke old refresh token (rotate)
+            // 6. Revoke old refresh token (rotate)
             await _jwtService.RevokeRefreshTokenAsync(refreshToken);
 
-            // 6. Get roles
+            // 7. Get roles
             var roles = await _userManager.GetRolesAsync(user);
 
-            // 7. Build response (without domain profiles for security)
+            // 8. Build response
             return new AuthResponseDto
             {
                 AccessToken = newAccessToken,
@@ -198,38 +204,49 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 Name = user.Name,
                 ProfilePicture = user.ProfilePicture,
                 Roles = roles.ToList()
-                // No domain profiles on refresh - they can be fetched separately if needed
             };
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // REVOKE TOKEN
+        // REVOKE TOKEN - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task RevokeTokenAsync(string refreshToken)
         {
+            // Get the token from database
+            var token = await _jwtService.GetRefreshTokenAsync(refreshToken);
+            if (token == null)
+                return; // Silent return
+
+            // Check if user is active
+            var user = await _userManager.FindByIdAsync(token.UserId);
+            if (user == null || !user.IsActive)
+                return; // Silent return
+
             await _jwtService.RevokeRefreshTokenAsync(refreshToken);
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // REVOKE ALL TOKENS
+        // REVOKE ALL TOKENS - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task RevokeAllTokensAsync(string userId)
         {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !user.IsActive)
+                throw new UnauthorizedAccessException("Account is deactivated.");
+
             await _jwtService.RevokeAllUserRefreshTokensAsync(userId);
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // FORGOT PASSWORD
+        // FORGOT PASSWORD - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task ForgotPasswordAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                return; // Silent for security - never reveal if email exists
-
-            // Check if account is active
-            if (!user.IsActive)
-                return; // Silent for security
+            
+            // Silent return for security - never reveal if email exists or account is inactive
+            if (user == null || !user.IsActive)
+                return;
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token);
@@ -251,6 +268,10 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             var user = await _userManager.FindByEmailAsync(email)
                 ?? throw new NotFoundException($"No user with email '{email}'.");
 
+            // ✅ Check if user is active
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("Account is deactivated. Please contact support.");
+
             var decodedToken = Uri.UnescapeDataString(token);
             var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
 
@@ -267,12 +288,16 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // CHANGE PASSWORD (Authenticated)
+        // CHANGE PASSWORD - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task<string> ChangePasswordAsync(string email, string currentPassword, string newPassword)
         {
             var user = await _userManager.FindByEmailAsync(email)
                 ?? throw new NotFoundException($"No user with email '{email}'.");
+
+            // ✅ Check if user is active
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("Account is deactivated. Please contact support.");
 
             var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
 
@@ -292,12 +317,16 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // VERIFY EMAIL
+        // VERIFY EMAIL - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task<string> VerifyEmailAsync(string email, string token)
         {
             var user = await _userManager.FindByEmailAsync(email)
                 ?? throw new NotFoundException($"User with email '{email}' not found.");
+
+            // ✅ Check if user is active
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("Account is deactivated. Please contact support.");
 
             if (user.EmailConfirmed)
                 return "Email already verified.";
@@ -312,19 +341,18 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // RESEND VERIFICATION EMAIL
+        // RESEND VERIFICATION EMAIL - ✅ IsActive check added
         // ────────────────────────────────────────────────────────────────────────
         public async Task ResendVerificationEmailAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                return; // Silent for security
+            
+            // Silent return for security
+            if (user == null || !user.IsActive)
+                return;
 
             if (user.EmailConfirmed)
                 return; // Already confirmed
-
-            if (!user.IsActive)
-                return; // Silent for security
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token);
