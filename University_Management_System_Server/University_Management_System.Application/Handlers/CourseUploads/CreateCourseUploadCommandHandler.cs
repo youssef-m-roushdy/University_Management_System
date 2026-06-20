@@ -31,10 +31,9 @@ namespace University_Management_System.Application.Handlers.CourseUploads
 
             var fileId = Guid.NewGuid().ToString();
 
-            var fileUrl = await _cloudinaryService.UploadCourseFileAsync(request.File, fileId, course.Name, cancellationToken);
+    
 
             var courseUpload = _mapper.Map<CourseUpload>(request.CourseUploadDto);
-            courseUpload.Url = fileUrl;
 
             await _unitOfWork.CourseUploads.AddAsync(courseUpload);
             await _unitOfWork.SaveChangesAsync();

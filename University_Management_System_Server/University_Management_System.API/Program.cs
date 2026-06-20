@@ -22,33 +22,58 @@ using University_Management_System.Infrastructure.Presistence.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using University_Management_System.Shared.Settings;
 using University_Management_System.Infrastructure.Presistence.Data;
+using FluentValidation;
+using University_Management_System.Infrastructure.Presentation.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ────────────────────────────────────────────────────────────────────────
+// 1. CONFIGURATION & SERVICES
+// ────────────────────────────────────────────────────────────────────────
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(
+                "http://localhost:3000", 
+                "https://localhost:3000",
+                "http://localhost:5173",  // Vite default
+                "https://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
 
-builder.Services.AddControllers().AddJsonOptions(options =>
+// Controllers
+// ✅ ValidationFilter runs before every action — short-circuits with 400
+// whenever a FluentValidation validator is registered for an incoming DTO
+// and that DTO fails validation.
+builder.Services.AddControllers(options =>
 {
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-}); ;
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    options.Filters.Add<ValidationFilter>();
+})
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// ────────────────────────────────────────────────────────────────────────
+// 2. DATABASE
+// ────────────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<UniversityDbContext>(options =>
-   options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+// ────────────────────────────────────────────────────────────────────────
+// 3. JWT AUTHENTICATION
+// ────────────────────────────────────────────────────────────────────────
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
 
@@ -77,12 +102,16 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// ────────────────────────────────────────────────────────────────────────
+// 4. IDENTITY
+// ────────────────────────────────────────────────────────────────────────
 builder.Services.AddIdentityCore<User>(options =>
 {
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireDigit = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
+    options.Password.RequiredLength = 8;
     options.User.RequireUniqueEmail = true;
 })
 .AddRoles<Role>()
@@ -90,110 +119,154 @@ builder.Services.AddIdentityCore<User>(options =>
 .AddDefaultTokenProviders()
 .AddSignInManager<SignInManager<User>>();
 
-builder.Services.AddScoped<IDataSeeding, DataSeeding>();
-
+// ────────────────────────────────────────────────────────────────────────
+// 5. RATE LIMITING
+// ────────────────────────────────────────────────────────────────────────
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddPolicy("PolicyLimitRate", httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress!.ToString(),
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 3,
-                Window = TimeSpan.FromMinutes(1),
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 2
-            }));
+    options.AddFixedWindowLimiter("PolicyLimitRate", opt =>
+    {
+        opt.PermitLimit = 3;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 2;
+    });
 });
 
-// JWT + Auth services
+// ────────────────────────────────────────────────────────────────────────
+// 6. DEPENDENCY INJECTION
+// ────────────────────────────────────────────────────────────────────────
+
+// Auth Services
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-// Use "emailSettings" (lowercase) to match your appsettings.json key exactly
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("emailSettings"));
 
+// Email Services
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-
-// MediatR for CQRS
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(University_Management_System.Application.AssemblyReference).Assembly));
-
-// AutoMapper
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<MappingProfile>();
-});
-
-// Unit of Work & Repositories
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// Service Manager (Auth + Roles)
-builder.Services.AddScoped<IServiceManager, ServiceManager>();
-builder.Services.AddScoped<IUserService, UserService>();
-
-// Configure Cloudinary Settings
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
-
-// Infrastructure Services
+// Cloudinary
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
-// GPA Calculation Service
+// MediatR
+builder.Services.AddMediatR(cfg => 
+    cfg.RegisterServicesFromAssembly(typeof(University_Management_System.Application.AssemblyReference).Assembly));
+
+// AutoMapper - Scan the Application assembly where your mapping profiles live
+builder.Services.AddAutoMapper(
+    cfg => { },
+    typeof(University_Management_System.Application.AssemblyReference).Assembly);
+
+// ✅ FluentValidation - register every AbstractValidator<T> found in the
+// Application assembly (LoginDtoValidator, etc.). ValidationFilter above
+// resolves these from DI per-request to actually run the checks.
+builder.Services.AddValidatorsFromAssembly(
+    typeof(University_Management_System.Application.AssemblyReference).Assembly);
+
+// Repositories & Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Services
+builder.Services.AddScoped<IServiceManager, ServiceManager>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGpaCalculationService, GpaCalculationService>();
 
+// Data Seeding
+builder.Services.AddScoped<IDataSeeding, DataSeeding>();
+
+// Http Context Accessor
 builder.Services.AddHttpContextAccessor();
 
-
-#region Auth In Swagger
-
+// ────────────────────────────────────────────────────────────────────────
+// 7. SWAGGER AUTH CONFIG
+// ────────────────────────────────────────────────────────────────────────
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "University Management System API", 
+        Version = "v1",
+        Description = "API for University Management System",
+        Contact = new OpenApiContact
+        {
+            Name = "AYA Academy",
+            Email = "support@ayaacademy.com"
+        }
+    });
+    
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
+        Description = "Please enter a valid JWT token",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
+    
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
-      {
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
                 {
-                    new OpenApiSecurityScheme
-                    {
-                           Reference = new OpenApiReference
-                           {
-                                 Type=ReferenceType.SecurityScheme,
-                                  Id="Bearer"
-                           }
-                    },
-                        new string[]{}
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
-      });
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    // ✅ Add XML comments for better Swagger docs (optional)
+    // var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    // var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    // option.IncludeXmlComments(xmlPath);
 });
 
-#endregion
-
+// ────────────────────────────────────────────────────────────────────────
+// 8. BUILD APP
+// ────────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ────────────────────────────────────────────────────────────────────────
+// 9. MIDDLEWARE PIPELINE
+// ────────────────────────────────────────────────────────────────────────
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseCors("AllowFrontend");
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRateLimiter();
+
+// ✅ Custom middleware (order matters)
 app.UseMiddleware<GlobalExceptionHandlingMiddelWare>();
 
-var scope = app.Services.CreateScope();
-var dataSeeder = scope.ServiceProvider.GetRequiredService<IDataSeeding>();
-await dataSeeder.SeedDataInfoAsync();
-await dataSeeder.SeedIdentityDataAsync();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
+
 app.MapControllers();
-app.UseStaticFiles();
+
+// ────────────────────────────────────────────────────────────────────────
+// 10. DATA SEEDING
+// ────────────────────────────────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var dataSeeder = scope.ServiceProvider.GetRequiredService<IDataSeeding>();
+    await dataSeeder.SeedDataInfoAsync();
+    await dataSeeder.SeedIdentityDataAsync();
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// 11. RUN
+// ────────────────────────────────────────────────────────────────────────
 app.Run();

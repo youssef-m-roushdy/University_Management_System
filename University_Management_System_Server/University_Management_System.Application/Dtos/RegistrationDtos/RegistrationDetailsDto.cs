@@ -20,7 +20,7 @@ namespace University_Management_System.Application.Dtos.RegistrationDtos
         public CourseDto Course { get; set; } = null!;
         public StudyYearDto StudyYearDto { get; set; } = null!;
         public SemesterDto Semester { get; set; } = null!;
-        public UserDto User { get; set; } = null!;
+        public UserBasicDto User { get; set; } = null!;
         public CourseDto CourseDto { get; set; } = null!;
         public DateTime RegisteredAt { get; set; }
     }

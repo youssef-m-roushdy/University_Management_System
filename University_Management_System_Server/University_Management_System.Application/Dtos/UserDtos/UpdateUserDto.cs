@@ -6,9 +6,11 @@ using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Application.Dtos.UserDtos
 {
-    public class UpdateStudentLevelDto
+    public class UpdateUserDto
     {
-        public string? AcademicCode { get; set; }
-        public Levels Level { get; set; }
+        public string? Name { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Address { get; set; }
+        public Gender? Gender { get; set; }
     }
 }

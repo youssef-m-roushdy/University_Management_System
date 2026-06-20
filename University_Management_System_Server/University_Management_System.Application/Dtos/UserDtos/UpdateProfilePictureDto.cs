@@ -8,6 +8,6 @@ namespace University_Management_System.Application.Dtos.UserDtos
 {
     public class UpdateProfilePictureDto
     {
-        public IFormFile ProfilePicture { get; set; }
+        public IFormFile ProfilePicture { get; set; } = null!;
     }
 }
