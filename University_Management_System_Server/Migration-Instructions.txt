@@ -11,3 +11,13 @@ dotnet ef database update \
 --project University_Management_System.Infrastructure/Presistence/Presistence.csproj \
 --startup-project University_Management_System.API/University_Management_System.API.csproj
 
+ex:
+
+dotnet ef migrations add migrationsName \
+--project University_Management_System.Infrastructure/Presistence/Presistence.csproj \
+--startup-project University_Management_System.API/University_Management_System.API.csproj \
+--output-dir Migrations
+
+dotnet ef database update \
+--project University_Management_System.Infrastructure/Presistence/Presistence.csproj \
+--startup-project University_Management_System.API/University_Management_System.API.csproj

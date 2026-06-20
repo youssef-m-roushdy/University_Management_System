@@ -34,30 +34,32 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         private readonly JwtSettings _settings;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
-        private readonly EmailSettings _emailSettings; // ← ADD
-        private readonly UniversityDbContext _context; // ← ADD
+        private readonly EmailSettings _emailSettings;
+        private readonly UniversityDbContext _context;
 
         public AuthenticationService(
             UserManager<User> userManager,
             RoleManager<Role> roleManager,
             IJwtService jwtService,
             IOptions<JwtSettings> settings,
-            IOptions<EmailSettings> emailSettings,  // ← ADD
+            IOptions<EmailSettings> emailSettings,
             IUnitOfWork unitOfWork,
             IEmailService emailService,
-            UniversityDbContext context) // ← ADD
+            UniversityDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _jwtService = jwtService;
             _settings = settings.Value;
             _unitOfWork = unitOfWork;
-            _emailSettings = emailSettings.Value; // ← ADD
-            _context = context; // ← ADD
+            _emailSettings = emailSettings.Value;
+            _context = context;
             _emailService = emailService;
         }
 
-        // AuthService.cs — completed LoginAsync
+        // ────────────────────────────────────────────────────────────────────────
+        // LOGIN
+        // ────────────────────────────────────────────────────────────────────────
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
             // 1. Get user with projection
@@ -98,14 +100,18 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             if (!await _userManager.CheckPasswordAsync(userData.User, dto.Password))
                 throw new UnauthorizedAccessException("Invalid credentials.");
 
-            // 3. Get roles
+            // 3. Check if email is confirmed
+            if (!await _userManager.IsEmailConfirmedAsync(userData.User))
+                throw new UnauthorizedAccessException("Email not confirmed. Please verify your email.");
+
+            // 4. Get roles
             var roles = await _userManager.GetRolesAsync(userData.User);
 
-            // 4. Generate tokens
+            // 5. Generate tokens
             var accessToken = await _jwtService.GenerateAccessTokenAsync(userData.User);
             var refreshToken = await _jwtService.GenerateRefreshTokenAsync(userData.User.Id);
 
-            // 5. Build response
+            // 6. Build response
             return new AuthResponseDto
             {
                 AccessToken = accessToken,
@@ -140,13 +146,90 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             };
         }
 
-      
-        // ── Forgot password ────────────────────────────────────────────────────────
+        // ────────────────────────────────────────────────────────────────────────
+        // LOGOUT
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task LogoutAsync(string userId, string refreshToken)
+        {
+            // Revoke the specific refresh token
+            await _jwtService.RevokeRefreshTokenAsync(refreshToken);
+            
+            // Optionally revoke all user tokens for security
+            // await _jwtService.RevokeAllUserRefreshTokensAsync(userId);
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // REFRESH TOKEN
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken, string userId)
+        {
+            // 1. Validate refresh token
+            var isValid = await _jwtService.ValidateRefreshTokenAsync(refreshToken, userId);
+            if (!isValid)
+                throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+
+            // 2. Get user
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new NotFoundException($"User with ID '{userId}' not found.");
+
+            // 3. Check if user is active
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("Account is deactivated.");
+
+            // 4. Generate new tokens
+            var newAccessToken = await _jwtService.GenerateAccessTokenAsync(user);
+            var newRefreshToken = await _jwtService.GenerateRefreshTokenAsync(userId);
+
+            // 5. Revoke old refresh token (rotate)
+            await _jwtService.RevokeRefreshTokenAsync(refreshToken);
+
+            // 6. Get roles
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // 7. Build response (without domain profiles for security)
+            return new AuthResponseDto
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken,
+                AccessTokenExpiry = _jwtService.GetAccessTokenExpiryTime(),
+                UserId = user.Id,
+                Email = user.Email!,
+                Name = user.Name,
+                ProfilePicture = user.ProfilePicture,
+                Roles = roles.ToList()
+                // No domain profiles on refresh - they can be fetched separately if needed
+            };
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // REVOKE TOKEN
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task RevokeTokenAsync(string refreshToken)
+        {
+            await _jwtService.RevokeRefreshTokenAsync(refreshToken);
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // REVOKE ALL TOKENS
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task RevokeAllTokensAsync(string userId)
+        {
+            await _jwtService.RevokeAllUserRefreshTokensAsync(userId);
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // FORGOT PASSWORD
+        // ────────────────────────────────────────────────────────────────────────
         public async Task ForgotPasswordAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
-                throw new NotFoundException("No user not found use that email."); // silent — never reveal if email exists
+                return; // Silent for security - never reveal if email exists
+
+            // Check if account is active
+            if (!user.IsActive)
+                return; // Silent for security
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token);
@@ -160,7 +243,9 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             );
         }
 
-        // ── Reset password ─────────────────────────────────────────────────────────
+        // ────────────────────────────────────────────────────────────────────────
+        // RESET PASSWORD
+        // ────────────────────────────────────────────────────────────────────────
         public async Task<string> ResetPasswordAsync(string email, string token, string newPassword)
         {
             var user = await _userManager.FindByEmailAsync(email)
@@ -181,7 +266,9 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             return "Password reset successfully.";
         }
 
-        // ── Change password (authorized) ──────────────────────────────────────────
+        // ────────────────────────────────────────────────────────────────────────
+        // CHANGE PASSWORD (Authenticated)
+        // ────────────────────────────────────────────────────────────────────────
         public async Task<string> ChangePasswordAsync(string email, string currentPassword, string newPassword)
         {
             var user = await _userManager.FindByEmailAsync(email)
@@ -192,6 +279,9 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             if (!result.Succeeded)
                 return string.Join(" | ", result.Errors.Select(e => e.Description));
 
+            // Revoke all refresh tokens on password change (security)
+            await _jwtService.RevokeAllUserRefreshTokensAsync(user.Id);
+
             // Send confirmation email
             await _emailService.SendPasswordChangedConfirmationAsync(
                 to: email,
@@ -201,8 +291,51 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             return "Password changed successfully.";
         }
 
-        // ── Private helpers ────────────────────────────────────────────────────
+        // ────────────────────────────────────────────────────────────────────────
+        // VERIFY EMAIL
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task<string> VerifyEmailAsync(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email)
+                ?? throw new NotFoundException($"User with email '{email}' not found.");
 
+            if (user.EmailConfirmed)
+                return "Email already verified.";
 
+            var decodedToken = Uri.UnescapeDataString(token);
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+            if (!result.Succeeded)
+                return string.Join(" | ", result.Errors.Select(e => e.Description));
+
+            return "Email verified successfully.";
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // RESEND VERIFICATION EMAIL
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task ResendVerificationEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return; // Silent for security
+
+            if (user.EmailConfirmed)
+                return; // Already confirmed
+
+            if (!user.IsActive)
+                return; // Silent for security
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = Uri.EscapeDataString(token);
+            var encodedEmail = Uri.EscapeDataString(email);
+            var verificationLink = $"{_emailSettings.FrontendBaseUrl}/verify-email?email={encodedEmail}&token={encodedToken}";
+
+            await _emailService.SendEmailVerificationAsync(
+                to: email,
+                displayName: user.Name ?? user.UserName ?? "Student",
+                verificationLink: verificationLink
+            );
+        }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace University_Management_System.Application.Dtos.AuthDtos
 {
-    public class RefreshTokenRequestDto
+    public class RevokeTokenDto
     {
         public string RefreshToken { get; set; } = string.Empty;
     }

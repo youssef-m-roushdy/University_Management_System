@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using University_Management_System.Infrastructure.Presistence;
 
@@ -11,9 +12,11 @@ using University_Management_System.Infrastructure.Presistence;
 namespace University_Management_System.Infrastructure.Presistence.Migrations
 {
     [DbContext(typeof(UniversityDbContext))]
-    partial class UniversityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260619202602_NormalizeUserAndCourseUploadAndCreateQuizAndAssignment")]
+    partial class NormalizeUserAndCourseUploadAndCreateQuizAndAssignment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -359,9 +362,6 @@ namespace University_Management_System.Infrastructure.Presistence.Migrations
 
                     b.Property<int>("Gender")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");

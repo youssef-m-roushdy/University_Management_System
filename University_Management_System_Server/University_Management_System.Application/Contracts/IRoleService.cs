@@ -1,5 +1,6 @@
 using University_Management_System.Application.Dtos.AuthDtos;
 using Microsoft.AspNetCore.Identity;
+using University_Management_System.Application.Dtos.RoleDtos;
 
 namespace University_Management_System.Application.Contracts
 {
@@ -11,9 +12,5 @@ namespace University_Management_System.Application.Contracts
         Task<IdentityResult> CreateRoleAsync(CreateRoleDto createRoleDto);
         Task<IdentityResult> UpdateRoleAsync(string roleId, UpdateRoleDto updateRoleDto);
         Task<IdentityResult> DeleteRoleAsync(string roleId);
-        Task<IdentityResult> UpdateUserRoleByEmailAsync(UpdateUserRoleByEmailDto dto);
-        Task<IEnumerable<string>> GetUserRolesAsync(string userId);
-        Task<IdentityResult> UpdateUserRoleByAcademicCodeAsync(UpdateUserRoleDto dto);
-        Task<UserRoleInfoDto> GetUserRoleInfoByAcademicCodeAsync(string academicCode);
     }
 }

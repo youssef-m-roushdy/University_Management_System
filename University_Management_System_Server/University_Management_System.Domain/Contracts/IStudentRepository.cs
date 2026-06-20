@@ -8,5 +8,7 @@ namespace University_Management_System.Domain.Contracts
 {
     public interface IStudentRepository : IGenericRepository<Student, string>
     {
+        Task<IEnumerable<Student>> GetSpecificUngraduatedStudentsAsync(IEnumerable<string> studentIds);
+        Task<Student?> GetStudentByAcademicCode(string academicCode);
     }
 }

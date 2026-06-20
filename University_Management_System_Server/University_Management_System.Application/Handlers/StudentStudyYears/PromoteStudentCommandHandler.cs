@@ -16,17 +16,15 @@ namespace University_Management_System.Application.Handlers.StudentStudyYears
     public class PromoteStudentCommandHandler : IRequestHandler<PromoteStudentCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<Student> _userManager;
 
-        public PromoteStudentCommandHandler(IUnitOfWork unitOfWork, UserManager<Student> userManager)
+        public PromoteStudentCommandHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _userManager = userManager;
         }
 
         public async Task<Unit> Handle(PromoteStudentCommand request, CancellationToken cancellationToken)
         {
-            var Student = await _userManager.Users.FirstOrDefaultAsync(u => u.AcademicCode == request.AcademicCode);
+            var Student = await _unitOfWork.Students.GetStudentByAcademicCode(request.AcademicCode);
 
             if (Student == null)
                 throw new Exception("Student not found");

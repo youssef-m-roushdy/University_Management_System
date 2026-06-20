@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using University_Management_System.Application.Contracts;
 using University_Management_System.Application.Dtos.AuthDtos;
+using University_Management_System.Application.Dtos.RoleDtos;
+using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Infrastructure.Presentation.Controllers
 {
@@ -22,154 +23,110 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
         /// Get all roles
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-
-        public async Task<ActionResult<IEnumerable<RoleDto>>> GetAllRoles()
+        public async Task<ActionResult<ApiResponse<IEnumerable<RoleDto>>>> GetAllRoles()
         {
             var roles = await _serviceManager.RoleService.GetAllRolesAsync();
-            return Ok(roles);
+            return Ok(ApiResponse<IEnumerable<RoleDto>>.SuccessResponse(
+                roles, 
+                "Roles retrieved successfully"
+            ));
         }
 
         /// <summary>
         /// Get role by ID
         /// </summary>
         [HttpGet("{roleId}")]
-        [Authorize(Roles = "Admin")]
-
-        public async Task<ActionResult<RoleDto>> GetRoleById(string roleId)
+        public async Task<ActionResult<ApiResponse<RoleDto>>> GetRoleById(string roleId)
         {
             var role = await _serviceManager.RoleService.GetRoleByIdAsync(roleId);
             if (role == null)
-                return NotFound(new { message = $"Role with ID '{roleId}' not found." });
+                return NotFound(ApiResponse<RoleDto>.NotFoundResponse($"Role with ID '{roleId}' not found."));
 
-            return Ok(role);
+            return Ok(ApiResponse<RoleDto>.SuccessResponse(role, "Role retrieved successfully"));
         }
 
         /// <summary>
         /// Get role by name
         /// </summary>
         [HttpGet("by-name/{roleName}")]
-        [Authorize(Roles = "Admin")]
-
-        public async Task<ActionResult<RoleDto>> GetRoleByName(string roleName)
+        public async Task<ActionResult<ApiResponse<RoleDto>>> GetRoleByName(string roleName)
         {
             var role = await _serviceManager.RoleService.GetRoleByNameAsync(roleName);
             if (role == null)
-                return NotFound(new { message = $"Role '{roleName}' not found." });
+                return NotFound(ApiResponse<RoleDto>.NotFoundResponse($"Role '{roleName}' not found."));
 
-            return Ok(role);
+            return Ok(ApiResponse<RoleDto>.SuccessResponse(role, "Role retrieved successfully"));
         }
 
         /// <summary>
         /// Create a new role
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-
-        public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto createRoleDto)
+        public async Task<ActionResult<ApiResponse<RoleDto>>> CreateRole([FromBody] CreateRoleDto createRoleDto)
         {
             var result = await _serviceManager.RoleService.CreateRoleAsync(createRoleDto);
 
             if (!result.Succeeded)
-                return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(ApiResponse<RoleDto>.ErrorResponse(
+                    "Failed to create role",
+                    400,
+                    errors.Select(e => new ApiError { Code = "ROLE_CREATE_FAILED", Message = e }).ToList()
+                ));
+            }
 
             var createdRole = await _serviceManager.RoleService.GetRoleByNameAsync(createRoleDto.RoleName);
-            return CreatedAtAction(nameof(GetRoleById), new { roleId = createdRole!.Id }, createdRole);
+            return CreatedAtAction(
+                nameof(GetRoleById), 
+                new { roleId = createdRole!.Id }, 
+                ApiResponse<RoleDto>.SuccessResponse(createdRole, "Role created successfully")
+            );
         }
 
         /// <summary>
         /// Update an existing role
         /// </summary>
         [HttpPut("{roleId}")]
-        [Authorize(Roles = "Admin")]
-
-        public async Task<IActionResult> UpdateRole(string roleId, [FromBody] UpdateRoleDto updateRoleDto)
+        public async Task<ActionResult<ApiResponse<object>>> UpdateRole(string roleId, [FromBody] UpdateRoleDto updateRoleDto)
         {
             var result = await _serviceManager.RoleService.UpdateRoleAsync(roleId, updateRoleDto);
 
             if (!result.Succeeded)
-                return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    "Failed to update role",
+                    400,
+                    errors.Select(e => new ApiError { Code = "ROLE_UPDATE_FAILED", Message = e }).ToList()
+                ));
+            }
 
-            return NoContent();
+            return Ok(ApiResponse<object>.SuccessResponse("Role updated successfully"));
         }
 
         /// <summary>
         /// Delete a role
         /// </summary>
         [HttpDelete("{roleId}")]
-        [Authorize(Roles = "Admin")]
-
-        public async Task<IActionResult> DeleteRole(string roleId)
+        public async Task<ActionResult<ApiResponse<object>>> DeleteRole(string roleId)
         {
             var result = await _serviceManager.RoleService.DeleteRoleAsync(roleId);
 
             if (!result.Succeeded)
-                return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
-
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Update user role by email
-        /// </summary>
-        [HttpPut("update-user-role-by-email")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUserRoleByEmail([FromBody] UpdateUserRoleByEmailDto dto)
-        {
-            var result = await _serviceManager.RoleService
-                .UpdateUserRoleByEmailAsync(dto);
-
-            if (!result.Succeeded)
-                return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
-
-            return Ok(new
             {
-                message = $"User role updated successfully to '{dto.NewRoleName}'."
-            });
-        }
-
-
-
-        /// <summary>
-        /// Update user role by academic code
-        /// </summary>
-        [HttpPut("update-user-role{academicCode}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUserRole([FromBody] UpdateUserRoleDto dto)
-        {
-            var result = await _serviceManager.RoleService
-                .UpdateUserRoleByAcademicCodeAsync(dto);
-
-            if (!result.Succeeded)
-                return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
-
-            return Ok(new
-            {
-                message = $"User role updated successfully to '{dto.NewRoleName}'."
-            });
-        }
-
-        /// <summary>
-        /// Get user role info by academic code
-        /// </summary>
-        [HttpGet("user-role-info/{academicCode}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<UserRoleInfoDto>> GetUserRoleInfoByAcademicCode(string academicCode)
-        {
-            try
-            {
-                var result = await _serviceManager.RoleService
-                    .GetUserRoleInfoByAcademicCodeAsync(academicCode);
-
-                return Ok(result);
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    "Failed to delete role",
+                    400,
+                    errors.Select(e => new ApiError { Code = "ROLE_DELETE_FAILED", Message = e }).ToList()
+                ));
             }
-            catch (Exception ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
+
+            return Ok(ApiResponse<object>.SuccessResponse("Role deleted successfully"));
         }
 
-
+        // ❌ REMOVED: Update user role endpoints
+        // These should be handled by the domain services when creating users
     }
 }
-

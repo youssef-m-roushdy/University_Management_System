@@ -70,11 +70,10 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 IsRevoked = false
             };
 
-            // Save to database
             await _context.RefreshTokens.AddAsync(refreshToken);
             await _context.SaveChangesAsync();
 
-            return refreshToken.Token; // Return just the token string
+            return refreshToken.Token;
         }
 
         public DateTime GetAccessTokenExpiryTime()
@@ -92,7 +91,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             if (token == null)
                 return false;
 
-            // Check if token is expired
             if (token.ExpiresAt <= DateTime.UtcNow)
                 return false;
 
@@ -154,7 +152,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey)),
-                ValidateLifetime = false, // Important: We want to validate expired token
+                ValidateLifetime = false,
                 ValidIssuer = _settings.Issuer,
                 ValidAudience = _settings.Audience,
                 ClockSkew = TimeSpan.Zero
@@ -174,46 +172,73 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
         public async Task<string> RefreshAccessTokenAsync(string refreshToken, string userId)
         {
-            // Validate refresh token
             var isValid = await ValidateRefreshTokenAsync(refreshToken, userId);
             if (!isValid)
                 throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 
-            // Get user
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new Exception("User not found.");
 
-            // Revoke old refresh token
             await RevokeRefreshTokenAsync(refreshToken);
 
-            // Generate new tokens
             var newAccessToken = await GenerateAccessTokenAsync(user);
-            var newRefreshToken = await GenerateRefreshTokenAsync(userId);
+            await GenerateRefreshTokenAsync(userId); // Generate new refresh token
 
             return newAccessToken;
         }
 
         public async Task<(string AccessToken, string RefreshToken)> RefreshTokensAsync(string refreshToken, string userId)
         {
-            // Validate refresh token
             var isValid = await ValidateRefreshTokenAsync(refreshToken, userId);
             if (!isValid)
                 throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 
-            // Get user
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new Exception("User not found.");
 
-            // Revoke old refresh token
             await RevokeRefreshTokenAsync(refreshToken);
 
-            // Generate new tokens
             var newAccessToken = await GenerateAccessTokenAsync(user);
             var newRefreshToken = await GenerateRefreshTokenAsync(userId);
 
             return (newAccessToken, newRefreshToken);
         }
+
+        // ✅ NEW: Get user ID from expired token
+        public string GetUserIdFromExpiredToken(string token)
+        {
+            var principal = GetPrincipalFromExpiredToken(token);
+            return principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        }
+
+        // ✅ NEW: Validate token without checking expiry
+        public bool ValidateToken(string token, bool validateLifetime = true)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey)),
+                    ValidateLifetime = validateLifetime,
+                    ValidIssuer = _settings.Issuer,
+                    ValidAudience = _settings.Audience,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                tokenHandler.ValidateToken(token, validationParameters, out _);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }

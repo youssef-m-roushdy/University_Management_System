@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace University_Management_System.Application.Dtos.AuthDtos
 {
-    public class LoginDto
+    public class RefreshTokenDto
     {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
     }
 }

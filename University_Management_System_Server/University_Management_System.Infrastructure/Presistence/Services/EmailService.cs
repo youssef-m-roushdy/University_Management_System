@@ -103,14 +103,105 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             </html>
             """;
 
-        // ── 1. Password Reset Email ────────────────────────────────────────────
+        // ────────────────────────────────────────────────────────────────────────
+        // 1. EMAIL VERIFICATION
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task SendEmailVerificationAsync(
+            string to,
+            string displayName,
+            string verificationLink)
+        {
+            var content = $"""
+                <!-- Icon -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                  <tr>
+                    <td align="center">
+                      <table cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td width="72" height="72" align="center" valign="middle"
+                              style="width:72px;height:72px;border-radius:50%;
+                                     background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%);">
+                            <span style="font-size:32px;line-height:72px;display:block;">📧</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Title -->
+                <h1 style="color:#1e293b;font-size:1.5rem;font-weight:700;
+                           text-align:center;margin:0 0 8px;">
+                  Verify Your Email Address
+                </h1>
+                <p style="color:#64748b;text-align:center;margin:0 0 32px;font-size:0.95rem;">
+                  One more step to complete your registration
+                </p>
+
+                <!-- Greeting -->
+                <p style="color:#334155;font-size:0.95rem;margin:0 0 16px;">
+                  Hello, <strong>{displayName}</strong> 👋
+                </p>
+                <p style="color:#475569;font-size:0.9rem;line-height:1.7;margin:0 0 28px;">
+                  Thank you for joining AYA Academy! To activate your account and
+                  start using all the features, please verify your email address.
+                </p>
+
+                <!-- CTA Button -->
+                <div style="text-align:center;margin:0 0 32px;">
+                  <a href="{verificationLink}"
+                     style="display:inline-block;padding:15px 40px;
+                            background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%);
+                            color:white;text-decoration:none;border-radius:12px;
+                            font-weight:600;font-size:1rem;
+                            box-shadow:0 4px 15px rgba(59,130,246,0.4);
+                            letter-spacing:0.3px;">
+                    Verify Email Address
+                  </a>
+                </div>
+
+                <!-- Divider -->
+                <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;"/>
+
+                <!-- Fallback link -->
+                <p style="color:#64748b;font-size:0.85rem;margin:0 0 8px;">
+                  Button not working? Copy and paste this link into your browser:
+                </p>
+                <p style="margin:0 0 24px;">
+                  <a href="{verificationLink}"
+                     style="color:#3b82f6;font-size:0.82rem;word-break:break-all;">
+                    {verificationLink}
+                  </a>
+                </p>
+
+                <!-- Info box -->
+                <div style="background:#f0f9ff;border:1px solid #bae6fd;
+                            border-radius:10px;padding:16px 20px;">
+                  <p style="color:#0369a1;font-size:0.85rem;margin:0;line-height:1.6;">
+                    ⏰ &nbsp;This verification link will expire in <strong>24 hours</strong>.
+                  </p>
+                  <p style="color:#0369a1;font-size:0.85rem;margin:8px 0 0;line-height:1.6;">
+                    ❓ &nbsp;If you didn't create an account, you can safely ignore this email.
+                  </p>
+                </div>
+                """;
+
+            await SendAsync(
+                to,
+                "Verify Your Email — AYA Academy",
+                WrapInLayout(content));
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // 2. PASSWORD RESET EMAIL
+        // ────────────────────────────────────────────────────────────────────────
         public async Task SendPasswordResetEmailAsync(
             string to,
             string displayName,
             string resetLink)
         {
             var content = $"""
-                <!-- Icon: table-based circle for universal email client support -->
+                <!-- Icon -->
                 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                   <tr>
                     <td align="center">
@@ -174,8 +265,8 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 </p>
 
                 <!-- Security notice -->
-                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;
-                            padding:16px 20px;">
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;
+                            border-radius:10px;padding:16px 20px;">
                   <p style="color:#64748b;font-size:0.85rem;margin:0;line-height:1.6;">
                     🔒 <strong>Security notice:</strong> If you didn't request this,
                     you can safely ignore this email. Your password will not change
@@ -184,10 +275,15 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 </div>
                 """;
 
-            await SendAsync(to, "Reset Your Password — AYA Academy", WrapInLayout(content));
+            await SendAsync(
+                to,
+                "Reset Your Password — AYA Academy",
+                WrapInLayout(content));
         }
 
-        // ── 2. Password Changed Confirmation Email ─────────────────────────────
+        // ────────────────────────────────────────────────────────────────────────
+        // 3. PASSWORD CHANGED CONFIRMATION
+        // ────────────────────────────────────────────────────────────────────────
         public async Task SendPasswordChangedConfirmationAsync(
             string to,
             string displayName)
@@ -195,7 +291,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             var changedAt = DateTime.UtcNow.ToString("MMMM dd, yyyy 'at' HH:mm 'UTC'");
 
             var content = $"""
-                <!-- Icon: table-based circle for universal email client support -->
+                <!-- Icon -->
                 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                   <tr>
                     <td align="center">
@@ -255,6 +351,95 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             await SendAsync(
                 to,
                 "Your Password Has Been Changed — AYA Academy",
+                WrapInLayout(content));
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // 4. WELCOME EMAIL
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task SendWelcomeEmailAsync(
+            string to,
+            string displayName)
+        {
+            var content = $"""
+                <!-- Icon -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                  <tr>
+                    <td align="center">
+                      <table cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td width="72" height="72" align="center" valign="middle"
+                              style="width:72px;height:72px;border-radius:50%;
+                                     background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);">
+                            <span style="font-size:32px;line-height:72px;display:block;">🎉</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Title -->
+                <h1 style="color:#1e293b;font-size:1.5rem;font-weight:700;
+                           text-align:center;margin:0 0 8px;">
+                  Welcome to AYA Academy!
+                </h1>
+                <p style="color:#64748b;text-align:center;margin:0 0 32px;font-size:0.95rem;">
+                  Your journey starts here
+                </p>
+
+                <!-- Greeting -->
+                <p style="color:#334155;font-size:0.95rem;margin:0 0 16px;">
+                  Hello, <strong>{displayName}</strong> 👋
+                </p>
+                <p style="color:#475569;font-size:0.9rem;line-height:1.7;margin:0 0 16px;">
+                  Welcome to AYA Academy! Your account has been successfully created
+                  and verified. You can now access all the features of our university
+                  management system.
+                </p>
+
+                <!-- What you can do -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;
+                            border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+                  <p style="color:#1e293b;font-weight:600;font-size:0.9rem;margin:0 0 12px;">
+                    🚀 Here's what you can do next:
+                  </p>
+                  <ul style="color:#475569;font-size:0.85rem;margin:0;padding-left:20px;line-height:1.8;">
+                    <li>Browse available courses</li>
+                    <li>View your academic schedule</li>
+                    <li>Access learning materials</li>
+                    <li>Connect with instructors and classmates</li>
+                  </ul>
+                </div>
+
+                <!-- Login Button -->
+                <div style="text-align:center;margin:0 0 24px;">
+                  <a href="{_settings.FrontendBaseUrl}/login"
+                     style="display:inline-block;padding:15px 40px;
+                            background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+                            color:white;text-decoration:none;border-radius:12px;
+                            font-weight:600;font-size:1rem;
+                            box-shadow:0 4px 15px rgba(30,60,114,0.4);
+                            letter-spacing:0.3px;">
+                    Go to Dashboard
+                  </a>
+                </div>
+
+                <!-- Footer note -->
+                <div style="background:#f0f9ff;border:1px solid #bae6fd;
+                            border-radius:10px;padding:16px 20px;">
+                  <p style="color:#0369a1;font-size:0.85rem;margin:0;line-height:1.6;">
+                    💡 &nbsp;Need help? Contact our support team at
+                    <a href="mailto:support@ayaacademy.com" style="color:#3b82f6;">
+                      support@ayaacademy.com
+                    </a>
+                  </p>
+                </div>
+                """;
+
+            await SendAsync(
+                to,
+                "Welcome to AYA Academy! 🎓",
                 WrapInLayout(content));
         }
     }

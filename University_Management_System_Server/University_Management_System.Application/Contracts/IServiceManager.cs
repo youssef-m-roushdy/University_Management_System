@@ -5,5 +5,7 @@ namespace University_Management_System.Application.Contracts
         IAuthenticationService AuthenticationService { get; }
         IRoleService RoleService { get; }
         IUserService UserService { get; }
+        IJwtService JwtService { get; }
+        IEmailService EmailService { get; }
     }
 }

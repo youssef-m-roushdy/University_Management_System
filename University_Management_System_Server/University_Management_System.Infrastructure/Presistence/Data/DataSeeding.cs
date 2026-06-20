@@ -958,6 +958,8 @@ namespace University_Management_System.Infrastructure.Presistence.Data
             Email       = "admin@akhbaracademy.com",
             UserName    = "Admin123",
             PhoneNumber = "0123456789",
+            EmailConfirmed = true,
+            Address = "123 Admin St, University City",
         };
 
         // Step 1: create the User via Identity (hashes password, assigns Id, etc.)

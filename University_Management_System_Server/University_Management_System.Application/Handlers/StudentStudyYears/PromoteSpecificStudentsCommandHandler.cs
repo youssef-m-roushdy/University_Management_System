@@ -17,21 +17,18 @@ namespace University_Management_System.Application.Handlers.StudentStudyYears
     public class PromoteSpecificStudentsCommandHandler : IRequestHandler<PromoteSpecificStudentsCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<Student> _userManager;
 
-        public PromoteSpecificStudentsCommandHandler(IUnitOfWork unitOfWork, UserManager<Student> userManager)
+
+        public PromoteSpecificStudentsCommandHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _userManager = userManager;
         }
 
         public async Task<Unit> Handle(PromoteSpecificStudentsCommand request, CancellationToken cancellationToken)
         {
-            var SpecificUngraduatedStudents = await _userManager.Users
-                .Where(u => u.Level != Levels.Graduate)
-                .ToListAsync();
+            var SpecificUngraduatedStudents = await _unitOfWork.Students.GetSpecificUngraduatedStudentsAsync(request.AcademicCodes);
 
-            if (SpecificUngraduatedStudents.Count == 0)
+            if (SpecificUngraduatedStudents.Count() == 0)
                 throw new Exception("No ungraduated students found");
 
             var currentStudyYear = await _unitOfWork.StudyYears.GetCurrentStudyYearAsync();

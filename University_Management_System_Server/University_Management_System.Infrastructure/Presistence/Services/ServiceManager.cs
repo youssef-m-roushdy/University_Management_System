@@ -12,6 +12,8 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         private readonly Lazy<IAuthenticationService> _authService;
         private readonly Lazy<IRoleService> _roleService;
         private readonly Lazy<IUserService> _userService;
+        private readonly Lazy<IJwtService> _jwtService;
+        private readonly Lazy<IEmailService> _emailService;
 
         public ServiceManager(
             UserManager<User> userManager,
@@ -37,14 +39,19 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                     context));      // ← Fixed: UniversityDbContext parameter
 
             _roleService = new Lazy<IRoleService>(
-                () => new RoleService(roleManager, userManager));
-
+                () => new RoleService(roleManager));
             _userService = new Lazy<IUserService>(
                 () => userService);
+            _jwtService = new Lazy<IJwtService>(
+                () => jwtService);
+            _emailService = new Lazy<IEmailService>(
+                () => emailService);
         }
 
         public IAuthenticationService AuthenticationService => _authService.Value;
         public IRoleService RoleService => _roleService.Value;
         public IUserService UserService => _userService.Value;
+        public IJwtService JwtService => _jwtService.Value;
+        public IEmailService EmailService => _emailService.Value;
     }
 }
