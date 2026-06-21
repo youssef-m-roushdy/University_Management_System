@@ -6,7 +6,7 @@ using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Domain.Queries
 {
-    public class DepartmentCourseQuery : PaginationQuery
+    public class DepartmentCourseQueries : PaginationQuery
     {
         public CourseStatus? Status { get; set; }
     }

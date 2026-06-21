@@ -92,7 +92,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{studyYearId}/year/{semesterId}/semester")]
-        public async Task<IActionResult> GetPendingRegistrations(int studyYearId, int semesterId, [FromQuery] RegistrationQuery registrationQuery)
+        public async Task<IActionResult> GetPendingRegistrations(int studyYearId, int semesterId, [FromQuery] RegistrationQueries registrationQuery)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))

@@ -10,6 +10,7 @@ using University_Management_System.Application.Queries.StudyYear;
 using University_Management_System.Application.Commands.StudyYears;
 using University_Management_System.Application.Queries.StudyYears;
 using University_Management_System.Application.Dtos.SemesterDtos;
+using University_Management_System.Application.Commands.Semesters;
 
 namespace University_Management_System.Infrastructure.Presentation.Controllers
 {
@@ -240,19 +241,18 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
 
         // GET /api/study-years/{id}/semesters?pageNumber=1&pageSize=10&sortBy=title&searchTerm=Fall
         [HttpGet("{id}/semesters")]
-        public async Task<ActionResult<PagedResponse<SemesterDto>>> GetStudyYearSemesters(
-            int id,
-            [FromQuery] GetStudyYearNestedQueries query)
+        public async Task<ActionResult<PagedResponse<SemesterDto>>> GetStudyYearSemesters(int id)
         {
             try
             {
-                var result = await _mediator.Send(new GetStudyYearSemestersQuery { Query = query, StudyYearId = id });
+                var result = await _mediator.Send(new GetStudyYearSemestersQuery { StudyYearId = id });
 
+                // the returned semesters now in one page is 2 or 3 semesters at most
                 var response = PagedResponse<SemesterDto>.SuccessResponse(
                     result.Data,
-                    query.PageNumber,
-                    query.PageSize,
-                    result.TotalCount,
+                    1, // always return page 1 for nested routes
+                    result.TotalCount, // total count is the count of semesters for this study year
+                    result.TotalCount, // total count is the count of semesters for this study year
                     "Semesters retrieved successfully"
                 );
 
@@ -270,11 +270,36 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             }
         }
 
+        [HttpPost("{id}/semesters")]
+        public async Task<ActionResult<PagedResponse<SemesterDto>>> CreateStudyYearSemester(int id, [FromBody] CreateSemesterDto dto)
+        {
+            try
+            {
+                var result = await _mediator.Send(new CreateSemesterCommand { StudyYearId = id, SemesterDto = dto });
+
+                return CreatedAtAction(
+                    nameof(GetStudyYearSemesters),
+                    new { id = id },
+                    ApiResponse<SemesterDto>.SuccessResponse(result, "Semester created successfully")
+                );
+            }
+            catch (Shared.Exceptions.NotFoundException ex)
+            {
+                return NotFound(PagedResponse<SemesterDto>.NotFoundResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating semester for study year: {Id}", id);
+                return StatusCode(500, PagedResponse<SemesterDto>.ServerErrorResponse(
+                    "An error occurred while creating semester"));
+            }
+        }
+
         // GET /api/study-years/{id}/students?pageNumber=1&pageSize=10&sortBy=name&searchTerm=John
         [HttpGet("{id}/students")]
         public async Task<ActionResult<PagedResponse<StudentStudyYearDto>>> GetStudyYearStudents(
             int id,
-            [FromQuery] GetStudyYearNestedQueries query)
+            [FromQuery] StudyYearStudentQueries query)
         {
             try
             {
@@ -306,7 +331,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
         [HttpGet("{id}/fees")]
         public async Task<ActionResult<PagedResponse<FeeDto>>> GetStudyYearFees(
             int id,
-            [FromQuery] GetStudyYearNestedQueries query)
+            [FromQuery] StudyYearFeeQueries query)
         {
             try
             {

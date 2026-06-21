@@ -14,7 +14,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         {
         }
 
-        public async Task<(IEnumerable<Course> Data, int TotalCount)> GetFilteredCoursesWithPaginationAsync(CourseQuery query)
+        public async Task<(IEnumerable<Course> Data, int TotalCount)> GetFilteredCoursesWithPaginationAsync(CourseQueries query)
         {
             var courses = _dbContext.Courses
                 .Include(d => d.Department)
@@ -46,7 +46,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
             return (data, totalCount);
         }
 
-        public async Task<IEnumerable<Course>> GetFilteredCoursesAsync(CourseQuery query)
+        public async Task<IEnumerable<Course>> GetFilteredCoursesAsync(CourseQueries query)
         {
             // Start with IQueryable - NO ToListAsync() yet!
             var courses = _dbContext.Courses
@@ -77,7 +77,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<(IEnumerable<Course> Data, int TotalCount)> GetDepartmentCoursesWithPaginationAsync(int departmentId, DepartmentCourseQuery query)
+        public async Task<(IEnumerable<Course> Data, int TotalCount)> GetDepartmentCoursesWithPaginationAsync(int departmentId, DepartmentCourseQueries query)
         {
             var queryable = _dbContext.Courses
                 .Where(c => c.DepartmentId == departmentId)
@@ -100,7 +100,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
             return (data, totalCount);
         }
 
-        public Task<IEnumerable<Course>> GetDepartmentCoursesAsync(int departmentId, DepartmentCourseQuery query)
+        public Task<IEnumerable<Course>> GetDepartmentCoursesAsync(int departmentId, DepartmentCourseQueries query)
         {
             var queryable = _dbContext.Courses
                 .Where(c => c.DepartmentId == departmentId)

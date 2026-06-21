@@ -54,15 +54,40 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<(IEnumerable<StudentStudyYear> Data, int TotalCount)> GetByStudyYearIdAsync(
+        public async Task<(IEnumerable<StudentStudyYear> Data, int TotalCount)> GetStudentsOfTheStudyYearByIdAsync(
             int studyYearId,
-            GetStudyYearNestedQueries query,
+            StudyYearStudentQueries query,
             CancellationToken cancellationToken)
         {
             var studentStudyYears = GetQueryable()
                 .Include(ssy => ssy.Student)
                     .ThenInclude(s => s.User)
                 .Where(ssy => ssy.StudyYearId == studyYearId);
+
+            // Check student is Active for this study year
+            if(query.IsActive.HasValue)
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.IsActive == query.IsActive.Value);
+
+            if (!string.IsNullOrWhiteSpace(query.AcademicCode))
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.Student.AcademicCode.Contains(query.AcademicCode));
+
+            if (query.Level.HasValue)
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.Level == query.Level.Value);
+
+            if (query.DepartmentId.HasValue)
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.Student.DepartmentId == query.DepartmentId.Value);
+
+            if (query.MinGPA.HasValue)
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.Student.TotalGPA >= query.MinGPA.Value);
+
+            if (query.MaxGPA.HasValue)
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.Student.TotalGPA <= query.MaxGPA.Value);
+
+            if (query.EnrolledFrom.HasValue)
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.EnrolledAt >= query.EnrolledFrom.Value);
+
+            if (query.EnrolledTo.HasValue)
+                studentStudyYears = studentStudyYears.Where(ssy => ssy.EnrolledAt <= query.EnrolledTo.Value);
 
             var totalCount = await studentStudyYears.CountAsync(cancellationToken);
 

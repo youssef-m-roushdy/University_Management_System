@@ -55,5 +55,14 @@ namespace University_Management_System.Application.Validations.Common
         // ─── Credits ──────────────────────────────────────────────────────────
         public const string CreditsMinMax = "Minimum credits must be less than or equal to Maximum credits";
         public const string CreditsPositive = "Credits must be greater than or equal to 0";
+        // ─── Id ───────────────────────────────────────────────────────────────
+        public const string InvalidId = "{PropertyName} must be greater than 0";
+
+        // ─── Amount ───────────────────────────────────────────────────────────
+        public const string AmountPositive = "Amount must be greater than or equal to 0";
+        public const string AmountMinMax = "Minimum amount must be less than or equal to Maximum amount";
+
+        // ─── Date Range ──────────────────────────────────────────────────────
+        public const string DateRangeMinMax = "Start date must be less than or equal to End date";
     }
 }

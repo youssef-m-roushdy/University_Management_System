@@ -6,37 +6,37 @@ using University_Management_System.Application.Commands.Semesters;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using MediatR;
+using University_Management_System.Application.Dtos.SemesterDtos;
+using University_Management_System.Shared.Exceptions;
+using AutoMapper;
 
 namespace University_Management_System.Application.Handlers.Semesters
 {
-    public class CreateSemesterCommandHandler : IRequestHandler<CreateSemesterCommand, int>
+    public class CreateSemesterCommandHandler : IRequestHandler<CreateSemesterCommand, SemesterDto>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CreateSemesterCommandHandler(IUnitOfWork unitOfWork)
+        public CreateSemesterCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<int> Handle(CreateSemesterCommand request, CancellationToken cancellationToken)
+        public async Task<SemesterDto> Handle(CreateSemesterCommand request, CancellationToken cancellationToken)
         {
-            // Map the CreateSemesterDto to the Semester entity
-            var semester = new Semester
-            {
-                Title = request.SemesterDto.Title,
-                StartDate = request.SemesterDto.StartDate,
-                EndDate = request.SemesterDto.EndDate,
-                StudyYearId = request.StudyYearId
-            };
+            var studyYearExists = await _unitOfWork.StudyYears.AnyAsync(sy => sy.Id == request.StudyYearId);
+            if (!studyYearExists)
+                throw new NotFoundException($"StudyYear with id {request.StudyYearId} was not found.");
 
-            // Add the new Semester to the repository
-            _unitOfWork.Semesters.AddAsync(semester);
+            var titleTaken = await _unitOfWork.Semesters.SemesterTitleExistsInStudyYearAsync(request.StudyYearId, request.SemesterDto.Title);
+            if (titleTaken)
+                throw new ConflictException($"A semester with title '{request.SemesterDto.Title}' already exists for this study year.");
 
-            // Save changes to the database
-            await _unitOfWork.SaveChangesAsync();
+            var semester = _mapper.Map<Semester>(request.SemesterDto);
+            var created = await _unitOfWork.Semesters.CreateStudyYearSemesterAsync(request.StudyYearId, semester);
 
-            // Return the ID of the newly created Semester
-            return semester.Id;
+            return _mapper.Map<SemesterDto>(created);
         }
     }
 }

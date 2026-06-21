@@ -31,6 +31,10 @@ namespace University_Management_System.Domain.Queries
 
         public string? SortBy { get; set; }
         public SortDirection SortDirection { get; set; } = SortDirection.Ascending;
+    }
+
+    public class SearchablePaginationQuery : PaginationQuery
+    {
         public string? SearchTerm { get; set; }
     }
 }

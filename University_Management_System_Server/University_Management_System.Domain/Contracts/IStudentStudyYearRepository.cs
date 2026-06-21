@@ -12,9 +12,9 @@ namespace University_Management_System.Domain.Contracts
         Task AddRangeAsync(IEnumerable<StudentStudyYear> StudentStudyYears);
         Task<IEnumerable<StudentStudyYear>> GetStudyYearsByStudentIdAsync(string studentId);
 
-        Task<(IEnumerable<StudentStudyYear> Data, int TotalCount)> GetByStudyYearIdAsync(
+        Task<(IEnumerable<StudentStudyYear> Data, int TotalCount)> GetStudentsOfTheStudyYearByIdAsync(
             int studyYearId,
-            GetStudyYearNestedQueries query,
+            StudyYearStudentQueries query,
             CancellationToken cancellationToken);
     }
 }

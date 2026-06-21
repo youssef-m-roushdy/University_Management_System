@@ -8,10 +8,9 @@ namespace University_Management_System.Domain.Contracts
         Task<IEnumerable<Fee>> GetFeesOfDepartmentForStudyYear(int departmentId, int studyYearId);
       
 
-        Task<IEnumerable<Fee>> GetFeesOfStudyYear(int studyYearId);
-        Task<(IEnumerable<Fee> Data, int TotalCount)> GetByStudyYearIdAsync(
+        Task<(IEnumerable<Fee> Data, int TotalCount)> GetFeesByStudyYearIdAsync(
             int studyYearId,
-            GetStudyYearNestedQueries query,
+            StudyYearFeeQueries query,
             CancellationToken cancellationToken);
        
     }

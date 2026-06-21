@@ -21,12 +21,9 @@ namespace University_Management_System.Application.Handlers.Fees
             _mapper = mapper;
         }
 
-        public async Task<List<FeeDto>> Handle(GetFeesOfStudyYearQuery request, CancellationToken cancellationToken)
+        public Task<List<FeeDto>> Handle(GetFeesOfStudyYearQuery request, CancellationToken cancellationToken)
         {
-            var fees = await _unitOfWork.Fees.GetFeesOfStudyYear(request.StudyYearId);
-            var feeDtos = fees.Select(f => _mapper.Map<FeeDto>(f)).ToList();
-
-            return feeDtos;
+            throw new NotImplementedException();
         }
     }
 }

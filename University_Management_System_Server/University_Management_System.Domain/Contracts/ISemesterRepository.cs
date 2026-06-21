@@ -1,17 +1,20 @@
+using System.Runtime.InteropServices;
 using University_Management_System.Domain.Entities.Models;
+using University_Management_System.Domain.Enums;
 using University_Management_System.Domain.Queries;
 
 namespace University_Management_System.Domain.Contracts
 {
     public interface ISemesterRepository : IGenericRepository<Semester, int>
     {
-        public Task<IEnumerable<Semester>> GetByStudyYearIdAsync(int studyYearId);
-        Task<Semester?> GetActiveSemesterByStudyYearIdAsync(int studyYearId);
         Task<bool> IsActiveSemesterAsync(int semesterId);
         Task<bool> IsSemesterBelongsToStudyYearAsync(int semesterId, int studyYearId);
-        Task<(IEnumerable<Semester> Data, int TotalCount)> GetByStudyYearIdAsync(
-            int studyYearId,
-            GetStudyYearNestedQueries query,
-            CancellationToken cancellationToken);
+        Task<bool> SemesterTitleExistsInStudyYearAsync(int studyYearId, SemesterEnum title);
+
+        // the year is have 3 or 2 semesters, so we dont need to paginate the response
+        Task<IEnumerable<Semester>> GetSemestersByStudyYearIdAsync(int studyYearId);
+        Task<Semester> CreateStudyYearSemesterAsync(int studyYearId, Semester semester);
+        
+       
     }
 }

@@ -6,7 +6,7 @@ using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Domain.Queries
 {
-    public class RegistrationQuery : PaginationQuery
+    public class RegistrationQueries : PaginationQuery
     {
         public string? StudentUserName { get; set; }
         public string? CourseName { get; set; }

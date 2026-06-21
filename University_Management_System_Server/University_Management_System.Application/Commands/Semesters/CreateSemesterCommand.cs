@@ -7,15 +7,10 @@ using MediatR;
 
 namespace University_Management_System.Application.Commands.Semesters
 {
-    public class CreateSemesterCommand : IRequest<int>
+    public class CreateSemesterCommand : IRequest<SemesterDto>
     {
         public int StudyYearId { get; set; }
         public CreateSemesterDto SemesterDto { get; set; }
 
-        public CreateSemesterCommand(int studyYearId, CreateSemesterDto semesterDto)
-        {
-            StudyYearId = studyYearId;
-            SemesterDto = semesterDto;
-        }
     }
 }

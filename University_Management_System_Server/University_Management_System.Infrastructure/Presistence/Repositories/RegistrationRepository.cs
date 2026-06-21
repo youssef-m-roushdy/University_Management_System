@@ -107,11 +107,11 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         public async Task<(IEnumerable<Registration> Data, int TotalCount)> GetAllSemesterRegistrationsPaginatedAsync(
             int semesterId,
             int studyYearId,
-            RegistrationQuery? registrationQuery,
+            RegistrationQueries? registrationQuery,
             CancellationToken cancellationToken)
         {
             // ✅ Guarantee non-null for the rest of the method
-            registrationQuery ??= new RegistrationQuery();
+            registrationQuery ??= new RegistrationQueries();
 
             var query = _dbContext.Registrations
                 .Where(r => r.SemesterId == semesterId && r.StudyYearId == studyYearId)

@@ -22,7 +22,7 @@ namespace University_Management_System.Application.Handlers.Semesters
 
         public async Task<IEnumerable<SemesterDto>> Handle(GetStudyYearSemestersQuery request, CancellationToken cancellationToken)
         {
-            var semesters = await _unitOfWork.Semesters.GetByStudyYearIdAsync(request.StudyYearId);
+            var semesters = await _unitOfWork.Semesters.GetByIdAsync(request.StudyYearId);
             return _mapper.Map<IEnumerable<SemesterDto>>(semesters);
         }
     }

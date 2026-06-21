@@ -24,7 +24,7 @@ namespace University_Management_System.Application.Handlers.StudyYears
         public async Task<(IEnumerable<FeeDto> Data, int TotalCount)> Handle(GetStudyYearFeesQuery request, CancellationToken cancellationToken)
         {
             var (fees, totalCount) = await _unitOfWork.Fees
-                .GetByStudyYearIdAsync(request.StudyYearId, request.Query, cancellationToken);
+                .GetFeesByStudyYearIdAsync(request.StudyYearId, request.Query, cancellationToken);
 
             var dtos = _mapper.Map<IEnumerable<FeeDto>>(fees);
 

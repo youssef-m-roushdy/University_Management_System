@@ -16,11 +16,7 @@ namespace University_Management_System.Application.Validations.Common
 
             RuleFor(x => x.SortBy)
                 .MaximumLength(50).WithMessage("Sort by field must not exceed 50 characters")
-                .When(x => !string.IsNullOrEmpty(x.SortBy));
-
-            RuleFor(x => x.SearchTerm)
-                .MaximumLength(100).WithMessage("Search term must not exceed 100 characters")
-                .When(x => !string.IsNullOrEmpty(x.SearchTerm));
+                .When(x => !string.IsNullOrEmpty(x.SortBy));     
 
             RuleFor(x => x.SortDirection)
                 .IsInEnum().WithMessage("Invalid sort direction. Must be Ascending or Descending");

@@ -2,6 +2,8 @@ using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using University_Management_System.Domain.Queries;
+using University_Management_System.Application.Dtos.SemesterDtos;
+using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Infrastructure.Presistence.Repositories
 {
@@ -11,68 +13,42 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         {
 
         }
-
-        public async Task<IEnumerable<Semester>> GetByStudyYearIdAsync(int studyYearId)
+ 
+        async Task<bool> SemesterTitleExistsInStudyYearAsync(int studyYearId, SemesterEnum title)
         {
-            return await _dbContext.Semesters
-                .Where(s => s.StudyYearId == studyYearId)
-                .AsNoTracking()
-                .ToListAsync();
+            return await _dbContext.Semesters.AnyAsync(s => s.StudyYearId == studyYearId && s.Title == title);
         }
 
-        public async Task<Semester?> GetActiveSemesterByStudyYearIdAsync(int studyYearId)
+        public async Task<Semester> CreateStudyYearSemesterAsync(int studyYearId, Semester semester)
         {
-            return await _dbContext.Semesters
-                .Where(s => s.StudyYearId == studyYearId && s.IsActive)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
+            semester.StudyYearId = studyYearId;
+            await _dbContext.Semesters.AddAsync(semester);
+            await _dbContext.SaveChangesAsync();
+            return semester;
+        }
+
+        public async Task<IEnumerable<Semester>> GetSemestersByStudyYearIdAsync(int studyYearId)
+        {
+            return await GetQueryable()
+                .Where(s => s.StudyYearId == studyYearId)
+                .ToListAsync();
         }
 
         public async Task<bool> IsActiveSemesterAsync(int semesterId)
         {
-            return await _dbContext.Semesters
+            return await GetQueryable()
                 .AnyAsync(s => s.Id == semesterId && s.IsActive);
         }
 
         public async Task<bool> IsSemesterBelongsToStudyYearAsync(int semesterId, int studyYearId)
         {
-            return await _dbContext.Semesters
+            return await GetQueryable()
                 .AnyAsync(s => s.Id == semesterId && s.StudyYearId == studyYearId);
         }
 
-        public async Task<(IEnumerable<Semester> Data, int TotalCount)> GetByStudyYearIdAsync(
-            int studyYearId,
-            GetStudyYearNestedQueries query,
-            CancellationToken cancellationToken)
+        Task<bool> ISemesterRepository.SemesterTitleExistsInStudyYearAsync(int studyYearId, SemesterEnum title)
         {
-            var semesters = GetQueryable()
-                .Where(s => s.StudyYearId == studyYearId);
-
-            var totalCount = await semesters.CountAsync(cancellationToken);
-
-            semesters = query.SortBy?.ToLower() switch
-            {
-                "title" => query.SortDirection == SortDirection.Ascending
-                    ? semesters.OrderBy(s => s.Title)
-                    : semesters.OrderByDescending(s => s.Title),
-                "startdate" => query.SortDirection == SortDirection.Ascending
-                    ? semesters.OrderBy(s => s.StartDate)
-                    : semesters.OrderByDescending(s => s.StartDate),
-                "enddate" => query.SortDirection == SortDirection.Ascending
-                    ? semesters.OrderBy(s => s.EndDate)
-                    : semesters.OrderByDescending(s => s.EndDate),
-                "isactive" => query.SortDirection == SortDirection.Ascending
-                    ? semesters.OrderBy(s => s.IsActive)
-                    : semesters.OrderByDescending(s => s.IsActive),
-                _ => semesters.OrderBy(s => s.Title)
-            };
-
-            var result = await semesters
-                .Skip((query.PageNumber - 1) * query.PageSize)
-                .Take(query.PageSize)
-                .ToListAsync(cancellationToken);
-
-            return (result, totalCount);
+            return SemesterTitleExistsInStudyYearAsync(studyYearId, title);
         }
     }
 }

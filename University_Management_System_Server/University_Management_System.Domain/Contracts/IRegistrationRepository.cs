@@ -18,7 +18,7 @@ namespace University_Management_System.Domain.Contracts
         Task<(IEnumerable<Registration> Data, int TotalCount)> GetAllSemesterRegistrationsPaginatedAsync(
             int semesterId,
             int studyYearId,
-            RegistrationQuery? registrationQuery,
+            RegistrationQueries? registrationQuery,
             CancellationToken cancellationToken);
 
         Task<IEnumerable<Registration>> GetStudentPassedCoursesAsync(string userId);

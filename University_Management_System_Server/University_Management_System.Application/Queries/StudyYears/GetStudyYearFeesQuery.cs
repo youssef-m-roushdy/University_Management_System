@@ -12,6 +12,6 @@ namespace University_Management_System.Application.Queries.StudyYears
     public class GetStudyYearFeesQuery : IRequest<(IEnumerable<FeeDto> Data, int TotalCount)>
     {
         public int StudyYearId { get; set; }
-        public GetStudyYearNestedQueries Query { get; set; } = new GetStudyYearNestedQueries();
+        public StudyYearFeeQueries Query { get; set; } = new StudyYearFeeQueries();
     }
 }

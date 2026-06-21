@@ -30,15 +30,6 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             return Ok(result);
         }
 
-        // create semester for a study year
-        [HttpPost("{studyYearId}/study-year")]
-        public async Task<IActionResult> CreateSemester(int studyYearId, [FromBody] CreateSemesterDto semesterDto)
-        {
-            var command = new CreateSemesterCommand(studyYearId, semesterDto);
-            var result = await _mediator.Send(command);
-            return Ok(result);
-        }
-
         
     }
 }

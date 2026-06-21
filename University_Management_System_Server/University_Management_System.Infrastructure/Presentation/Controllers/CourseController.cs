@@ -40,7 +40,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] CourseQuery query)
+        public async Task<IActionResult> GetAll([FromQuery] CourseQueries query)
         {
             var result = await _mediator.Send(new GetAllCoursesQuery(query));
             //return CreatedAtAction(nameof(GetById), new { id = result.Data?.Id }, result);
@@ -88,7 +88,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
 
         [Authorize]
         [HttpGet("department/{departmentId}")]
-        public async Task<IActionResult> DeparmentCourses(int departmentId, [FromQuery] DepartmentCourseQuery query)
+        public async Task<IActionResult> DeparmentCourses(int departmentId, [FromQuery] DepartmentCourseQueries query)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))

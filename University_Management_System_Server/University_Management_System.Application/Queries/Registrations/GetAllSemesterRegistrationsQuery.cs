@@ -13,8 +13,8 @@ namespace University_Management_System.Application.Queries.Registrations
     {
         public int SemesterId { get; set; }
         public int StudyYearId { get; set; }
-        public RegistrationQuery? RegistrationQuery { get; set; }
-        public GetAllSemesterRegistrationsQuery(int studyYearId, int semesterId, RegistrationQuery? registrationQuery = null)
+        public RegistrationQueries? RegistrationQuery { get; set; }
+        public GetAllSemesterRegistrationsQuery(int studyYearId, int semesterId, RegistrationQueries? registrationQuery = null)
         {
             SemesterId = semesterId;
             StudyYearId = studyYearId;

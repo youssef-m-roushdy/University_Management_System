@@ -6,7 +6,7 @@ using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Domain.Queries
 {
-    public class AdminQueries : PaginationQuery
+    public class AdminQueries : SearchablePaginationQuery
     {
         public string? Name { get; set; }
         public string? Email { get; set; }

@@ -6,7 +6,7 @@ using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Domain.Queries
 {
-    public class UserQueries : PaginationQuery
+    public class UserQueries : SearchablePaginationQuery
     {
         // ✅ User domain filters only
         public string? Name { get; set; }

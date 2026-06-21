@@ -12,9 +12,9 @@ namespace University_Management_System.Application.Queries.Courses
     public class GetDepartmentCoursesQuery : IRequest<PagedResponse<DepartmentCourseDto>>
     {
         public int DepartmentId { get; set; }
-        public DepartmentCourseQuery Query { get; set; }
+        public DepartmentCourseQueries Query { get; set; }
 
-        public GetDepartmentCoursesQuery(int departmentId, DepartmentCourseQuery query)       
+        public GetDepartmentCoursesQuery(int departmentId, DepartmentCourseQueries query)       
         {
             Query = query;
             DepartmentId = departmentId;

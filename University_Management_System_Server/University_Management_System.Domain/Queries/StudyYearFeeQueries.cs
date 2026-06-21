@@ -6,10 +6,9 @@ using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Domain.Queries
 {
-    public class FeeQueries : PaginationQuery
+    public class StudyYearFeeQueries : PaginationQuery
     {
-        // inherited from PaginationQuery no searchPaginationQuery becase fees is based on number of records not search term
-        public int? StudyYearId { get; set; }
+        // no need for study year id i will take from path parameter in the controller
         public int? DepartmentId { get; set; }
         public Levels? Level { get; set; }
         public FeeType? FeeType { get; set; }

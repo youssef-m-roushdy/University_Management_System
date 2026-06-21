@@ -22,8 +22,8 @@ namespace University_Management_System.Application.Handlers.StudyYears
 
         public async Task<(IEnumerable<SemesterDto> Data, int TotalCount)> Handle(GetStudyYearSemestersQuery request, CancellationToken cancellationToken)
         {
-            var (semesters, totalCount) = await _unitOfWork.Semesters
-                .GetByStudyYearIdAsync(request.StudyYearId, request.Query, cancellationToken);
+            var semesters = await _unitOfWork.Semesters.GetSemestersByStudyYearIdAsync(request.StudyYearId);
+            var totalCount = semesters.Count();
 
             var dtos = _mapper.Map<IEnumerable<SemesterDto>>(semesters);
 

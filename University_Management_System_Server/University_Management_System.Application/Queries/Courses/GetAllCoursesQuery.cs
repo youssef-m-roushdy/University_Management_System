@@ -11,9 +11,9 @@ namespace University_Management_System.Application.Queries.Courses
 {
     public class GetAllCoursesQuery : IRequest<PagedResponse<CourseWithDepartmentDto>>
     {
-        public CourseQuery Query { get; set; }
+        public CourseQueries Query { get; set; }
 
-        public GetAllCoursesQuery(CourseQuery query)
+        public GetAllCoursesQuery(CourseQueries query)
         {
             Query = query;
         }
