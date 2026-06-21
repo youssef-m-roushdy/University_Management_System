@@ -25,7 +25,7 @@ namespace University_Management_System.Application.Handlers.AcademicSchedules
                 throw new NotFoundException($"Academic schedule '{request.ScheduleTitle}' not found.");
 
 
-            await _unitOfWork.AcademicSchedules.Delete(schedule);
+            await _unitOfWork.AcademicSchedules.DeleteAsync(schedule);
             await _unitOfWork.SaveChangesAsync();
 
             return true;

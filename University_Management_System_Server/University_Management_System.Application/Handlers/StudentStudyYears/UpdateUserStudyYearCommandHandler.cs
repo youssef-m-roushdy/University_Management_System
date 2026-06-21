@@ -27,7 +27,7 @@ namespace University_Management_System.Application.Handlers.StudentStudyYears
             if (dto.Level.HasValue)
                 entity.Level = dto.Level.Value;
 
-            await _unitOfWork.StudentStudyYears.Update(entity);
+            await _unitOfWork.StudentStudyYears.UpdateAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
             // Re-fetch with includes

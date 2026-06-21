@@ -27,7 +27,7 @@ namespace University_Management_System.Application.Handlers.Specializations
             }
             specialization.Name = request.UpdateSpecializationDto.Name;
             specialization.Description = request.UpdateSpecializationDto.Description;
-            _unitOfWork.Specializations.Update(specialization);
+            _unitOfWork.Specializations.UpdateAsync(specialization);
             await _unitOfWork.SaveChangesAsync();
             return specialization.Id;
         }

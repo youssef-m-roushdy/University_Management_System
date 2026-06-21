@@ -1,33 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using University_Management_System.Application.Dtos.SemesterDtos;
-using University_Management_System.Application.Queries.Semesters;
-using University_Management_System.Domain.Contracts;
+using AutoMapper;
 using MediatR;
+using University_Management_System.Application.Dtos.StudyYearDtos;
+using University_Management_System.Application.Queries.StudyYear;
+using University_Management_System.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
+using University_Management_System.Domain.Queries;
+using University_Management_System.Application.Dtos.SemesterDtos;
 
 namespace University_Management_System.Application.Handlers.StudyYears
 {
-    public class GetStudyYearSemestersQueryHandler : IRequestHandler<GetStudyYearSemestersQuery, List<SemesterDto>>
+    public class GetStudyYearSemestersQueryHandler : IRequestHandler<GetStudyYearSemestersQuery, (IEnumerable<SemesterDto> Data, int TotalCount)>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public GetStudyYearSemestersQueryHandler(IUnitOfWork unitOfWork)
+        public GetStudyYearSemestersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<List<SemesterDto>> Handle(GetStudyYearSemestersQuery request, CancellationToken cancellationToken)
+        public async Task<(IEnumerable<SemesterDto> Data, int TotalCount)> Handle(GetStudyYearSemestersQuery request, CancellationToken cancellationToken)
         {
-            var semesters = await _unitOfWork.Semesters.GetByStudyYearIdAsync(request.StudyYearId);
-            return semesters.Select(s => new SemesterDto
-            {
-                Id = s.Id,
-                Title = s.Title,
-                StartDate = s.StartDate,
-                EndDate = s.EndDate
-            }).ToList();
+            var (semesters, totalCount) = await _unitOfWork.Semesters
+                .GetByStudyYearIdAsync(request.StudyYearId, request.Query, cancellationToken);
+
+            var dtos = _mapper.Map<IEnumerable<SemesterDto>>(semesters);
+
+            return (dtos, totalCount);
         }
     }
 }

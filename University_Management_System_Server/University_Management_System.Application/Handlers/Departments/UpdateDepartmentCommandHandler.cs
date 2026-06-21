@@ -30,7 +30,7 @@ namespace University_Management_System.Application.Handlers.Departments
             department.Code = request.Department.Code;
             department.Description = request.Department.Description;
 
-            await _unitOfWork.Departments.Update(department);
+            await _unitOfWork.Departments.UpdateAsync(department);
             await _unitOfWork.SaveChangesAsync();
 
             var result = _mapper.Map<DepartmentDto>(department);

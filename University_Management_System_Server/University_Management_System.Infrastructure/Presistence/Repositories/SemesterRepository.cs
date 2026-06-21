@@ -1,6 +1,7 @@
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using University_Management_System.Domain.Queries;
 
 namespace University_Management_System.Infrastructure.Presistence.Repositories
 {
@@ -37,6 +38,41 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         {
             return await _dbContext.Semesters
                 .AnyAsync(s => s.Id == semesterId && s.StudyYearId == studyYearId);
+        }
+
+        public async Task<(IEnumerable<Semester> Data, int TotalCount)> GetByStudyYearIdAsync(
+            int studyYearId,
+            GetStudyYearNestedQueries query,
+            CancellationToken cancellationToken)
+        {
+            var semesters = GetQueryable()
+                .Where(s => s.StudyYearId == studyYearId);
+
+            var totalCount = await semesters.CountAsync(cancellationToken);
+
+            semesters = query.SortBy?.ToLower() switch
+            {
+                "title" => query.SortDirection == SortDirection.Ascending
+                    ? semesters.OrderBy(s => s.Title)
+                    : semesters.OrderByDescending(s => s.Title),
+                "startdate" => query.SortDirection == SortDirection.Ascending
+                    ? semesters.OrderBy(s => s.StartDate)
+                    : semesters.OrderByDescending(s => s.StartDate),
+                "enddate" => query.SortDirection == SortDirection.Ascending
+                    ? semesters.OrderBy(s => s.EndDate)
+                    : semesters.OrderByDescending(s => s.EndDate),
+                "isactive" => query.SortDirection == SortDirection.Ascending
+                    ? semesters.OrderBy(s => s.IsActive)
+                    : semesters.OrderByDescending(s => s.IsActive),
+                _ => semesters.OrderBy(s => s.Title)
+            };
+
+            var result = await semesters
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToListAsync(cancellationToken);
+
+            return (result, totalCount);
         }
     }
 }

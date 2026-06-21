@@ -23,7 +23,7 @@ namespace University_Management_System.Application.Handlers.Fees
             if (fee is null)
                 return Unit.Value; // If fee not found, we can consider it as already deleted and return success.
 
-            await _unitOfWork.Fees.Delete(fee);
+            await _unitOfWork.Fees.DeleteAsync(fee);
             await _unitOfWork.SaveChangesAsync();
 
             return Unit.Value;

@@ -1,4 +1,5 @@
 using University_Management_System.Domain.Entities.Models;
+using University_Management_System.Domain.Queries;
 
 namespace University_Management_System.Domain.Contracts
 {
@@ -10,5 +11,10 @@ namespace University_Management_System.Domain.Contracts
         Task<IEnumerable<StudentStudyYear>> GetByStudyYearIdAsync(int studyYearId);
         Task AddRangeAsync(IEnumerable<StudentStudyYear> StudentStudyYears);
         Task<IEnumerable<StudentStudyYear>> GetStudyYearsByStudentIdAsync(string studentId);
+
+        Task<(IEnumerable<StudentStudyYear> Data, int TotalCount)> GetByStudyYearIdAsync(
+            int studyYearId,
+            GetStudyYearNestedQueries query,
+            CancellationToken cancellationToken);
     }
 }

@@ -287,7 +287,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
         /// <summary>
         /// Activate a user account (Admin only)
         /// </summary>
-        [HttpPost("activate/{userId}")]
+        [HttpPatch("activate/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ApiResponse<object>>> ActivateUser(string userId)
         {
@@ -313,7 +313,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
         /// <summary>
         /// Deactivate a user account (Admin only)
         /// </summary>
-        [HttpPost("deactivate/{userId}")]
+        [HttpPatch("deactivate/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ApiResponse<object>>> DeactivateUser(string userId)
         {

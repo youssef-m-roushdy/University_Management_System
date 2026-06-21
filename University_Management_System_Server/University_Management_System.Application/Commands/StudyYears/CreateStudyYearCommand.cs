@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using University_Management_System.Application.Dtos.StudyYearDtos;
 using MediatR;
+using University_Management_System.Application.Dtos.StudyYearDtos;
 
 namespace University_Management_System.Application.Commands.StudyYears
 {
-    public class CreateStudyYearCommand : IRequest<int>
+    public class CreateStudyYearCommand : IRequest<StudyYearDto>
     {
-        public CreateStudyYearDto StudyYearDto { get; set; }
-
-        public CreateStudyYearCommand(CreateStudyYearDto studyYearDto)
-        {
-            StudyYearDto = studyYearDto;
-        }
+        public int StartYear { get; set; }
+        public int EndYear { get; set; }
+        public bool IsCurrent { get; set; }
     }
 }

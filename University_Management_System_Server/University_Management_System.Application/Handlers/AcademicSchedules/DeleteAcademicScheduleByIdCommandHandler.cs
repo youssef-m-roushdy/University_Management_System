@@ -24,7 +24,7 @@ namespace University_Management_System.Application.Handlers.AcademicSchedules
             if (schedule is null)
                 return false;
 
-            await _unitOfWork.AcademicSchedules.Delete(schedule);
+            await _unitOfWork.AcademicSchedules.DeleteAsync(schedule);
             await _unitOfWork.SaveChangesAsync();
 
             return true;

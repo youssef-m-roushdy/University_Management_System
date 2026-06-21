@@ -51,7 +51,7 @@ namespace University_Management_System.Application.Handlers.Registrations
                 throw new NotFoundException("Course not found");
 
             // 5️⃣ Check study year is current
-            var studyYear = await _unitOfWork.StudyYears.IsCurrentStudyYearAsync(request.RegistrationDto.StudyYearId);
+            var studyYear = await _unitOfWork.StudyYears.IsStudyYearCurrentAsync(request.RegistrationDto.StudyYearId);
 
             if (!studyYear)
                 throw new BadRequestException("You can only register in the current study year, this study year is ended");

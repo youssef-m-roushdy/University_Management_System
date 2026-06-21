@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace University_Management_System.Application.Dtos.StudyYearDtos
 {
     public class StudyYearDto
     {
         public int Id { get; set; }
-        public int StartYear { get; set; } // e.g., 2024, 2025, etc.
-        public int EndYear { get; set; } // e.g., 2025, 
-        public bool IsCurrent { get; set; } // Indicates if this is the current study year
+        public int StartYear { get; set; }
+        public int EndYear { get; set; }
+        public bool IsCurrent { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public int? SemesterCount { get; set; }
+        public int? StudentCount { get; set; }
+        public int? RegistrationCount { get; set; }
     }
 }

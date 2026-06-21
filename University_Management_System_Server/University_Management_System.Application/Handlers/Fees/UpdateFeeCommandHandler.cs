@@ -29,7 +29,7 @@ namespace University_Management_System.Application.Handlers.Fees
             fee.Description = request.FeeDto.Description;
             fee.Amount = request.FeeDto.Amount;
 
-            await _unitOfWork.Fees.Update(fee);
+            await _unitOfWork.Fees.UpdateAsync(fee);
             await _unitOfWork.SaveChangesAsync();
 
             return Unit.Value;

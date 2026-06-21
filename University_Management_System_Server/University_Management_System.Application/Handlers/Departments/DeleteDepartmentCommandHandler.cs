@@ -21,7 +21,7 @@ namespace University_Management_System.Application.Handlers.Departments
             if (department is null)
                 throw new NotFoundException($"Department with ID {request.Id} not found.");
 
-            await _unitOfWork.Departments.Delete(department);
+            await _unitOfWork.Departments.DeleteAsync(department);
             await _unitOfWork.SaveChangesAsync();
 
             return Unit.Value;

@@ -10,5 +10,6 @@ namespace University_Management_System.Domain.Contracts
     {
         Task<IEnumerable<Student>> GetSpecificUngraduatedStudentsAsync(IEnumerable<string> studentIds);
         Task<Student?> GetStudentByAcademicCode(string academicCode);
+        
     }
 }

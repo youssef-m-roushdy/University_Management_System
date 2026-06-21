@@ -44,7 +44,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             <head>
               <meta charset="UTF-8"/>
               <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-              <title>AYA Academy</title>
+              <title>Akhbar Alyoum Academy</title>
             </head>
             <body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;">
               <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 0;">
@@ -64,7 +64,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                                 <div style="display:inline-block;background:rgba(255,255,255,0.15);
                                             border-radius:12px;padding:10px 18px;margin-bottom:16px;">
                                   <span style="color:white;font-size:1.1rem;font-weight:700;
-                                               letter-spacing:0.5px;">🎓 AYA Academy</span>
+                                               letter-spacing:0.5px;">🎓 Akhbar Alyoum Academy</span>
                                 </div>
                                 <p style="color:rgba(255,255,255,0.7);margin:0;font-size:0.85rem;">
                                   University Information System
@@ -87,7 +87,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                         <td style="background:#f8fafc;padding:24px 40px;
                                    border-top:1px solid #e2e8f0;text-align:center;">
                           <p style="color:#94a3b8;font-size:0.8rem;margin:0 0 6px;">
-                            © {DateTime.UtcNow.Year} AYA Academy · Akhbaralyoum Academy
+                            © {DateTime.UtcNow.Year} Akhbar Alyoum Academy · Akhbaralyoum Academy
                           </p>
                           <p style="color:#cbd5e1;font-size:0.75rem;margin:0;">
                             This is an automated message, please do not reply to this email.
@@ -143,7 +143,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                   Hello, <strong>{displayName}</strong> 👋
                 </p>
                 <p style="color:#475569;font-size:0.9rem;line-height:1.7;margin:0 0 28px;">
-                  Thank you for joining AYA Academy! To activate your account and
+                  Thank you for joining Akhbar Alyoum Academy! To activate your account and
                   start using all the features, please verify your email address.
                 </p>
 
@@ -188,7 +188,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             await SendAsync(
                 to,
-                "Verify Your Email — AYA Academy",
+                "Verify Your Email — Akhbar Alyoum Academy",
                 WrapInLayout(content));
         }
 
@@ -232,7 +232,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                   Hello, <strong>{displayName}</strong> 👋
                 </p>
                 <p style="color:#475569;font-size:0.9rem;line-height:1.7;margin:0 0 28px;">
-                  Someone requested a password reset for your AYA Academy account.
+                  Someone requested a password reset for your Akhbar Alyoum Academy account.
                   If this was you, click the button below to set a new password.
                   This link will expire in <strong style="color:#1e293b;">1 hour</strong>.
                 </p>
@@ -277,7 +277,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             await SendAsync(
                 to,
-                "Reset Your Password — AYA Academy",
+                "Reset Your Password — Akhbar Alyoum Academy",
                 WrapInLayout(content));
         }
 
@@ -322,7 +322,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                   Hello, <strong>{displayName}</strong> 👋
                 </p>
                 <p style="color:#475569;font-size:0.9rem;line-height:1.7;margin:0 0 24px;">
-                  This email confirms that your AYA Academy account password was
+                  This email confirms that your Akhbar Alyoum Academy account password was
                   successfully changed on <strong style="color:#1e293b;">{changedAt}</strong>.
                 </p>
 
@@ -350,7 +350,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             await SendAsync(
                 to,
-                "Your Password Has Been Changed — AYA Academy",
+                "Your Password Has Been Changed — Akhbar Alyoum Academy",
                 WrapInLayout(content));
         }
 
@@ -382,7 +382,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 <!-- Title -->
                 <h1 style="color:#1e293b;font-size:1.5rem;font-weight:700;
                            text-align:center;margin:0 0 8px;">
-                  Welcome to AYA Academy!
+                  Welcome to Akhbar Alyoum Academy!
                 </h1>
                 <p style="color:#64748b;text-align:center;margin:0 0 32px;font-size:0.95rem;">
                   Your journey starts here
@@ -393,7 +393,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                   Hello, <strong>{displayName}</strong> 👋
                 </p>
                 <p style="color:#475569;font-size:0.9rem;line-height:1.7;margin:0 0 16px;">
-                  Welcome to AYA Academy! Your account has been successfully created
+                  Welcome to Akhbar Alyoum Academy! Your account has been successfully created
                   and verified. You can now access all the features of our university
                   management system.
                 </p>
@@ -439,7 +439,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             await SendAsync(
                 to,
-                "Welcome to AYA Academy! 🎓",
+                "Welcome to Akhbar Alyoum Academy! 🎓",
                 WrapInLayout(content));
         }
     }

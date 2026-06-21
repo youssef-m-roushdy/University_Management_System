@@ -61,7 +61,7 @@ namespace University_Management_System.Application.Handlers.Registrations
                 }
             }
 
-            _unitOfWork.Registrations.Update(registration);
+            _unitOfWork.Registrations.UpdateAsync(registration);
             await _unitOfWork.SaveChangesAsync();
 
             return Unit.Value;

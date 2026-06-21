@@ -38,5 +38,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             var result = await _mediator.Send(command);
             return Ok(result);
         }
+
+        
     }
 }

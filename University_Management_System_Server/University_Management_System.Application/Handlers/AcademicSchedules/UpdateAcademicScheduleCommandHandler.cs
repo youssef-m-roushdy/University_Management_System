@@ -29,7 +29,7 @@ namespace University_Management_System.Application.Handlers.AcademicSchedules
             schedule.Description = request.Description;
             schedule.UpdatedAt = DateTime.UtcNow;
 
-            await _unitOfWork.AcademicSchedules.Update(schedule);
+            await _unitOfWork.AcademicSchedules.UpdateAsync(schedule);
             await _unitOfWork.SaveChangesAsync();
 
             return Unit.Value;
