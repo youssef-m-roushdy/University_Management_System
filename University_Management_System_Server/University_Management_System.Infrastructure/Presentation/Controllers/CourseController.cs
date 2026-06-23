@@ -47,45 +47,6 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{id}/uploads")]
-        public async Task<IActionResult> GetCourseUploads(int id)
-        {
-            var result = await _mediator.Send(new GetCourseUploadsQuery(id));
-            return Ok(result);
-        }
-
-        [HttpGet("{id}/registrations/{yearId}")]
-        public async Task<IActionResult> GetCourseYearRegistrations(int id, int yearId)
-        {
-            var result = await _mediator.Send(new GetCourseYearRegistrationsQuery(id, yearId));
-            return Ok(result);
-        }
-
-        [Authorize]
-        [HttpPost("{courseId}/upload")]
-        public async Task<IActionResult> UploadCourseFile(int courseId, [FromForm] string title, [FromForm] string description, [FromForm] string type, IFormFile file)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
-
-            var command = new CreateCourseUploadCommand
-            {
-                CourseUploadDto = new CreateCourseUploadDto
-                {
-                    Title = title,
-                    Description = description,
-                    Type = type,
-                    CourseId = courseId
-                },
-                File = file,
-                UserId = userId
-            };
-
-            var result = await _mediator.Send(command);
-            return Ok(result);
-        }
-
         [Authorize]
         [HttpGet("department/{departmentId}")]
         public async Task<IActionResult> DeparmentCourses(int departmentId, [FromQuery] DepartmentCourseQueries query)
@@ -114,14 +75,6 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             return Ok(result);
         }
 
-        [Authorize]
-        [HttpGet("open/department/{departmentId}")]
-        public async Task<IActionResult> GetDepartmentOpenCourses(int departmentId)
-        {
-            var result = await _mediator.Send(new GetDepartmentOpenCoursesQuery(departmentId));
-            return Ok(result);
-        }
-
         [Authorize(Roles = "Admin")]
         [HttpPatch("status")]
         public async Task<IActionResult> UpdateCourseStatus([FromBody] UpdateCourseStatusDto updateCourseStatusDto)
@@ -130,17 +83,8 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             return Ok(result);
         }
 
-        [Authorize]
-        [HttpGet("student-registration/study-year/{studyYearId}/semester/{semesterId}")]
-        public async Task<IActionResult> GetStudentRegistrationCourses(int studyYearId, int semesterId)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))                
-                return Unauthorized();
-            
-            var result = await _mediator.Send(new GetStudentRegistrationCoursesQuery(userId, studyYearId, semesterId));
-            return Ok(result);
-        }
+        //Get All
+        //Get Basic Dep courses
 
     }
 }

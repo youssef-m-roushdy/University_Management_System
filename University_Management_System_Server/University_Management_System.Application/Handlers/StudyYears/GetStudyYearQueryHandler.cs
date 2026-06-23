@@ -25,11 +25,7 @@ namespace University_Management_System.Application.Handlers.StudyYears
                 throw new NotFoundException($"Study year with ID '{request.Id}' not found");
 
             var dto = _mapper.Map<StudyYearDto>(studyYear);
-            
-            // Get counts
-            dto.SemesterCount = await _unitOfWork.StudyYears.GetSemesterCountAsync(request.Id);
-            dto.StudentCount = await _unitOfWork.StudyYears.GetStudentCountAsync(request.Id);
-            dto.RegistrationCount = await _unitOfWork.StudyYears.GetRegistrationCountAsync(request.Id);
+        
 
             return dto;
         }

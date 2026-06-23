@@ -59,10 +59,15 @@ namespace University_Management_System.Shared.Responses
             return ErrorResponse(message, 400, errors);
         }
 
+        public static ApiResponse<T> ConflictErrorResponse(string message = "Conflict error")
+        {
+            return ErrorResponse(message, 409);
+        }
+
         public static ApiResponse<T> ServerErrorResponse(string message = "Internal server error")
         {
             return ErrorResponse(message, 500);
-        }
+        }  
     }
 
     // 2. PAGED RESPONSE - Inherits from ApiResponse

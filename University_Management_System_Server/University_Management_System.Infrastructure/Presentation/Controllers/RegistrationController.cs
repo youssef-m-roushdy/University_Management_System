@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using University_Management_System.Shared.Responses;
+using University_Management_System.Domain.Queries.RegistrationQueries;
 
 namespace University_Management_System.Infrastructure.Presentation.Controllers
 {
@@ -88,24 +89,6 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
 
             var result = await _mediator.Send(new GetRegisteredSemesterCoursesQuery(studyYearId, semesterId, userId));
             return Ok(result);
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("{studyYearId}/year/{semesterId}/semester")]
-        public async Task<IActionResult> GetPendingRegistrations(int studyYearId, int semesterId, [FromQuery] RegistrationQueries registrationQuery)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
-
-            var (registrations, totalCount) = await _mediator.Send(
-                new GetAllSemesterRegistrationsQuery(studyYearId, semesterId, registrationQuery));
-
-            return Ok(PagedResponse<RegistrationDto>.SuccessResponse(
-            registrations,
-            registrationQuery.PageNumber,
-            registrationQuery.PageSize,
-            totalCount));
         }
     }
 }

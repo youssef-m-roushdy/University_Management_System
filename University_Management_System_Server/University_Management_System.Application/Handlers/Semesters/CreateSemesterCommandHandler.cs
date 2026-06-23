@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using University_Management_System.Application.Commands.Semesters;
-using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using MediatR;
 using University_Management_System.Application.Dtos.SemesterDtos;
 using University_Management_System.Shared.Exceptions;
 using AutoMapper;
+using University_Management_System.Application.Commands.Semesters;
+using University_Management_System.Domain.Contracts;
 
 namespace University_Management_System.Application.Handlers.Semesters
 {
@@ -25,16 +25,16 @@ namespace University_Management_System.Application.Handlers.Semesters
 
         public async Task<SemesterDto> Handle(CreateSemesterCommand request, CancellationToken cancellationToken)
         {
-            var studyYearExists = await _unitOfWork.StudyYears.AnyAsync(sy => sy.Id == request.StudyYearId);
+            var studyYearExists = await _unitOfWork.StudyYears.AnyAsync(sy => sy.Id == request.SemesterDto.StudyYearId);
             if (!studyYearExists)
-                throw new NotFoundException($"StudyYear with id {request.StudyYearId} was not found.");
+                throw new NotFoundException($"StudyYear with id {request.SemesterDto.StudyYearId} was not found.");
 
-            var titleTaken = await _unitOfWork.Semesters.SemesterTitleExistsInStudyYearAsync(request.StudyYearId, request.SemesterDto.Title);
+            var titleTaken = await _unitOfWork.Semesters.SemesterTitleExistsInStudyYearAsync(request.SemesterDto.StudyYearId, request.SemesterDto.Title);
             if (titleTaken)
                 throw new ConflictException($"A semester with title '{request.SemesterDto.Title}' already exists for this study year.");
 
             var semester = _mapper.Map<Semester>(request.SemesterDto);
-            var created = await _unitOfWork.Semesters.CreateStudyYearSemesterAsync(request.StudyYearId, semester);
+            var created = await _unitOfWork.Semesters.CreateStudyYearSemesterAsync(request.SemesterDto.StudyYearId, semester);
 
             return _mapper.Map<SemesterDto>(created);
         }

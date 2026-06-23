@@ -24,22 +24,17 @@ namespace University_Management_System.Application.Handlers.StudyYears
             if (studyYear == null)
                 throw new NotFoundException($"Study year with ID '{request.Id}' not found");
 
-            // If setting as current, unset previous current
-            if (request.IsCurrent.HasValue && request.IsCurrent.Value && !studyYear.IsCurrent)
+          
+            var current = await _unitOfWork.StudyYears.GetCurrentStudyYearAsync();
+
+            if (current != null && current.Id != request.Id)
             {
-                var current = await _unitOfWork.StudyYears.GetCurrentStudyYearAsync();
-                if (current != null && current.Id != request.Id)
-                {
-                    current.IsCurrent = false;
-                    await _unitOfWork.StudyYears.UpdateAsync(current);
-                }
+                throw new ConflictException("A current study year already exists");
             }
 
-            // ✅ Use AutoMapper to map Command to existing Entity (only updates provided fields)
-            _mapper.Map(request, studyYear);
+            studyYear.IsCurrent = request.Dto.IsCurrent;
             studyYear.UpdatedAt = DateTime.UtcNow;
 
-            await _unitOfWork.StudyYears.UpdateAsync(studyYear);
             await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<StudyYearDto>(studyYear);

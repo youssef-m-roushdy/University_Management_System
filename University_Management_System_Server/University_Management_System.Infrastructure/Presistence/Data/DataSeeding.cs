@@ -56,7 +56,7 @@ namespace University_Management_System.Infrastructure.Presistence.Data
                         studyYears.Add(new StudyYear
                         {
                             StartYear = year,
-                            EndYear   = year + 1,
+                            EndYear = year + 1,
                             IsCurrent = year == 2025
                         });
                     }
@@ -73,16 +73,16 @@ namespace University_Management_System.Infrastructure.Presistence.Data
                     {
                         semesters.Add(new Semester
                         {
-                            Title       = SemesterEnum.First_Semester,
-                            StartDate   = new DateTime(sy.StartYear, 9, 1),
-                            EndDate     = new DateTime(sy.StartYear, 12, 31),
+                            Title = SemesterEnum.First_Semester,
+                            StartDate = new DateTime(sy.StartYear, 9, 1),
+                            EndDate = new DateTime(sy.StartYear, 12, 31),
                             StudyYearId = sy.Id
                         });
                         semesters.Add(new Semester
                         {
-                            Title       = SemesterEnum.Second_Semester,
-                            StartDate   = new DateTime(sy.EndYear, 1, 1),
-                            EndDate     = new DateTime(sy.EndYear, 5, 31),
+                            Title = SemesterEnum.Second_Semester,
+                            StartDate = new DateTime(sy.EndYear, 1, 1),
+                            EndDate = new DateTime(sy.EndYear, 5, 31),
                             StudyYearId = sy.Id
                         });
                     }
@@ -93,10 +93,10 @@ namespace University_Management_System.Infrastructure.Presistence.Data
                 // ================= Courses =================
                 if (!_dbContext.Courses.Any())
                 {
-                    var csId  = (await _dbContext.Departments.FirstAsync(d => d.Code == "CS")).Id;
-                    var beId  = (await _dbContext.Departments.FirstAsync(d => d.Code == "BE")).Id;
-                    var baId  = (await _dbContext.Departments.FirstAsync(d => d.Code == "BA")).Id;
-                    var jrId  = (await _dbContext.Departments.FirstAsync(d => d.Code == "JR")).Id;
+                    var csId = (await _dbContext.Departments.FirstAsync(d => d.Code == "CS")).Id;
+                    var beId = (await _dbContext.Departments.FirstAsync(d => d.Code == "BE")).Id;
+                    var baId = (await _dbContext.Departments.FirstAsync(d => d.Code == "BA")).Id;
+                    var jrId = (await _dbContext.Departments.FirstAsync(d => d.Code == "JR")).Id;
                     var engId = (await _dbContext.Departments.FirstAsync(d => d.Code == "ENG")).Id;
 
                     var courses = new List<Course>
@@ -632,8 +632,8 @@ namespace University_Management_System.Infrastructure.Presistence.Data
                 // ================= Specialization Courses =================
                 if (!_dbContext.SpecializationCourses.Any())
                 {
-                    var depts2     = await _dbContext.Departments.ToDictionaryAsync(d => d.Code, d => d.Id);
-                    var deptById2  = depts2.ToDictionary(kv => kv.Value, kv => kv.Key);
+                    var depts2 = await _dbContext.Departments.ToDictionaryAsync(d => d.Code, d => d.Id);
+                    var deptById2 = depts2.ToDictionary(kv => kv.Value, kv => kv.Key);
                     var allCoursesList = await _dbContext.Courses
                         .Select(c => new { c.Code, c.Id, c.DepartmentId })
                         .ToListAsync();
@@ -939,47 +939,111 @@ namespace University_Management_System.Infrastructure.Presistence.Data
         }
 
         public async Task SeedIdentityDataAsync()
-{
-    var pendingMigrations = await _dbContext.Database.GetPendingMigrationsAsync();
-    if (pendingMigrations.Any())
-        await _dbContext.Database.MigrateAsync();
-
-    string[] roleNames = { "Admin", "Student", "Instructor", "InstructorAssistant" };
-    foreach (var roleName in roleNames)
-    {
-        if (!await _roleManager.RoleExistsAsync(roleName))
-            await _roleManager.CreateAsync(new Role { Name = roleName });
-    }
-
-    if (!_userManager.Users.Any())
-    {
-        var user = new User()
         {
-            Email       = "admin@akhbaracademy.com",
-            UserName    = "Admin123",
-            PhoneNumber = "0123456789",
-            EmailConfirmed = true,
-            Address = "123 Admin St, University City",
-        };
+            var pendingMigrations = await _dbContext.Database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
+                await _dbContext.Database.MigrateAsync();
 
-        // Step 1: create the User via Identity (hashes password, assigns Id, etc.)
-        var result = await _userManager.CreateAsync(user, "Admin@123");
-
-        if (result.Succeeded)
-        {
-            // Step 2: create the Admin profile and link it to the created User
-            var adminProfile = new Admin()
+            string[] roleNames = { "Admin", "Student", "Instructor", "Assistant" };
+            foreach (var roleName in roleNames)
             {
-                Id = user.Id  // user.Id is now populated after CreateAsync
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                    await _roleManager.CreateAsync(new Role { Name = roleName });
+            }
+
+            if (_userManager.Users.Any())
+                return;
+
+            // Instructor/Assistant/Student all require a DepartmentId — make sure one exists
+            var department = await _dbContext.Departments.FirstOrDefaultAsync();
+            if (department is null)
+            {
+                department = new Department { Name = "General Department" }; // adjust props to match your entity
+                await _dbContext.Departments.AddAsync(department);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            await SeedUserWithProfileAsync(
+                email: "admin@akhbaracademy.com",
+                userName: "Admin123",
+                phone: "0123456789",
+                password: "Admin@123",
+                role: "Admin",
+                createProfile: id => new Admin { Id = id }
+            );
+
+            await SeedUserWithProfileAsync(
+                email: "instructor@akhbaracademy.com",
+                userName: "Instructor123",
+                phone: "0123456781",
+                password: "Instructor@123",
+                role: "Instructor",
+                createProfile: id => new Instructor
+                {
+                    Id = id,
+                    DepartmentId = department.Id
+                }
+            );
+
+            await SeedUserWithProfileAsync(
+                email: "assistant@akhbaracademy.com",
+                userName: "Assistant123",
+                phone: "0123456782",
+                password: "Assistant@123",
+                role: "Assistant",
+                createProfile: id => new Assistant
+                {
+                    Id = id,
+                    DepartmentId = department.Id
+                }
+            );
+
+            await SeedUserWithProfileAsync(
+                email: "student@akhbaracademy.com",
+                userName: "Student123",
+                phone: "0123456780",
+                password: "Student@123",
+                role: "Student",
+                createProfile: id => new Student
+                {
+                    Id = id,
+                    AcademicCode = "STU-0001",
+                    Level = Levels.First_Year,        // <-- adjust to your actual enum member name
+                    TotalCredits = 0,
+                    AllowedCredits = 18,         // <-- adjust to your business default
+                    TotalGPA = 0.0m,
+                    DepartmentId = department.Id
+                }
+            );
+        }
+
+        private async Task SeedUserWithProfileAsync<TProfile>(
+            string email,
+            string userName,
+            string phone,
+            string password,
+            string role,
+            Func<string, TProfile> createProfile) where TProfile : class
+        {
+            var user = new User()
+            {
+                Email = email,
+                UserName = userName,
+                PhoneNumber = phone,
+                EmailConfirmed = true,
+                Address = "123 University City",
             };
 
-            await _dbContext.Admins.AddAsync(adminProfile);
-            await _dbContext.SaveChangesAsync();
+            var result = await _userManager.CreateAsync(user, password);
 
-            // Step 3: assign the role to the User
-            await _userManager.AddToRoleAsync(user, "Admin");
+            if (result.Succeeded)
+            {
+                var profile = createProfile(user.Id);
+                await _dbContext.Set<TProfile>().AddAsync(profile);
+                await _dbContext.SaveChangesAsync();
+
+                await _userManager.AddToRoleAsync(user, role);
+            }
         }
-    }
-}
     }
 }

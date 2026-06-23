@@ -1,10 +1,11 @@
 using FluentValidation;
 using University_Management_System.Domain.Queries;
 using University_Management_System.Application.Validations.Common;
+using University_Management_System.Domain.Queries.FeeQueries;
 
 namespace University_Management_System.Application.Validations.StudyYear
 {
-    public class StudyYearFeeQueriesValidator : AbstractValidator<StudyYearFeeQueries>
+    public class StudyYearFeeQueriesValidator : AbstractValidator<FeeStudyYearQueries>
     {
         public StudyYearFeeQueriesValidator()
         {
@@ -21,10 +22,6 @@ namespace University_Management_System.Application.Validations.StudyYear
 
             RuleFor(x => x.SortDirection)
                 .IsInEnum().WithMessage(ValidationMessages.InvalidSortDirection);
-
-            RuleFor(x => x.DepartmentId)
-                .GreaterThan(0).WithMessage(ValidationMessages.InvalidId)
-                .When(x => x.DepartmentId.HasValue);
 
             RuleFor(x => x.Level)
                 .IsInEnum().WithMessage(ValidationMessages.InvalidEnumValue)
@@ -45,7 +42,7 @@ namespace University_Management_System.Application.Validations.StudyYear
             RuleFor(x => x)
                 .Must(x => !x.MinAmount.HasValue || !x.MaxAmount.HasValue || x.MinAmount <= x.MaxAmount)
                 .WithMessage(ValidationMessages.AmountMinMax)
-                .OverridePropertyName(nameof(StudyYearFeeQueries.MaxAmount));
+                .OverridePropertyName(nameof(FeeStudyYearQueries.MaxAmount));
         }
     }
 }

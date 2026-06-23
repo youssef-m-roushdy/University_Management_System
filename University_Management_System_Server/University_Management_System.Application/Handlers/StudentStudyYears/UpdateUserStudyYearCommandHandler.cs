@@ -4,52 +4,45 @@ using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using MediatR;
 using University_Management_System.Shared.Responses;
+using AutoMapper;
+using University_Management_System.Shared.Exceptions;
 
 namespace University_Management_System.Application.Handlers.StudentStudyYears
 {
-    public class UpdateStudentStudyYearCommandHandler : IRequestHandler<UpdateStudentStudyYearCommand, ApiResponse<StudentStudyYearDto>>
+    public class UpdateStudentStudyYearCommandHandler : IRequestHandler<UpdateStudentStudyYearCommand, StudentStudyYearDto>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public UpdateStudentStudyYearCommandHandler(IUnitOfWork unitOfWork)
+        public UpdateStudentStudyYearCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<ApiResponse<StudentStudyYearDto>> Handle(UpdateStudentStudyYearCommand request, CancellationToken cancellationToken)
+        public async Task<StudentStudyYearDto> Handle(UpdateStudentStudyYearCommand request, CancellationToken cancellationToken)
         {
-            var entity = await _unitOfWork.StudentStudyYears.GetByIdAsync(request.Id);
-            if (entity is null)
-                return ApiResponse<StudentStudyYearDto>.ErrorResponse("Student study year record not found.");
+            var enrollment = await _unitOfWork.StudentStudyYears.GetByIdAsync(request.Id);
+            if (enrollment == null)
+                throw new NotFoundException($"Enrollment with ID '{request.Id}' not found.");
 
-            var dto = request.Dto;
+            // Update fields
+            if (request.Dto.Level.HasValue)
+                enrollment.Level = request.Dto.Level.Value;
 
-            if (dto.Level.HasValue)
-                entity.Level = dto.Level.Value;
+            if (request.Dto.IsActive.HasValue)
+                enrollment.IsActive = request.Dto.IsActive.Value;
+                
+            enrollment.UpdatedAt = DateTime.UtcNow;
 
-            await _unitOfWork.StudentStudyYears.UpdateAsync(entity);
+            await _unitOfWork.StudentStudyYears.UpdateAsync(enrollment);
             await _unitOfWork.SaveChangesAsync();
 
-            // Re-fetch with includes
-            var updated = await _unitOfWork.StudentStudyYears.GetByStudentAndStudyYearAsync(entity.StudentId, entity.StudyYearId);
+            // Get full details
+            var result = await _unitOfWork.StudentStudyYears
+                .GetByStudentAndStudyYearAsync(enrollment.StudentId, enrollment.StudyYearId);
 
-            return ApiResponse<StudentStudyYearDto>.SuccessResponse(MapToDto(updated!));
-        }
-
-        private static StudentStudyYearDto MapToDto(StudentStudyYear entity)
-        {
-            return new StudentStudyYearDto
-            {
-                Id = entity.Id,
-                StudentId = entity.StudentId,
-                StudyYearId = entity.StudyYearId,
-                StartYear = entity.StudyYear?.StartYear ?? 0,
-                EndYear = entity.StudyYear?.EndYear ?? 0,
-                Level = entity.Level,
-                LevelName = entity.Level.ToString().Replace("_", " "),
-                IsCurrent = entity.StudyYear?.IsCurrent ?? false,
-                EnrolledAt = entity.EnrolledAt
-            };
+            return _mapper.Map<StudentStudyYearDto>(result);
         }
     }
 }

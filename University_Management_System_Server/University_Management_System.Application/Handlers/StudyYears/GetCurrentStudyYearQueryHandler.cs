@@ -25,11 +25,6 @@ namespace University_Management_System.Application.Handlers.StudyYears
                 return null;
 
             var dto = _mapper.Map<StudyYearDto>(studyYear);
-            
-            // Get counts
-            dto.SemesterCount = await _unitOfWork.StudyYears.GetSemesterCountAsync(studyYear.Id);
-            dto.StudentCount = await _unitOfWork.StudyYears.GetStudentCountAsync(studyYear.Id);
-            dto.RegistrationCount = await _unitOfWork.StudyYears.GetRegistrationCountAsync(studyYear.Id);
 
             return dto;
         }

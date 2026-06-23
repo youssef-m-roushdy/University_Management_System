@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using University_Management_System.Domain.Enums;
+
+namespace University_Management_System.Domain.Queries.FeeQueries
+{
+    public class FeeLevelStudyYearQueries : PaginationQuery
+    {
+        public string? DepartmentName { get; set; }
+        public string? DepartmentCode { get; set; }
+        public FeeType? FeeType { get; set; }
+        public decimal? MinAmount { get; set; }
+        public decimal? MaxAmount { get; set; }
+    }
+}

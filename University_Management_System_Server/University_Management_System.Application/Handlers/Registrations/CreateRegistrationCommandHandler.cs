@@ -73,7 +73,7 @@ namespace University_Management_System.Application.Handlers.Registrations
                 throw new BadRequestException("Course registration is closed");
 
             // 9️⃣ Check if user is already registered in the course
-            var isRegistrationExists = await _unitOfWork.Registrations.IsUserRegisteredInCourseAsync(user.Id, course.Id);
+            var isRegistrationExists = await _unitOfWork.Registrations.IsStudentRegisteredInCourseAsync(student.Id, course.Id);
 
             if (isRegistrationExists)
                 throw new BadRequestException("Already registered in this course");
@@ -84,7 +84,7 @@ namespace University_Management_System.Application.Handlers.Registrations
             var passedCourseIds = new List<int>();
             foreach (var preq in prerequisitesCourses)
             {
-                var isPassed = await _unitOfWork.Registrations.IsCourseCompletedByUserAsync(user.Id, preq.Id);
+                var isPassed = await _unitOfWork.Registrations.IsCourseCompletedByStudentAsync(student.Id, preq.Id);
                 if (isPassed)
                 {
                     passedCourseIds.Add(preq.Id);
@@ -103,7 +103,7 @@ namespace University_Management_System.Application.Handlers.Registrations
             // 1️⃣0️⃣ Create registration
             var registration = new Registration
             {
-                StudentId = user.Id,
+                StudentId = student.Id,
                 CourseId = course.Id,
                 StudyYearId = request.RegistrationDto.StudyYearId,
                 SemesterId = request.RegistrationDto.SemesterId,

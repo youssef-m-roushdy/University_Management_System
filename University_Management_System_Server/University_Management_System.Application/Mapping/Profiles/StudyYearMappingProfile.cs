@@ -14,10 +14,7 @@ namespace University_Management_System.Application.Mapping.Profiles
             // ────────────────────────────────────────────────────────────────────────
 
             // StudyYear to StudyYearDto
-            CreateMap<StudyYear, StudyYearDto>()
-                .ForMember(dest => dest.SemesterCount, opt => opt.Ignore())
-                .ForMember(dest => dest.StudentCount, opt => opt.Ignore())
-                .ForMember(dest => dest.RegistrationCount, opt => opt.Ignore());
+            CreateMap<StudyYear, StudyYearDto>();
 
             // ────────────────────────────────────────────────────────────────────────
             // DTO TO COMMAND / ENTITY
@@ -65,9 +62,6 @@ namespace University_Management_System.Application.Mapping.Profiles
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.StartYear, opt => opt.Condition(src => src.StartYear.HasValue))
-                .ForMember(dest => dest.EndYear, opt => opt.Condition(src => src.EndYear.HasValue))
-                .ForMember(dest => dest.IsCurrent, opt => opt.Condition(src => src.IsCurrent.HasValue))
                 .ForMember(dest => dest.Semesters, opt => opt.Ignore())
                 .ForMember(dest => dest.Fees, opt => opt.Ignore())
                 .ForMember(dest => dest.Registrations, opt => opt.Ignore())
@@ -84,9 +78,6 @@ namespace University_Management_System.Application.Mapping.Profiles
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.StartYear, opt => opt.Condition(src => src.StartYear.HasValue))
-                .ForMember(dest => dest.EndYear, opt => opt.Condition(src => src.EndYear.HasValue))
-                .ForMember(dest => dest.IsCurrent, opt => opt.Condition(src => src.IsCurrent.HasValue))
                 .ForMember(dest => dest.Semesters, opt => opt.Ignore())
                 .ForMember(dest => dest.Fees, opt => opt.Ignore())
                 .ForMember(dest => dest.Registrations, opt => opt.Ignore())

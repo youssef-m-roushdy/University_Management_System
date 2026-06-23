@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using University_Management_System.Application.Dtos.SemesterDtos;
 using MediatR;
+using University_Management_System.Application.Dtos.SemesterDtos;
+using University_Management_System.Application.Dtos.StudyYearDtos;
+using University_Management_System.Domain.Queries;
 
 namespace University_Management_System.Application.Queries.Semesters
 {
-    public class GetStudyYearSemestersQuery : IRequest<List<SemesterDto>>
+    public class GetStudyYearSemestersQuery : IRequest<(IEnumerable<SemesterDto> Data, int TotalCount)>
     {
         public int StudyYearId { get; set; }
-
-        public GetStudyYearSemestersQuery(int studyYearId)
-        {
-            StudyYearId = studyYearId;
-        }
     }
 }

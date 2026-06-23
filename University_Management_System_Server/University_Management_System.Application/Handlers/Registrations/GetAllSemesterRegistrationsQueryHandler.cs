@@ -10,19 +10,19 @@ using MediatR;
 
 namespace University_Management_System.Application.Handlers.Registrations
 {
-    public class GetAllSemesterRegistrationsQueryHandler : IRequestHandler<GetAllSemesterRegistrationsQuery, (List<RegistrationDto> Data, int TotalCount)>
+    public class GetSemesterRegistrationsQueryHandler : IRequestHandler<GetSemesterRegistrationsQuery, (List<RegistrationDto> Data, int TotalCount)>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public GetAllSemesterRegistrationsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetSemesterRegistrationsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<(List<RegistrationDto> Data, int TotalCount)> Handle(
-            GetAllSemesterRegistrationsQuery request, CancellationToken cancellationToken)
+            GetSemesterRegistrationsQuery request, CancellationToken cancellationToken)
         {
             var studyYear = await _unitOfWork.StudyYears.GetByIdAsync(request.StudyYearId);
             if (studyYear == null)
@@ -37,7 +37,7 @@ namespace University_Management_System.Application.Handlers.Registrations
                 throw new Exception($"Semester with id {request.SemesterId} does not belong to study year with id {request.StudyYearId}.");
 
             var (registrations, totalCount) = await _unitOfWork.Registrations
-                .GetAllSemesterRegistrationsPaginatedAsync(request.SemesterId, request.StudyYearId, request.RegistrationQuery, cancellationToken);
+                .GetBySemesterIdAsync(request.SemesterId, request.RegistrationQuery, cancellationToken);
 
             if (registrations == null || !registrations.Any())
                 return (new List<RegistrationDto>(), 0);

@@ -21,24 +21,12 @@ namespace University_Management_System.Application.Handlers.StudyYears
         public async Task<(IEnumerable<StudyYearDto> Data, int TotalCount)> Handle(GetStudyYearsQuery request, CancellationToken cancellationToken)
         {
             // Get filtered study years from repository
-            var studyYears = await _unitOfWork.StudyYears
-                .GetFilteredStudyYearsAsync(request.Query);
+            var (data, totalCount) = await _unitOfWork.StudyYears
+                .GetAllFilteredAsync(request.Query);
 
-            // Get total count
-            var totalCount = await _unitOfWork.StudyYears
-                .GetQueryable()
-                .CountAsync(cancellationToken);
 
             // Map to DTOs
-            var dtos = _mapper.Map<IEnumerable<StudyYearDto>>(studyYears);
-
-            // Get counts for each study year
-            foreach (var dto in dtos)
-            {
-                dto.SemesterCount = await _unitOfWork.StudyYears.GetSemesterCountAsync(dto.Id);
-                dto.StudentCount = await _unitOfWork.StudyYears.GetStudentCountAsync(dto.Id);
-                dto.RegistrationCount = await _unitOfWork.StudyYears.GetRegistrationCountAsync(dto.Id);
-            }
+            var dtos = _mapper.Map<IEnumerable<StudyYearDto>>(data);
 
             return (dtos, totalCount);
         }

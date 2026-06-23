@@ -1,10 +1,11 @@
 using FluentValidation;
 using University_Management_System.Domain.Queries;
 using University_Management_System.Application.Validations.Common;
+using University_Management_System.Domain.Queries.StudyYearQueries;
 
 namespace University_Management_System.Application.Validations.StudyYear
 {
-    public class StudyYearQueriesValidator : AbstractValidator<StudyYearQueries>
+    public class StudyYearQueriesValidator : AbstractValidator<StudyYearFilterQueries>
     {
         public StudyYearQueriesValidator()
         {

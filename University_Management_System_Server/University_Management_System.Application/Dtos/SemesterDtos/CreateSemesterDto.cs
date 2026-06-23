@@ -8,6 +8,7 @@ namespace University_Management_System.Application.Dtos.SemesterDtos
 {
     public class CreateSemesterDto
     {
+        public int StudyYearId { get; set; }
         public SemesterEnum Title { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

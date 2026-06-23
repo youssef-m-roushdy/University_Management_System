@@ -6,12 +6,12 @@ using University_Management_System.Domain.Enums;
 
 namespace University_Management_System.Domain.Queries
 {
-    public class StudyYearStudentQueries : PaginationQuery
+    public class StudyYearStudentQueries : SearchablePaginationQuery
     {
         public bool? IsActive { get; set; }
-        public string? AcademicCode { get; set; }
         public Levels? Level { get; set; }
-        public int? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? DepartmentCode { get; set; }
         public decimal? MinGPA { get; set; }
         public decimal? MaxGPA { get; set; }
         public DateTime? EnrolledFrom { get; set; }

@@ -1,6 +1,7 @@
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using University_Management_System.Domain.Queries;
+using University_Management_System.Domain.Queries.StudyYearQueries;
 
 namespace University_Management_System.Domain.Contracts
 {
@@ -8,13 +9,6 @@ namespace University_Management_System.Domain.Contracts
     {
         // Get by specific criteria
         Task<StudyYear?> GetCurrentStudyYearAsync();
-        Task<StudyYear?> GetStudyYearByYearRangeAsync(int startYear, int endYear);
-        
-        // Get collections
-        Task<IEnumerable<StudyYear>> GetStudyYearsByYearRangeAsync(int startYear, int endYear);
-        Task<IEnumerable<StudyYear>> GetStudyYearsWithSemestersAsync();
-        Task<IEnumerable<StudyYear>> GetStudyYearsWithRegistrationsAsync();
-        Task<IEnumerable<StudyYear>> GetStudyYearsBetweenYearsAsync(int minYear, int maxYear);
         
         // Check existence
         Task<bool> HasRegistrationsAsync(int studyYearId);
@@ -29,11 +23,15 @@ namespace University_Management_System.Domain.Contracts
         Task<int> GetRegistrationCountAsync(int studyYearId);
         
         // Bulk operations
-        Task<IEnumerable<StudyYear>> GetStudyYearsWithDetailsAsync();
-        Task<IEnumerable<StudyYear>> GetFilteredStudyYearsAsync(StudyYearQueries query);
+        Task<IEnumerable<StudyYear>> GetStudyYearsWithDetailsAsync(CancellationToken cancellationToken = default);
+        Task<(IEnumerable<StudyYear> Data, int TotalCount)> GetAllFilteredAsync(StudyYearFilterQueries query, CancellationToken cancellationToken = default);
         
         // History
         Task<IEnumerable<StudyYear>> GetPreviousStudyYearsAsync(int count);
         Task<IEnumerable<StudyYear>> GetUpcomingStudyYearsAsync(int count);
+
+        // The statistics needed data
+        Task<StudyYear?> GetStudyYearWithDetailsAsync(int studyYearId, CancellationToken cancellationToken = default);
+        Task<StudyYear?> GetStudyYearWithFullDetailsAsync(int studyYearId, CancellationToken cancellationToken = default);
     }
 }

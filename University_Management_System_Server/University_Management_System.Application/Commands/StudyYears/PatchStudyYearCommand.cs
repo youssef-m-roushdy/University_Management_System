@@ -6,8 +6,6 @@ namespace University_Management_System.Application.Commands.StudyYears
     public class PatchStudyYearCommand : IRequest<StudyYearDto>
     {
         public int Id { get; set; }
-        public int? StartYear { get; set; }
-        public int? EndYear { get; set; }
-        public bool? IsCurrent { get; set; }
+        public PatchStudyYearDto Dto { get; set; }
     }
 }
