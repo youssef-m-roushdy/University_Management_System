@@ -37,7 +37,7 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
                    .OnDelete(DeleteBehavior.Cascade);
 
             // Department → Users (1:M)
-            builder.HasMany(d => d.Users)
+            builder.HasMany(d => d.Students)
                    .WithOne(u => u.Department)
                    .HasForeignKey(u => u.DepartmentId)
                    .OnDelete(DeleteBehavior.Restrict);

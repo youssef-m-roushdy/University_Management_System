@@ -12,8 +12,8 @@ using University_Management_System.Infrastructure.Presistence;
 namespace University_Management_System.Infrastructure.Presistence.Migrations
 {
     [DbContext(typeof(UniversityDbContext))]
-    [Migration("20260620151505_AddIsActiveToUser")]
-    partial class AddIsActiveToUser
+    [Migration("20260624192719_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -294,18 +294,12 @@ namespace University_Management_System.Infrastructure.Presistence.Migrations
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DepartmentId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Level")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("SpecializationId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SpecializationId1")
                         .HasColumnType("int");
 
                     b.Property<int>("TotalCredits")
@@ -325,11 +319,7 @@ namespace University_Management_System.Infrastructure.Presistence.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("DepartmentId1");
-
                     b.HasIndex("SpecializationId");
-
-                    b.HasIndex("SpecializationId1");
 
                     b.ToTable("Students");
                 });
@@ -1750,14 +1740,10 @@ namespace University_Management_System.Infrastructure.Presistence.Migrations
             modelBuilder.Entity("University_Management_System.Domain.Entities.Identity.Student", b =>
                 {
                     b.HasOne("University_Management_System.Domain.Entities.Models.Department", "Department")
-                        .WithMany()
+                        .WithMany("Students")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("University_Management_System.Domain.Entities.Models.Department", null)
-                        .WithMany("Users")
-                        .HasForeignKey("DepartmentId1");
 
                     b.HasOne("University_Management_System.Domain.Entities.Identity.User", "User")
                         .WithOne("Student")
@@ -1766,13 +1752,9 @@ namespace University_Management_System.Infrastructure.Presistence.Migrations
                         .IsRequired();
 
                     b.HasOne("University_Management_System.Domain.Entities.Models.Specialization", "Specialization")
-                        .WithMany()
+                        .WithMany("Students")
                         .HasForeignKey("SpecializationId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("University_Management_System.Domain.Entities.Models.Specialization", null)
-                        .WithMany("Students")
-                        .HasForeignKey("SpecializationId1");
 
                     b.Navigation("Department");
 
@@ -2502,7 +2484,7 @@ namespace University_Management_System.Infrastructure.Presistence.Migrations
 
                     b.Navigation("Specializations");
 
-                    b.Navigation("Users");
+                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("University_Management_System.Domain.Entities.Models.Question", b =>

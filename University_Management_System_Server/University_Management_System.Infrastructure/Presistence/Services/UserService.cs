@@ -99,10 +99,10 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             {
                 var usersQuery = BuildUserQuery(userId, query);
                 var users = await usersQuery.ToListAsync();
-                
+
                 // ✅ Use AutoMapper
                 var userDtos = _mapper.Map<IEnumerable<UserBasicDto>>(users);
-                
+
                 // Get roles for each user
                 foreach (var userDto in userDtos)
                 {
@@ -206,6 +206,59 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting user by email: {Email}", email);
+                throw;
+            }
+        }
+
+
+        // ────────────────────────────────────────────────────────────────────────
+        // Create USER 
+        // ────────────────────────────────────────────────────────────────────────
+        public async Task<User> CreateUserAsync(CreateUserDto dto, string role)
+        {
+            try
+            {
+                // ─── 1. Check if user already exists ──────────────────────────
+                var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+                if (existingUser != null)
+                    throw new ValidationException(new List<string> {
+                        $"User with email '{dto.Email}' already exists."
+                    });
+
+                // ─── 2. Create User ──────────────────────────────────────────
+                var user = new User
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Email = dto.Email,
+                    UserName = dto.UserName,
+                    Name = dto.Name,
+                    PhoneNumber = dto.PhoneNumber,
+                    Address = dto.Address,
+                    Gender = dto.Gender,
+                    IsActive = dto.IsActive,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var result = await _userManager.CreateAsync(user, dto.Password);
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new Exception($"Failed to create user: {errors}");
+                }
+
+
+                // Check if role exists
+                var roleExists = await _dbContext.Roles.AnyAsync(r => r.Name == role);
+                if (!roleExists)
+                    throw new NotFoundException($"Role '{role}' does not exist.");
+
+                await _userManager.AddToRoleAsync(user, role);
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating user: {Email}", dto.Email);
                 throw;
             }
         }

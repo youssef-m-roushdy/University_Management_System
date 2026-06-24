@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using University_Management_System.Application.Dtos.UserDtos;
+using University_Management_System.Domain.Entities.Identity;
 using University_Management_System.Domain.Queries;
 
 namespace University_Management_System.Application.Contracts
@@ -20,7 +21,7 @@ namespace University_Management_System.Application.Contracts
         
         Task<UserBasicDto> GetUserByIdAsync(string userId);
         Task<UserBasicDto> GetUserByEmailAsync(string email);
-        
+        Task<User> CreateUserAsync(CreateUserDto dto, string role);
         Task UpdateUserAsync(string userId, UpdateUserDto dto);
         Task ActivateUserAsync(string userId);
         Task DeactivateUserAsync(string userId);

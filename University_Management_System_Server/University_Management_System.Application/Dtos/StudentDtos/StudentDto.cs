@@ -11,6 +11,8 @@ namespace University_Management_System.Application.Dtos.StudentDtos
         // do not equal string emty becasue the values should be existed
         public string Id { get; set; }
         public string Name { get; set; }
+        public string UserName { get; set; }
+        public string PhoneNumber { get; set; }
         public string ProfilePicture { get; set; }
         public string Address { get; set; }
         public Gender Gender { get; set; }

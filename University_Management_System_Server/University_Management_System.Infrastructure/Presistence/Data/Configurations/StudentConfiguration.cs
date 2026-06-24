@@ -39,6 +39,18 @@ namespace University_Management_System.Infrastructure.Presistence.Data.Configura
             builder.Property(s => s.Level)
                 .HasConversion<string>()
                 .HasMaxLength(50);
+
+            builder.HasOne(s => s.Department)
+                .WithMany(d => d.Students)  // ← Tell EF this is the inverse navigation
+                .HasForeignKey(s => s.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ─── Specialization Relationship ────────────────────────────────
+            // ✅ Explicitly configure which navigation property to use
+            builder.HasOne(s => s.Specialization)
+                .WithMany(sp => sp.Students)  // ← Tell EF this is the inverse navigation
+                .HasForeignKey(s => s.SpecializationId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
