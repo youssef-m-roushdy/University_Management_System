@@ -181,6 +181,32 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             }
         }
 
+        [HttpPost("add-to-existing-user")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ApiResponse<StudentDto>>> AddStudentToExistingUser(
+            [FromBody] AddStudentToExistingUserDto dto)
+        {
+            try
+            {
+                var result = await _mediator.Send(new AddStudentToExistingUserCommand { Dto = dto });
+
+                return StatusCode(201, ApiResponse<StudentDto>.SuccessResponse(result, "Student profile added to existing user successfully"));
+            }
+            catch (Shared.Exceptions.NotFoundException ex)
+            {
+                return NotFound(ApiResponse<StudentDto>.NotFoundResponse(ex.Message));
+            }
+            catch (Shared.Exceptions.ValidationException ex)
+            {
+                return BadRequest(ApiResponse<StudentDto>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding student to existing user");
+                return StatusCode(500, ApiResponse<StudentDto>.ServerErrorResponse("An error occurred while adding student profile"));
+            }
+        }
+
         // ────────────────────────────────────────────────────────────────────────
         // PUT /api/students/{id}
         // ────────────────────────────────────────────────────────────────────────
