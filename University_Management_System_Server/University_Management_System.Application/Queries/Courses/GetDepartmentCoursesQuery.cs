@@ -1,23 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using University_Management_System.Application.Dtos.CourseDtos;
-using University_Management_System.Domain.Queries;
 using MediatR;
-using University_Management_System.Shared.Responses;
+using University_Management_System.Application.Dtos.CourseDtos;
+using University_Management_System.Domain.Queries.CourseQueries;
 
 namespace University_Management_System.Application.Queries.Courses
 {
-    public class GetDepartmentCoursesQuery : IRequest<PagedResponse<DepartmentCourseDto>>
+    public class GetDepartmentCoursesQuery : IRequest<(IEnumerable<CourseDto> Data, int TotalCount)>
     {
         public int DepartmentId { get; set; }
-        public DepartmentCourseQueries Query { get; set; }
-
-        public GetDepartmentCoursesQuery(int departmentId, DepartmentCourseQueries query)       
-        {
-            Query = query;
-            DepartmentId = departmentId;
-        }
+        public CourseDepartmentQueries Query { get; set; } = new CourseDepartmentQueries();
     }
 }

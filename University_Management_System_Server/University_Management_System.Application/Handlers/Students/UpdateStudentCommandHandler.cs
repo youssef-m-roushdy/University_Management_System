@@ -6,13 +6,14 @@ using AutoMapper;
 using MediatR;
 using University_Management_System.Application.Commands.Students;
 using University_Management_System.Application.Contracts;
+using University_Management_System.Application.Dtos.StudentDtos;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Identity;
 using University_Management_System.Shared.Exceptions;
 
 namespace University_Management_System.Application.Handlers.Students
 {
-    public class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, Student>
+    public class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, StudentDto>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,7 +24,7 @@ namespace University_Management_System.Application.Handlers.Students
             _mapper = mapper;
         }
 
-        public async Task<Student> Handle(UpdateStudentCommand request, CancellationToken cancellationToken)
+        public async Task<StudentDto> Handle(UpdateStudentCommand request, CancellationToken cancellationToken)
         {
             // ─── 1. Validate Student Exists ──────────────────────────────────
             var student = await _unitOfWork.Students
@@ -80,7 +81,7 @@ namespace University_Management_System.Application.Handlers.Students
             await _unitOfWork.SaveChangesAsync();
 
             // ─── 8. Return Updated Student ──────────────────────────────────
-            return student;
+            return _mapper.Map<StudentDto>(student);
         }
     }
 }

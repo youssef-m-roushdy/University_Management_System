@@ -230,5 +230,35 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
                     "An error occurred while deleting enrollment"));
             }
         }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // GET /api/student-study-years/student/{studentId}/timeline
+        // ────────────────────────────────────────────────────────────────────────
+        /// <summary>
+        /// Get student's study year timeline (Admin, Instructor, Assistant)
+        /// </summary>
+        [HttpGet("student/{studentId}/timeline")]
+        [Authorize(Roles = "Admin,Instructor,Assistant")]
+        public async Task<ActionResult<ApiResponse<StudentStudyYearTimelineDto>>> GetStudentTimeline(string studentId)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetStudentStudyYearTimelineQuery { StudentId = studentId });
+
+                return Ok(ApiResponse<StudentStudyYearTimelineDto>.SuccessResponse(
+                    result,
+                    "Student timeline retrieved successfully"));
+            }
+            catch (Shared.Exceptions.NotFoundException ex)
+            {
+                return NotFound(ApiResponse<StudentStudyYearTimelineDto>.NotFoundResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting student timeline: {StudentId}", studentId);
+                return StatusCode(500, ApiResponse<StudentStudyYearTimelineDto>.ServerErrorResponse(
+                    "An error occurred while retrieving student timeline"));
+            }
+        }
     }
 }

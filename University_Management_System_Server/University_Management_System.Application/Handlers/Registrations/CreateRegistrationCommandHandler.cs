@@ -79,7 +79,7 @@ namespace University_Management_System.Application.Handlers.Registrations
                 throw new BadRequestException("Already registered in this course");
 
             // Check prerequisites
-            var prerequisitesCourses = await _unitOfWork.Courses.GetCoursePrerequisitesAsync(course.Id);
+            var prerequisitesCourses = await _unitOfWork.Courses.GetPrerequisitesAsync(course.Id);
 
             var passedCourseIds = new List<int>();
             foreach (var preq in prerequisitesCourses)

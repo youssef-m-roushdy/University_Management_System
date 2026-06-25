@@ -18,13 +18,11 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<AdminController> _logger;
-        private readonly IMapper _mapper;
 
-        public AdminController(IMediator mediator, ILogger<AdminController> logger, IMapper mapper)
+        public AdminController(IMediator mediator, ILogger<AdminController> logger)
         {
             _mediator = mediator;
             _logger = logger;
-            _mapper = mapper;
         }
 
         // ────────────────────────────────────────────────────────────────────────

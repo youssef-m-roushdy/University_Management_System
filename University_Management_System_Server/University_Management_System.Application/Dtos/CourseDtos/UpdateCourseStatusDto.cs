@@ -8,7 +8,6 @@ namespace University_Management_System.Application.Dtos.CourseDtos
 {
     public class UpdateCourseStatusDto
     {
-        public int CourseId { get; set; }
         public CourseStatus Status { get; set; }
     }
 }

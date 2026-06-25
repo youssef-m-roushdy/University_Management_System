@@ -1,32 +1,41 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using University_Management_System.Application.Commands.Courses;
-using University_Management_System.Domain.Contracts;
+using AutoMapper;
 using MediatR;
+using University_Management_System.Application.Commands.Courses;
+using University_Management_System.Application.Dtos.CourseDtos;
+using University_Management_System.Domain.Contracts;
+using University_Management_System.Domain.Enums;
 using University_Management_System.Shared.Exceptions;
 
 namespace University_Management_System.Application.Handlers.Courses
 {
-    public class UpdateCourseStatusCommandHandler : IRequestHandler<UpdateCourseStatusCommand, Unit>
+    public class UpdateCourseStatusCommandHandler : IRequestHandler<UpdateCourseStatusCommand, CourseDto>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public UpdateCourseStatusCommandHandler(IUnitOfWork unitOfWork)
+        public UpdateCourseStatusCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<Unit> Handle(UpdateCourseStatusCommand request, CancellationToken cancellationToken)
+        public async Task<CourseDto> Handle(UpdateCourseStatusCommand request, CancellationToken cancellationToken)
         {
-            var course = await _unitOfWork.Courses.GetByIdAsync(request.Dto.CourseId);
-            if (course == null)
-                throw new NotFoundException("Course not found");
+            // ─── 1. Check if Course exists ──────────────────────────────────
+            var course = await _unitOfWork.Courses
+                .GetByIdAsync(request.Id);
             
-            await _unitOfWork.Courses.UpdateCourseStatusAsync(request.Dto.CourseId, request.Dto.Status);
+            if (course == null)
+                throw new NotFoundException($"Course with ID '{request.Id}' not found.");
+
+            // ─── 2. Update Status ─────────────────────────────────────────────
+            course.Status = request.Status;
+            course.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.Courses.UpdateAsync(course);
             await _unitOfWork.SaveChangesAsync();
-            return Unit.Value;
+
+            return _mapper.Map<CourseDto>(course);
         }
     }
 }

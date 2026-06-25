@@ -1,20 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using University_Management_System.Application.Dtos.CourseDtos;
 using MediatR;
-using University_Management_System.Shared.Responses;
+using University_Management_System.Application.Dtos.CourseDtos;
 
 namespace University_Management_System.Application.Commands.Courses
 {
-    public class CreateCourseCommand: IRequest<ApiResponse<CourseDto>>
+    public class CreateCourseCommand : IRequest<CourseDto>
     {
-        public CreateCourseDto Course { get; set; }
-
-        public CreateCourseCommand(CreateCourseDto course)
-        {
-            Course = course;
-        }
+        public CreateCourseDto Dto { get; set; } = null!;
     }
 }

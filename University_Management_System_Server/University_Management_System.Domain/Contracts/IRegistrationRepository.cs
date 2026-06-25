@@ -51,5 +51,7 @@ namespace University_Management_System.Domain.Contracts
         Task AddRangeAsync(IEnumerable<Registration> registrations);
         Task UpdateRangeAsync(IEnumerable<Registration> registrations);
         Task DeleteRangeAsync(IEnumerable<Registration> registrations);
+
+        
     }
 }

@@ -19,13 +19,11 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<StudentController> _logger;
-        private readonly IMapper _mapper;
 
-        public StudentController(IMediator mediator, ILogger<StudentController> logger, IMapper mapper)
+        public StudentController(IMediator mediator, ILogger<StudentController> logger)
         {
             _mediator = mediator;
             _logger = logger;
-            _mapper = mapper;
         }
 
         // ────────────────────────────────────────────────────────────────────────
@@ -218,17 +216,9 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
         {
             try
             {
-                var command = new UpdateStudentCommand
-                {
-                    Id = id,
-                    Dto = dto
-                };
+                var result = await _mediator.Send(new UpdateStudentCommand{ Id = id, Dto = dto });
 
-                var result = await _mediator.Send(command);
-
-                var studentDto = _mapper.Map<StudentDto>(result);
-
-                return Ok(ApiResponse<StudentDto>.SuccessResponse(studentDto, "Student updated successfully"));
+                return Ok(ApiResponse<StudentDto>.SuccessResponse(result, "Student updated successfully"));
             }
             catch (Shared.Exceptions.NotFoundException ex)
             {

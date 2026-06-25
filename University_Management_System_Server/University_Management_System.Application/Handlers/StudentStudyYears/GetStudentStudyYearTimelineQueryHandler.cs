@@ -7,12 +7,11 @@ using University_Management_System.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using University_Management_System.Shared.Responses;
+using University_Management_System.Shared.Exceptions;
 
 namespace University_Management_System.Application.Handlers.StudentStudyYears
 {
-    public class GetStudentStudyYearTimelineQueryHandler : IRequestHandler<GetStudentStudyYearTimelineQuery, ApiResponse<StudentStudyYearTimelineDto>>
+    public class GetStudentStudyYearTimelineQueryHandler : IRequestHandler<GetStudentStudyYearTimelineQuery, StudentStudyYearTimelineDto>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,45 +22,57 @@ namespace University_Management_System.Application.Handlers.StudentStudyYears
             _mapper = mapper;
         }
 
-        public async Task<ApiResponse<StudentStudyYearTimelineDto>> Handle(GetStudentStudyYearTimelineQuery request, CancellationToken cancellationToken)
+        public async Task<StudentStudyYearTimelineDto> Handle(GetStudentStudyYearTimelineQuery request, CancellationToken cancellationToken)
         {
-            //get Student
-            var Student = await _unitOfWork.Students.GetByIdAsync(request.StudentId);
-            if(Student == null)
-                return ApiResponse<StudentStudyYearTimelineDto>.ErrorResponse("Student not found");
-            //get all study years related to Student ordered by start year
-            var StudentStudyYears = await _unitOfWork.StudentStudyYears.GetStudyYearsByStudentIdAsync(request.StudentId);
-
-            if (!StudentStudyYears.Any())
-                return ApiResponse<StudentStudyYearTimelineDto>.ErrorResponse("No study year records found for this Student.");
+            // ─── 1. Get Student ──────────────────────────────────────────────
+            var student = await _unitOfWork.Students
+                .GetByIdAsync(request.StudentId);
             
+            if (student == null)
+                throw new NotFoundException($"Student with ID '{request.StudentId}' not found.");
 
-            var department = await _unitOfWork.Departments.GetByIdAsync(Student.DepartmentId);
-            if(department == null)
-                return ApiResponse<StudentStudyYearTimelineDto>.ErrorResponse("Department not found for the Student.");
+            // ─── 2. Get all study years related to Student ──────────────────
+            var studentStudyYears = await _unitOfWork.StudentStudyYears
+                .GetStudyYearsByStudentIdAsync(request.StudentId);
 
+            if (!studentStudyYears.Any())
+                throw new NotFoundException($"No study years found for student with ID '{request.StudentId}'.");
 
-            // get total completed years (non current)
-            var completedYears = StudentStudyYears.Where(sy => !sy.StudyYear.IsCurrent).ToList();
+            // ─── 3. Get Department ──────────────────────────────────────────────
+            var department = await _unitOfWork.Departments
+                .GetByIdAsync(student.DepartmentId);
+            
+            if (department == null)
+                throw new NotFoundException($"Department with ID '{student.DepartmentId}' not found.");
+
+            // ─── 4. Calculate completed years (non-current) ──────────────────
+            var completedYears = studentStudyYears
+                .Where(sy => !sy.StudyYear.IsCurrent)
+                .ToList();
+
+            // ─── 5. Build Timeline ────────────────────────────────────────────
             var timeline = new StudentStudyYearTimelineDto
             {
                 StudentId = request.StudentId,
-                CurrentLevel = Student.Level,
+                CurrentLevel = student.Level,
                 TotalYearsCompleted = completedYears.Count,
-                IsGraduated = Student.Level == Levels.Graduate,
+                IsGraduated = student.Level == Levels.Graduate,
                 Department = department.Name,
-                StudyYears =  StudentStudyYears.Select(sy => new StudentStudyYearDetailsDto
-                {
-                    StudentStudyYearId = sy.Id,
-                    StartYear = sy.StudyYear.StartYear,
-                    EndYear = sy.StudyYear.EndYear,
-                    Level = sy.Level,
-                    IsCurrent = sy.StudyYear.IsCurrent,
-                    EnrolledAt = sy.EnrolledAt
-                }).OrderByDescending(sy => sy.StartYear).ToList()
+                StudyYears = studentStudyYears
+                    .Select(sy => new StudentStudyYearDetailsDto
+                    {
+                        StudentStudyYearId = sy.Id,
+                        StartYear = sy.StudyYear.StartYear,
+                        EndYear = sy.StudyYear.EndYear,
+                        Level = sy.Level,
+                        IsCurrent = sy.StudyYear.IsCurrent,
+                        EnrolledAt = sy.EnrolledAt
+                    })
+                    .OrderByDescending(sy => sy.StartYear)
+                    .ToList()
             };
 
-            return ApiResponse<StudentStudyYearTimelineDto>.SuccessResponse(timeline);
+            return timeline;
         }
     }
 }
