@@ -4,15 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using University_Management_System.Domain.Enums;
 
-namespace University_Management_System.Domain.Queries
+namespace University_Management_System.Domain.Queries.InstructorQueries
 {
-    public class AssistantQueries : SearchablePaginationQuery
+    public class InstructorDepartmentQueries : SearchablePaginationQuery
     {
         public string? Name { get; set; }
-        public string? Email { get; set; }
         public Gender? Gender { get; set; }
-        public int? DepartmentId { get; set; }
-        public string? Supervisor { get; set; }
         public bool? IsActive { get; set; }
     }
 }

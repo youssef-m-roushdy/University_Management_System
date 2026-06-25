@@ -55,7 +55,8 @@ namespace University_Management_System.Application.Validations.Common
         // ─── Credits ──────────────────────────────────────────────────────────
         public const string CreditsMinMax = "Minimum credits must be less than or equal to Maximum credits";
         public const string CreditsPositive = "Credits must be greater than or equal to 0";
-        // ─── Id ───────────────────────────────────────────────────────────────
+
+        // ─── ID ───────────────────────────────────────────────────────────────
         public const string InvalidId = "{PropertyName} must be greater than 0";
 
         // ─── Amount ───────────────────────────────────────────────────────────
@@ -64,5 +65,27 @@ namespace University_Management_System.Application.Validations.Common
 
         // ─── Date Range ──────────────────────────────────────────────────────
         public const string DateRangeMinMax = "Start date must be less than or equal to End date";
+
+        // ─── Academic Code ──────────────────────────────────────────────────
+        public const string AcademicCodeInvalid = "Academic code must contain only letters and numbers";
+
+        // ─── Level ────────────────────────────────────────────────────────────
+        public const string LevelInvalid = "Invalid level value";
+        public const string LevelCannotBeGraduate = "Cannot create a student with Graduate level";
+
+        // ─── Search ──────────────────────────────────────────────────────────
+        public const string SearchTermMinLength = "Search term must be at least 2 characters";
+
+        // ─── Department ──────────────────────────────────────────────────────
+        public const string DepartmentNotFound = "Department with ID '{DepartmentId}' not found";
+        public const string DepartmentRequired = "Department ID is required";
+
+        // ─── Specialization ──────────────────────────────────────────────────
+        public const string SpecializationNotFound = "Specialization with ID '{SpecializationId}' not found";
+
+        // ─── Student ─────────────────────────────────────────────────────────
+        public const string StudentNotFound = "Student with ID '{StudentId}' not found";
+        public const string StudentAlreadyExists = "User already has a Student profile";
+        public const string AcademicCodeAlreadyExists = "Academic code '{AcademicCode}' is already assigned to another student";
     }
 }
