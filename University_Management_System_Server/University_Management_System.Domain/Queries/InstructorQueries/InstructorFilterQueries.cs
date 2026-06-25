@@ -10,7 +10,6 @@ namespace University_Management_System.Domain.Queries.InstructorQueries
     {
         public string? Name { get; set; }
         public Gender? Gender { get; set; }
-        public int? DepartmentId { get; set; }
         public string? DepartmentSearch { get; set; }
         public bool? IsActive { get; set; }
     }

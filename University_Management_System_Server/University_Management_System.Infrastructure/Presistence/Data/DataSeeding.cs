@@ -964,7 +964,7 @@ namespace University_Management_System.Infrastructure.Presistence.Data
             }
 
             await SeedUserWithProfileAsync(
-                email: "    ",
+                email: "admin@akhbaracademy.com",
                 userName: "Admin123",
                 phone: "0123456789",
                 password: "Admin@123",

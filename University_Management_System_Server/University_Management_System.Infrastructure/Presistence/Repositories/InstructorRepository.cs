@@ -46,8 +46,6 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
             if (query.Gender.HasValue)
                 queryable = queryable.Where(i => i.User.Gender == query.Gender.Value);
 
-            if (query.DepartmentId.HasValue)
-                queryable = queryable.Where(i => i.DepartmentId == query.DepartmentId.Value);
 
             if (!string.IsNullOrEmpty(query.DepartmentSearch))
             {
