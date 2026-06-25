@@ -81,7 +81,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
                 return StatusCode(500, ApiResponse<InstructorDto>.ServerErrorResponse("An error occurred while retrieving instructor"));
             }
         }
-        
+
         // ────────────────────────────────────────────────────────────────────────
         // GET /api/instructors/department/{departmentId}
         // ────────────────────────────────────────────────────────────────────────
@@ -217,6 +217,33 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             {
                 _logger.LogError(ex, "Error deleting instructor: {Id}", id);
                 return StatusCode(500, ApiResponse<object>.ServerErrorResponse("An error occurred while deleting instructor"));
+            }
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // POST /api/instructors/add-to-existing-user
+        // ────────────────────────────────────────────────────────────────────────
+        [HttpPost("add-to-existing-user")]
+        public async Task<ActionResult<ApiResponse<InstructorDto>>> AddInstructorToExistingUser(
+            [FromBody] AddInstructorToExistingUserCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send(command);
+                return StatusCode(201, ApiResponse<InstructorDto>.SuccessResponse(result, "Instructor profile added to existing user successfully"));
+            }
+            catch (Shared.Exceptions.NotFoundException ex)
+            {
+                return NotFound(ApiResponse<InstructorDto>.NotFoundResponse(ex.Message));
+            }
+            catch (Shared.Exceptions.ValidationException ex)
+            {
+                return BadRequest(ApiResponse<InstructorDto>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding instructor to existing user");
+                return StatusCode(500, ApiResponse<InstructorDto>.ServerErrorResponse("An error occurred while adding instructor profile"));
             }
         }
     }

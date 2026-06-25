@@ -56,6 +56,18 @@ namespace University_Management_System.Application.Mapping.Profiles
                 .ForMember(dest => dest.CourseInstructors, opt => opt.Ignore())
                 .ForMember(dest => dest.InstructorAssistants, opt => opt.Ignore())
                 .ForMember(dest => dest.DepartmentId, opt => opt.Ignore());
+
+            // AddInstructorToExistingUserDto → Instructor
+            CreateMap<AddInstructorToExistingUserDto, Instructor>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ForMember(dest => dest.Department, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CourseInstructors, opt => opt.Ignore())
+                .ForMember(dest => dest.InstructorAssistants, opt => opt.Ignore())
+                .ForMember(dest => dest.DepartmentId, opt => opt.MapFrom(src => src.DepartmentId));
+
         }
     }
 }

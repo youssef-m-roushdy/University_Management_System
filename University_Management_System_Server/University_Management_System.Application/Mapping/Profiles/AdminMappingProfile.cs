@@ -36,6 +36,14 @@ namespace University_Management_System.Application.Mapping.Profiles
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.AcademicSchedules, opt => opt.Ignore());
+
+            // AddAdminToExistingUserDto → Admin
+            CreateMap<AddAdminToExistingUserDto, Admin>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.AcademicSchedules, opt => opt.Ignore());
         }
     }
 }

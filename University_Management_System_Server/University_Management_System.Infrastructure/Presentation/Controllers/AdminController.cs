@@ -142,5 +142,32 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
                 return StatusCode(500, ApiResponse<object>.ServerErrorResponse("An error occurred while deleting admin"));
             }
         }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // POST /api/admins/add-to-existing-user
+        // ────────────────────────────────────────────────────────────────────────
+        [HttpPost("add-to-existing-user")]
+        public async Task<ActionResult<ApiResponse<AdminDto>>> AddAdminToExistingUser(
+            [FromBody] AddAdminToExistingUserCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send(command);
+                return StatusCode(201, ApiResponse<AdminDto>.SuccessResponse(result, "Admin profile added to existing user successfully"));
+            }
+            catch (Shared.Exceptions.NotFoundException ex)
+            {
+                return NotFound(ApiResponse<AdminDto>.NotFoundResponse(ex.Message));
+            }
+            catch (Shared.Exceptions.ValidationException ex)
+            {
+                return BadRequest(ApiResponse<AdminDto>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding admin to existing user");
+                return StatusCode(500, ApiResponse<AdminDto>.ServerErrorResponse("An error occurred while adding admin profile"));
+            }
+        }
     }
 }

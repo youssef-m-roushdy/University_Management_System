@@ -201,5 +201,32 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
                 return StatusCode(500, ApiResponse<object>.ServerErrorResponse("An error occurred while deleting assistant"));
             }
         }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // POST /api/assistants/add-to-existing-user
+        // ────────────────────────────────────────────────────────────────────────
+        [HttpPost("add-to-existing-user")]
+        public async Task<ActionResult<ApiResponse<AssistantDto>>> AddAssistantToExistingUser(
+            [FromBody] AddAssistantToExistingUserCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send(command);
+                return StatusCode(201, ApiResponse<AssistantDto>.SuccessResponse(result, "Assistant profile added to existing user successfully"));
+            }
+            catch (Shared.Exceptions.NotFoundException ex)
+            {
+                return NotFound(ApiResponse<AssistantDto>.NotFoundResponse(ex.Message));
+            }
+            catch (Shared.Exceptions.ValidationException ex)
+            {
+                return BadRequest(ApiResponse<AssistantDto>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding assistant to existing user");
+                return StatusCode(500, ApiResponse<AssistantDto>.ServerErrorResponse("An error occurred while adding assistant profile"));
+            }
+        }
     }
 }
