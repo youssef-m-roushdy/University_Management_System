@@ -14,6 +14,16 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         {
         }
 
+        public async Task<IEnumerable<Registration>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await GetQueryable()
+                .Where(r => ids.Contains(r.Id))
+                .Include(r => r.Course)
+                .Include(r => r.Semester)
+                .Include(r => r.StudyYear)
+                .ToListAsync();
+        }
+
         // ────────────────────────────────────────────────────────────────────────
         // GET BY STUDENT
         // ────────────────────────────────────────────────────────────────────────

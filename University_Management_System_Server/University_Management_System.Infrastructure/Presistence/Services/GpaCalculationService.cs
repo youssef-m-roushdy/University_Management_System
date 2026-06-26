@@ -50,7 +50,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
         {
             try
             {
-                // Get all registrations for this student in this semester and study year
                 var registrations = await _dbContext.Registrations
                     .Where(r => r.StudentId == userId && r.SemesterId == semesterId && r.StudyYearId == studyYearId)
                     .Include(r => r.Course)
@@ -61,7 +60,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                     return null; // No registrations found
                 }
 
-                // Calculate total credit hours and weighted grade points
                 int totalCreditHours = 0;
                 decimal totalWeightedPoints = 0;
 
@@ -70,24 +68,19 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                     if (registration.Grade is null) continue;
                     decimal gradePoint = GetGradePoint(registration.Grade.Value);
                     int credits = registration.Course.Credits;
-                    
+
                     totalWeightedPoints += gradePoint * credits;
                     totalCreditHours += credits;
                 }
 
-                // Calculate GPA
                 decimal gpa = totalCreditHours > 0 ? (totalWeightedPoints / totalCreditHours) : 0;
-
-                // Round to 2 decimal places
                 gpa = Math.Round(gpa, 2);
 
-                // Check if SemesterGPA already exists for this combination
                 var existingGPA = await _dbContext.SemesterGPAs
                     .FirstOrDefaultAsync(g => g.StudentId == userId && g.SemesterId == semesterId && g.StudyYearId == studyYearId);
 
                 if (existingGPA != null)
                 {
-                    // Update existing record
                     existingGPA.GPA = gpa;
                     existingGPA.TotalCreditHours = totalCreditHours;
                     existingGPA.CalculatedAt = DateTime.UtcNow;
@@ -95,7 +88,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 }
                 else
                 {
-                    // Create new record
                     var semesterGPA = new SemesterGPA
                     {
                         StudentId = userId,
@@ -105,13 +97,12 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                         TotalCreditHours = totalCreditHours,
                         CalculatedAt = DateTime.UtcNow
                     };
-                    
+
                     _dbContext.SemesterGPAs.Add(semesterGPA);
                 }
 
                 await _dbContext.SaveChangesAsync();
 
-                // Return the updated or newly created record
                 return await GetSemesterGPAAsync(userId, semesterId, studyYearId);
             }
             catch (Exception ex)
@@ -120,9 +111,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             }
         }
 
-        /// <summary>
-        /// Get GPA for a student in a specific semester and study year
-        /// </summary>
         public async Task<SemesterGPA?> GetSemesterGPAAsync(string userId, int semesterId, int studyYearId)
         {
             return await _dbContext.SemesterGPAs
@@ -131,9 +119,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
                 .FirstOrDefaultAsync(g => g.StudentId == userId && g.SemesterId == semesterId && g.StudyYearId == studyYearId);
         }
 
-        /// <summary>
-        /// Get all semester GPAs for a student
-        /// </summary>
         public async Task<IEnumerable<SemesterGPA>> GetAllStudentGPAsAsync(string userId)
         {
             return await _dbContext.SemesterGPAs
@@ -147,7 +132,6 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
         /// <summary>
         /// Calculate cumulative GPA for a student across all semesters
-        /// Formula: Cumulative GPA = Σ(All Semester Weighted Points) / Σ(All Credit Hours)
         /// </summary>
         public async Task<decimal> CalculateCumulativeGPAAsync(string userId)
         {
@@ -169,6 +153,58 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
             decimal cumulativeGPA = totalCreditHours > 0 ? (totalWeightedPoints / totalCreditHours) : 0;
             return Math.Round(cumulativeGPA, 2);
+        }
+
+        /// <summary>
+        /// Recalculates cumulative GPA and writes it onto Student.TotalGPA
+        /// </summary>
+        public async Task UpdateStudentCumulativeGpaAsync(string studentId)
+        {
+            var cumulativeGpa = await CalculateCumulativeGPAAsync(studentId);
+
+            var student = await _dbContext.Students
+                .FirstOrDefaultAsync(s => s.Id == studentId);
+
+            if (student is null)
+            {
+                throw new InvalidOperationException($"Student with id {studentId} was not found while updating cumulative GPA.");
+            }
+
+            student.TotalGPA = cumulativeGpa;
+            _dbContext.Students.Update(student);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Cascade entry point: call after Grade/IsPassed changes on one or many
+        /// registrations have already been saved. Recalculates every affected
+        /// SemesterGPA, then every affected student's cumulative GPA.
+        /// </summary>
+        public async Task RecalculateGpaForRegistrationsAsync(IEnumerable<Registration> updatedRegistrations)
+        {
+            var registrations = updatedRegistrations?.ToList() ?? new List<Registration>();
+            if (!registrations.Any()) return;
+
+            // 1. Recalculate SemesterGPA for every distinct (Student, Semester, StudyYear) touched
+            var semesterGroups = registrations
+                .Select(r => new { r.StudentId, r.SemesterId, r.StudyYearId })
+                .Distinct();
+
+            foreach (var group in semesterGroups)
+            {
+                await CalculateAndSaveSemesterGPAAsync(group.StudentId, group.SemesterId, group.StudyYearId);
+            }
+
+            // 2. Refresh cumulative GPA for every distinct student touched
+            var studentIds = registrations
+                .Select(r => r.StudentId)
+                .Distinct();
+
+            foreach (var studentId in studentIds)
+            {
+                await UpdateStudentCumulativeGpaAsync(studentId);
+            }
         }
     }
 }

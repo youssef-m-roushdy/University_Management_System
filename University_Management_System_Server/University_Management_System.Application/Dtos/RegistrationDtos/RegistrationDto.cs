@@ -19,6 +19,10 @@ namespace University_Management_System.Application.Dtos.RegistrationDtos
         public bool IsPassed { get; set; } // This property indicates whether the course has been passed by the student or not. It can be used to determine if the student has met the prerequisites for other courses. 
         public StudentDto Student { get; set; } = null!;
         public CourseDto Course { get; set; } = null!;
+        public string StudentId { get; set; } = string.Empty;
+        public int CourseId { get; set; }
+        public int SemesterId { get; set; }
+        public int StudyYearId { get; set; }
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
     }
 }

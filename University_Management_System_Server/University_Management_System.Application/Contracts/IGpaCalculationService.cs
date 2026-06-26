@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using University_Management_System.Domain.Entities.Models;
@@ -8,29 +7,28 @@ namespace University_Management_System.Application.Contracts
 {
     public interface IGpaCalculationService
     {
-        /// <summary>
-        /// Calculate GPA for a student in a specific semester and study year
-        /// </summary>
+        decimal GetGradePoint(Grades grade);
+
         Task<SemesterGPA?> CalculateAndSaveSemesterGPAAsync(string userId, int semesterId, int studyYearId);
 
-        /// <summary>
-        /// Get GPA for a student in a specific semester and study year
-        /// </summary>
         Task<SemesterGPA?> GetSemesterGPAAsync(string userId, int semesterId, int studyYearId);
 
-        /// <summary>
-        /// Get all semester GPAs for a student
-        /// </summary>
         Task<IEnumerable<SemesterGPA>> GetAllStudentGPAsAsync(string userId);
 
-        /// <summary>
-        /// Calculate cumulative GPA for a student across all semesters
-        /// </summary>
         Task<decimal> CalculateCumulativeGPAAsync(string userId);
 
         /// <summary>
-        /// Convert grade enum to numeric point value (4.0 scale)
+        /// Recalculates a student's cumulative GPA from all SemesterGPA records
+        /// and persists it on Student.TotalGPA.
         /// </summary>
-        decimal GetGradePoint(Grades grade);
+        Task UpdateStudentCumulativeGpaAsync(string studentId);
+
+        /// <summary>
+        /// Given registrations that just had Grade/IsPassed updated (single or bulk),
+        /// recalculates SemesterGPA for every distinct (Student, Semester, StudyYear)
+        /// they belong to, then refreshes each affected student's cumulative GPA.
+        /// Call this AFTER the registration changes are saved to the database.
+        /// </summary>
+        Task RecalculateGpaForRegistrationsAsync(IEnumerable<Registration> updatedRegistrations);
     }
 }
