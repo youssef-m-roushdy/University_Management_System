@@ -23,5 +23,7 @@ namespace University_Management_System.Application.Dtos.StudentDtos
         public decimal TotalGPA { get; set; }
         public string Department { get; set; }
         public string? Specialization { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }
