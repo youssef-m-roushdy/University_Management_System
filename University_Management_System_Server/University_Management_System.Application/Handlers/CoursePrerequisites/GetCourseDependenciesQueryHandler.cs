@@ -1,11 +1,11 @@
 using AutoMapper;
 using MediatR;
 using University_Management_System.Application.Dtos.CourseDtos;
-using University_Management_System.Application.Queries.Courses;
+using University_Management_System.Application.Queries.CoursePrequisites;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Shared.Exceptions;
 
-namespace University_Management_System.Application.Handlers.Courses
+namespace University_Management_System.Application.Handlers.CoursePrerequisites
 {
     public class GetCourseDependenciesQueryHandler : IRequestHandler<GetCourseDependenciesQuery, IEnumerable<CourseDto>>
     {

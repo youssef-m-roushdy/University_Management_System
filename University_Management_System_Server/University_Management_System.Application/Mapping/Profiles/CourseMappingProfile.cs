@@ -59,6 +59,8 @@ namespace University_Management_System.Application.Mapping.Profiles
             CreateMap<CreateCourseCommand, Course>();
             CreateMap<UpdateCourseCommand, Course>();
             CreateMap<UpdateCourseStatusCommand, Course>();
+
+            CreateMap<Course, CourseSearchResultDto>();
         }
     }
 }

@@ -116,60 +116,6 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
         }
 
         // ────────────────────────────────────────────────────────────────────────
-        // 4. GET /api/courses/{id}/prerequisites - Get course prerequisites (All authenticated users)
-        // ────────────────────────────────────────────────────────────────────────
-        [HttpGet("{id}/prerequisites")]
-        [Authorize]
-        public async Task<ActionResult<ApiResponse<IEnumerable<CourseDto>>>> GetCoursePrerequisites(int id)
-        {
-            try
-            {
-                var result = await _mediator.Send(new GetCoursePrerequisitesQuery { CourseId = id });
-
-                return Ok(ApiResponse<IEnumerable<CourseDto>>.SuccessResponse(
-                    result,
-                    "Course prerequisites retrieved successfully"));
-            }
-            catch (Shared.Exceptions.NotFoundException ex)
-            {
-                return NotFound(ApiResponse<IEnumerable<CourseDto>>.NotFoundResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting course prerequisites: {Id}", id);
-                return StatusCode(500, ApiResponse<IEnumerable<CourseDto>>.ServerErrorResponse(
-                    "An error occurred while retrieving course prerequisites"));
-            }
-        }
-
-        // ────────────────────────────────────────────────────────────────────────
-        // 5. GET /api/courses/{id}/dependencies - Get course dependencies (All authenticated users)
-        // ────────────────────────────────────────────────────────────────────────
-        [HttpGet("{id}/dependencies")]
-        [Authorize]
-        public async Task<ActionResult<ApiResponse<IEnumerable<CourseDto>>>> GetCourseDependencies(int id)
-        {
-            try
-            {
-                var result = await _mediator.Send(new GetCourseDependenciesQuery { CourseId = id });
-
-                return Ok(ApiResponse<IEnumerable<CourseDto>>.SuccessResponse(
-                    result,
-                    "Course dependencies retrieved successfully"));
-            }
-            catch (Shared.Exceptions.NotFoundException ex)
-            {
-                return NotFound(ApiResponse<IEnumerable<CourseDto>>.NotFoundResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting course dependencies: {Id}", id);
-                return StatusCode(500, ApiResponse<IEnumerable<CourseDto>>.ServerErrorResponse(
-                    "An error occurred while retrieving course dependencies"));
-            }
-        }
-
-        // ────────────────────────────────────────────────────────────────────────
         // 6. POST /api/courses - Create course (Admin only)
         // ────────────────────────────────────────────────────────────────────────
         [HttpPost]
@@ -291,6 +237,37 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             {
                 _logger.LogError(ex, "Error deleting course: {Id}", id);
                 return StatusCode(500, ApiResponse<object>.ServerErrorResponse("An error occurred while deleting course"));
+            }
+        }
+
+        // GET /api/courses/search?q=data+str&departmentId=1&maxResults=10
+        [HttpGet("search")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<IEnumerable<CourseSearchResultDto>>>> SearchCourses(
+            [FromQuery] string? q,
+            [FromQuery] int? departmentId,
+            [FromQuery] int? maxResults)
+        {
+            try
+            {
+                var query = new SearchCoursesQuery
+                {
+                    SearchTerm = q,
+                    DepartmentId = departmentId,
+                    MaxResults = maxResults ?? 20
+                };
+
+                var result = await _mediator.Send(query);
+
+                return Ok(ApiResponse<IEnumerable<CourseSearchResultDto>>.SuccessResponse(
+                    result,
+                    "Courses retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching courses");
+                return StatusCode(500, ApiResponse<IEnumerable<CourseSearchResultDto>>.ServerErrorResponse(
+                    "An error occurred while searching courses"));
             }
         }
     }
