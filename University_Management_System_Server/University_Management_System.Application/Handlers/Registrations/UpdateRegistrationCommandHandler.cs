@@ -1,70 +1,95 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AutoMapper;
+using MediatR;
 using University_Management_System.Application.Commands.Registrations;
+using University_Management_System.Application.Contracts;
+using University_Management_System.Application.Dtos.RegistrationDtos;
 using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Enums;
 using University_Management_System.Shared.Exceptions;
-using MediatR;
-using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Handlers.Registrations
 {
-    public class UpdateRegistrationCommandHandler : IRequestHandler<UpdateRegistrationCommand,  Unit>
+    public class UpdateRegistrationCommandHandler : IRequestHandler<UpdateRegistrationCommand, RegistrationDto>
     {
         private readonly IUnitOfWork _unitOfWork;
-        public UpdateRegistrationCommandHandler(IUnitOfWork unitOfWork)
+        private readonly IGpaCalculationService _gpaCalculationService;
+        private readonly IMapper _mapper;
+
+        public UpdateRegistrationCommandHandler(
+            IUnitOfWork unitOfWork,
+            IGpaCalculationService gpaCalculationService,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _gpaCalculationService = gpaCalculationService;
+            _mapper = mapper;
         }
-        
-        public async Task<Unit> Handle(UpdateRegistrationCommand request, CancellationToken cancellationToken)
+
+        public async Task<RegistrationDto> Handle(
+            UpdateRegistrationCommand request,
+            CancellationToken cancellationToken)
         {
-            var registration = await _unitOfWork.Registrations.GetByIdAsync(request.RegistrationId);
-            if (registration == null)                
-                throw new NotFoundException("Registration not found");
+            // ─── 1. Get registration ──────────────────────────────────────────
+            var registration = await _unitOfWork.Registrations
+                .GetByIdAsync(request.Id);
 
-            var studyYear = await _unitOfWork.StudyYears.GetCurrentStudyYearAsync();
-            if (studyYear.Id != registration.StudyYearId)
-                throw new Exception($"Cannot update registration for a non current study year.");
-            
-            
+            if (registration is null)
+                throw new NotFoundException($"Registration with ID '{request.Id}' was not found.");
 
-            var semester = await _unitOfWork.Semesters.GetByIdAsync(registration.SemesterId);
-            if(!semester.IsActive)
-                throw new Exception($"Cannot update registration for an inactive semester.");
+            // ─── 2. Verify ownership ──────────────────────────────────────────
+            if (registration.StudentId != request.StudentId)
+                throw new UnauthorizedAccessException("You can only update your own registrations.");
 
-            registration.Status = request.UpdateDto.Status;
-            registration.Reason = request.UpdateDto.Reason;
-            registration.Grade = request.UpdateDto.Grade;
-            if (registration.Status == RegistrationStatus.Approved)
+            // ─── 3. Track changes for GPA recalculation ──────────────────────
+            var gradeChanged = false;
+
+            // ─── 4. Update registration fields ────────────────────────────────
+            if (request.Dto is not null)
             {
-                registration.Progress = CourseProgress.InProgress;
-            }
-            else
-            {
-                registration.Progress = CourseProgress.NotStarted;
-            }
+                // Update Status
+                if (request.Dto.Status.HasValue)
+                    registration.Status = request.Dto.Status.Value;
 
-            if(registration.Grade != null)
-            {
-                if(registration.Grade == Grades.F)
+                // Update Reason
+                if (!string.IsNullOrEmpty(request.Dto.Reason))
+                    registration.Reason = request.Dto.Reason;
+
+                // Update Grade
+                if (request.Dto.Grade.HasValue)
                 {
-                    registration.IsPassed = false;
-                    registration.Progress = CourseProgress.Completed; // Completed but not passed
-                }
-                else
-                {
-                    registration.IsPassed = true;
-                    registration.Progress = CourseProgress.Completed; // Completed and passed
+                    registration.Grade = request.Dto.Grade.Value;
+                    gradeChanged = true;
+                    registration.Progress = CourseProgress.Completed;
+
+                    // Auto-update IsPassed based on grade
+                    if (request.Dto.Grade.Value == Grades.F || request.Dto.Grade.Value == Grades.D_Minus)
+                    {
+                        registration.IsPassed = false;
+                    }
+                    else
+                    {
+                        registration.IsPassed = true;
+                    }
                 }
             }
 
-            _unitOfWork.Registrations.UpdateAsync(registration);
+            registration.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.Registrations.UpdateAsync(registration);
             await _unitOfWork.SaveChangesAsync();
 
-            return Unit.Value;
+            // ─── 5. Recalculate GPA if grade was updated ─────────────────────
+            if (gradeChanged)
+            {
+                await _gpaCalculationService.RecalculateGpaForRegistrationsAsync(
+                    new[] { registration });
+            }
+
+            // ─── 6. Get updated registration with details ────────────────────
+            var updatedRegistration = await _unitOfWork.Registrations
+                .GetByIdAsync(request.Id);
+
+            return _mapper.Map<RegistrationDto>(updatedRegistration);
         }
     }
 }

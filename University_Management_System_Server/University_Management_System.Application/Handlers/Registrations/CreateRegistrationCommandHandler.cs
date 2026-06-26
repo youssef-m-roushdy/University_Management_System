@@ -1,130 +1,176 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AutoMapper;
+using MediatR;
 using University_Management_System.Application.Commands.Registrations;
-using University_Management_System.Domain.Entities.Identity;
+using University_Management_System.Application.Dtos.RegistrationDtos;
+using University_Management_System.Domain.Contracts;
 using University_Management_System.Domain.Entities.Models;
 using University_Management_System.Domain.Enums;
 using University_Management_System.Shared.Exceptions;
-using Microsoft.EntityFrameworkCore;
-using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
-using University_Management_System.Shared.Responses;
-using University_Management_System.Domain.Contracts;
 
 namespace University_Management_System.Application.Handlers.Registrations
 {
-    public class CreateRegistrationCommandHandler : IRequestHandler<CreateRegistrationCommand, int>
+    public class CreateRegistrationCommandHandler : IRequestHandler<CreateRegistrationCommand, RegistrationDto>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<User> _userManager;
+        private readonly IMapper _mapper;
 
-        public CreateRegistrationCommandHandler(
-            IUnitOfWork unitOfWork,
-            UserManager<User> userManager)
+        public CreateRegistrationCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _userManager = userManager;
+            _mapper = mapper;
         }
 
-        public async Task<int> Handle(CreateRegistrationCommand request, CancellationToken cancellationToken)
+        public async Task<RegistrationDto> Handle(CreateRegistrationCommand request, CancellationToken cancellationToken)
         {
-            // 1️⃣ Get user
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UserId);
+            // ─── 1. Validate Student exists ──────────────────────────────────
+            var student = await _unitOfWork.Students.GetByIdAsync(request.StudentId);
+            if (student == null)
+                throw new NotFoundException($"Student with ID '{request.StudentId}' not found.");
 
-            if (user == null)
-                throw new NotFoundException("User not found");
-            
-            // 2️⃣ Check user is student
-            if (!await _userManager.IsInRoleAsync(user, "Student"))
-                throw new BadRequestException("Only students can register for courses");
-            
-            // 3️⃣ Get student
-            var student = await _unitOfWork.Students.GetByIdAsync(user.Id);
+            // ─── 2. Validate Student is active ──────────────────────────────
+            if (!student.User.IsActive)
+                throw new ValidationException(new List<string> {
+                    $"Student account is not active. Please contact administration."
+                });
 
-            // 4️⃣ Get course
-            var course = await _unitOfWork.Courses.GetByIdAsync(request.RegistrationDto.CourseId);
-
+            // ─── 3. Validate Course exists ──────────────────────────────────
+            var course = await _unitOfWork.Courses.GetByIdAsync(request.Dto.CourseId);
             if (course == null)
-                throw new NotFoundException("Course not found");
+                throw new NotFoundException($"Course with ID '{request.Dto.CourseId}' not found.");
 
-            // 5️⃣ Check study year is current
-            var studyYear = await _unitOfWork.StudyYears.IsStudyYearCurrentAsync(request.RegistrationDto.StudyYearId);
+            // ─── 4. Validate Course is active ──────────────────────────────
+            if (course.Status == CourseStatus.Closed)
+                throw new ValidationException(new List<string> {
+                    $"Course '{course.Code}' is not open to register."
+                });
 
-            if (!studyYear)
-                throw new BadRequestException("You can only register in the current study year, this study year is ended");
+            // ─── 5. Validate Semester exists ──────────────────────────────────
+            var semester = await _unitOfWork.Semesters.GetByIdAsync(request.Dto.SemesterId);
+            if (semester == null)
+                throw new NotFoundException($"Semester with ID '{request.Dto.SemesterId}' not found.");
 
-            // 6️⃣ Check semester belongs to study year
-            var isSemesterInStudyYear = await _unitOfWork.Semesters.IsSemesterBelongsToStudyYearAsync(request.RegistrationDto.SemesterId, request.RegistrationDto.StudyYearId);
+            // ─── 6. Validate Study Year exists ──────────────────────────────
+            var studyYear = await _unitOfWork.StudyYears.GetByIdAsync(request.Dto.StudyYearId);
+            if (studyYear == null)
+                throw new NotFoundException($"Study Year with ID '{request.Dto.StudyYearId}' not found.");
 
-            if (!isSemesterInStudyYear)
-                throw new BadRequestException("The semester does not belong to the specified study year");
+            // ─── 7. Check if student is already registered in this course ────
+            var existingRegistration = await _unitOfWork.Registrations
+                .GetByStudentAndCourseAsync(request.StudentId, request.Dto.CourseId, request.Dto.StudyYearId);
+            
+            if (existingRegistration != null)
+                throw new ValidationException(new List<string> {
+                    $"Student is already registered in course '{course.Code}' for this study year."
+                });
 
-            // 7️⃣ Check semester is active
-            var semester = await _unitOfWork.Semesters.IsActiveSemesterAsync(request.RegistrationDto.SemesterId);
-
-            if (!semester)
-                throw new BadRequestException("You can only register in the active semester, this semester is ended");
-
-            // 8️⃣ Check course is opened
-            if (course.Status != CourseStatus.Opened)
-                throw new BadRequestException("Course registration is closed");
-
-            // 9️⃣ Check if user is already registered in the course
-            var isRegistrationExists = await _unitOfWork.Registrations.IsStudentRegisteredInCourseAsync(student.Id, course.Id);
-
-            if (isRegistrationExists)
-                throw new BadRequestException("Already registered in this course");
-
-            // Check prerequisites
-            var prerequisitesCourses = await _unitOfWork.Courses.GetPrerequisitesAsync(course.Id);
-
-            var passedCourseIds = new List<int>();
-            foreach (var preq in prerequisitesCourses)
+            // ─── 8. Check if student has prerequisites ──────────────────────
+            var prerequisites = await _unitOfWork.Courses.GetPrerequisitesAsync(request.Dto.CourseId);
+            if (prerequisites.Any())
             {
-                var isPassed = await _unitOfWork.Registrations.IsCourseCompletedByStudentAsync(student.Id, preq.Id);
-                if (isPassed)
+                var passedCourses = await _unitOfWork.Registrations
+                    .GetStudentPassedCoursesAsync(request.StudentId);
+                
+                var passedCourseIds = passedCourses.Select(p => p.CourseId).ToHashSet();
+                var missingPrerequisites = prerequisites
+                    .Where(p => !passedCourseIds.Contains(p.Id))
+                    .ToList();
+
+                if (missingPrerequisites.Any())
                 {
-                    passedCourseIds.Add(preq.Id);
+                    var missingCodes = string.Join(", ", missingPrerequisites.Select(p => p.Code));
+                    throw new ValidationException(new List<string> {
+                        $"Student has not completed prerequisites: {missingCodes}"
+                    });
                 }
             }
 
-            var missingCourses = prerequisitesCourses.Select(p => p.Id).Except(passedCourseIds);
+            // ─── 9. Check if course is open for registration ──────────────────
+            if (course.Status != CourseStatus.Opened)
+                throw new ValidationException(new List<string> {
+                    $"Course '{course.Code}' is not open for registration. Current status: {course.Status}."
+                });
 
-            if (missingCourses.Any())
-                throw new BadRequestException("Prerequisites not completed");
+            // ─── 10. Credit Validation ──────────────────────────────────────
+            var courseCredits = course.Credits;
+            
+            // Check if student has enough allowed credits
+            if (student.AllowedCredits < courseCredits)
+                throw new ValidationException(new List<string> {
+                    $"Student does not have enough allowed credits. Available: {student.AllowedCredits}, Required: {courseCredits}."
+                });
 
-            // Check if student has enough credit hours
-            if (student.AllowedCredits < course.Credits)
-                throw new BadRequestException("Not enough credit hours");
+            // Check if student would exceed semester credit limit
+            var currentSemesterCredits = await _unitOfWork.Registrations
+                .GetStudentCreditHoursAsync(request.StudentId, request.Dto.SemesterId);
+            
+            var maxAllowedCredits = student.AllowedCredits + student.TotalCredits;
+            
+            if (currentSemesterCredits + courseCredits > maxAllowedCredits)
+                throw new ValidationException(new List<string> {
+                    $"Student would exceed allowed credits for this semester. " +
+                    $"Current: {currentSemesterCredits}, Adding: {courseCredits}, " +
+                    $"Max: {maxAllowedCredits}."
+                });
 
-            // 1️⃣0️⃣ Create registration
+            // ─── 11. Check for scheduling conflicts ──────────────────────────
+            var hasConflict = await CheckSchedulingConflictAsync(
+                request.StudentId, 
+                request.Dto.SemesterId, 
+                request.Dto.CourseId);
+
+            if (hasConflict)
+                throw new ValidationException(new List<string> {
+                    $"Course '{course.Code}' conflicts with another registered course in the same semester."
+                });
+
+            // ─── 12. Create Registration ──────────────────────────────────────
             var registration = new Registration
             {
-                StudentId = student.Id,
-                CourseId = course.Id,
-                StudyYearId = request.RegistrationDto.StudyYearId,
-                SemesterId = request.RegistrationDto.SemesterId,
+                StudentId = request.StudentId,
+                CourseId = request.Dto.CourseId,
+                SemesterId = request.Dto.SemesterId,
+                StudyYearId = request.Dto.StudyYearId,
                 Status = RegistrationStatus.Pending,
                 Progress = CourseProgress.NotStarted,
-                Grade = null,
                 IsPassed = false,
-                RegisteredAt = DateTime.UtcNow
+                RegisteredAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
 
             await _unitOfWork.Registrations.AddAsync(registration);
+            
+            // ─── 13. ✅ DECREASE student's allowed credits ──────────────────
+            student.AllowedCredits -= courseCredits;
+            student.UpdatedAt = DateTime.UtcNow;
+            await _unitOfWork.Students.UpdateAsync(student);
+            
             await _unitOfWork.SaveChangesAsync();
 
-            // 1️⃣1️⃣ Deduct credit hours
-            student.AllowedCredits -= course.Credits;
-            var updateResult = await _userManager.UpdateAsync(user);
+            // ─── 14. Get created registration with details ────────────────────
+            var created = await _unitOfWork.Registrations
+                .GetByStudentAndCourseAsync(request.StudentId, request.Dto.CourseId, request.Dto.StudyYearId);
 
-            if (!updateResult.Succeeded)
-                throw new BadRequestException("Failed to update student credit hours");
+            // ─── 15. Return DTO ──────────────────────────────────────────────
+            var result = _mapper.Map<RegistrationDto>(created);
+            result.Status = RegistrationStatus.Pending;
+            result.Progress = CourseProgress.NotStarted;
+            
+            return result;
+        }
 
-            return registration.Id;
+        private async Task<bool> CheckSchedulingConflictAsync(string studentId, int semesterId, int courseId)
+        {
+            // Get all registered courses for this student in the semester
+            var existingRegistrations = await _unitOfWork.Registrations
+                .GetStudentSemesterCoursesAsync(studentId, 0, semesterId);
+
+            // Get the course being registered
+            var newCourse = await _unitOfWork.Courses.GetByIdAsync(courseId);
+            
+            // Check for time conflicts (if you have schedule data)
+            // This is a placeholder - implement based on your schedule model
+            // For now, return false (no conflicts)
+            return false;
         }
     }
 }

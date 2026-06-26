@@ -4,10 +4,9 @@ using University_Management_System.Domain.Queries.RegistrationQueries;
 
 namespace University_Management_System.Application.Queries.Registrations
 {
-    public class GetSemesterRegistrationsQuery : IRequest<(IEnumerable<RegistrationDto> Data, int TotalCount)>
+    public class GetStudyYearRegistrationsQuery : IRequest<(IEnumerable<RegistrationDto> Data, int TotalCount)>
     {
-        public int SemesterId { get; set; }
         public int StudyYearId { get; set; }
-        public RegistrationSemesterQueries? RegistrationQuery { get; set; }
+        public RegistrationStudyYearQueries? Query { get; set; }
     }
 }

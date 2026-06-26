@@ -8,15 +8,10 @@ using University_Management_System.Shared.Responses;
 
 namespace University_Management_System.Application.Commands.Registrations
 {
-    public class UpdateRegistrationCommand : IRequest<Unit>
+    public class UpdateRegistrationCommand : IRequest<RegistrationDto>
     {
-        public int RegistrationId { get; set; }
-        public UpdateRegistrationDto UpdateDto { get; set; } = null!;
-
-        public UpdateRegistrationCommand(int registrationId, UpdateRegistrationDto updateDto)
-        {
-            RegistrationId = registrationId;
-            UpdateDto = updateDto;
-        }
+        public int Id { get; set; }
+        public UpdateRegistrationDto? Dto { get; set; }
+        public string StudentId { get; set; }
     }
 }
