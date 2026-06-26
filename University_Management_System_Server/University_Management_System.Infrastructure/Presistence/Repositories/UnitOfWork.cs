@@ -24,6 +24,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         private IAdminRepository?            _admins;
         private ICoursePrerequisiteRepository     _coursePrerequisite;
         private IDepartmentCourseRepository    _departmentCourse;
+        private ISpecializationCourseRepository   _specializationCourse;
 
         public UnitOfWork(UniversityDbContext dbContext)
         {
@@ -78,6 +79,9 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
 
         public IDepartmentCourseRepository DepartmentCourses
             => _departmentCourse ??= new DepartmentCourseRepository(_dbContext);
+
+        public ISpecializationCourseRepository SpecializationCourses
+            => _specializationCourse ??= new SpecializationCourseRepository(_dbContext);
 
         public IGenericRepository<TEntity, TKey> GetRepository<TEntity, TKey>()
             where TEntity : BaseEntities<TKey>

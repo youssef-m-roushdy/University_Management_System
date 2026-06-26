@@ -20,6 +20,7 @@ namespace University_Management_System.Domain.Contracts
         IAdminRepository Admins { get; }
         ICoursePrerequisiteRepository CoursePrerequisites { get; }
         IDepartmentCourseRepository DepartmentCourses { get; }
+        ISpecializationCourseRepository SpecializationCourses { get; }
 
         Task<int> SaveChangesAsync();
 
