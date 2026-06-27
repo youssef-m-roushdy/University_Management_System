@@ -21,6 +21,7 @@ namespace University_Management_System.Domain.Contracts
         ICoursePrerequisiteRepository CoursePrerequisites { get; }
         IDepartmentCourseRepository DepartmentCourses { get; }
         ISpecializationCourseRepository SpecializationCourses { get; }
+        ISemesterGPARepository SemesterGPAs { get; }
 
         Task<int> SaveChangesAsync();
 

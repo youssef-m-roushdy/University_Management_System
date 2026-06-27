@@ -25,6 +25,7 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
         private ICoursePrerequisiteRepository     _coursePrerequisite;
         private IDepartmentCourseRepository    _departmentCourse;
         private ISpecializationCourseRepository   _specializationCourse;
+        private ISemesterGPARepository           _semesterGPA;
 
         public UnitOfWork(UniversityDbContext dbContext)
         {
@@ -82,6 +83,9 @@ namespace University_Management_System.Infrastructure.Presistence.Repositories
 
         public ISpecializationCourseRepository SpecializationCourses
             => _specializationCourse ??= new SpecializationCourseRepository(_dbContext);
+        
+        public ISemesterGPARepository SemesterGPAs
+            => _semesterGPA ??= new SemesterGPARepository(_dbContext);
 
         public IGenericRepository<TEntity, TKey> GetRepository<TEntity, TKey>()
             where TEntity : BaseEntities<TKey>
