@@ -41,6 +41,24 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             return Task.FromResult(_s3Client.GetPreSignedURL(request));
         }
 
+        public string ExtractKeyFromUrl(string url)
+        {
+            // If using R2, the URL format might be:
+            // https://bucket.r2.cloudflarestorage.com/academic-schedules/file.pdf
+            // Or you might be storing just the key in the URL field
+            
+            // If the URL contains the bucket name, extract the path
+            if (url.Contains("/academic-schedules/"))
+            {
+                var parts = url.Split("/academic-schedules/");
+                if (parts.Length > 1)
+                    return $"academic-schedules/{parts[1]}";
+            }
+
+            // If the URL is just the key
+            return url;
+        }
+
         public async Task<bool> DeleteAsync(string key, CancellationToken ct = default)
         {
             var response = await _s3Client.DeleteObjectAsync(_bucketName, key, ct);

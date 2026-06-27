@@ -1,56 +1,38 @@
 using University_Management_System.Domain.Entities.Models;
-using University_Management_System.Domain.Queries;
 using University_Management_System.Domain.Queries.AcademicScheduleQueries;
 
 namespace University_Management_System.Domain.Contracts
 {
     public interface IAcademicScheduleRepository : IGenericRepository<AcademicSchedule, int>
     {
-        // ─── Get by study year ──────────────────────────────────────────────────
-        Task<(IEnumerable<AcademicSchedule> Data, int TotalCount)> GetByStudyYearIdAsync(
-            int studyYearId,
-            AcademicScheduleStudyYearQueries? filter = null,
-            CancellationToken cancellationToken = default);
-        
-        // ─── Get by semester ────────────────────────────────────────────────────
-        Task<(IEnumerable<AcademicSchedule> Data, int TotalCount)> GetBySemesterIdAsync(
-            int semesterId,
-            AcademicScheduleSemesterQueries? filter = null,
-            CancellationToken cancellationToken = default);
-        
-        // ─── Get by department ──────────────────────────────────────────────────
-        Task<(IEnumerable<AcademicSchedule> Data, int TotalCount)> GetByDepartmentIdAsync(
-            int departmentId,
-            AcademicScheduleDepartmentQueries? filter = null,
-            CancellationToken cancellationToken = default);
-        
-        // ─── Get by department and semester ────────────────────────────────────
+        // ─── Get by department and semester (Student, Instructor, Assistant) ──
         Task<(IEnumerable<AcademicSchedule> Data, int TotalCount)> GetByDepartmentAndSemesterAsync(
             int departmentId,
             int semesterId,
             AcademicScheduleDepartmentSemesterQueries? filter = null,
             CancellationToken cancellationToken = default);
-        
-        // ─── Get by date range ──────────────────────────────────────────────────
-       
-        
-        // ─── Get all with pagination ──────────────────────────────────────────
-        Task<(IEnumerable<AcademicSchedule> Data, int TotalCount)> GetAllAsync(
-            AcademicScheduleFilterQueries? filter = null,
+
+        // ✅ Add this method
+        Task<IEnumerable<AcademicSchedule>> GetByDepartmentAndSemesterWithDetailsAsync(
+            int departmentId,
+            int semesterId);
+
+        // ─── Get by department (Admin only) ──────────────────────────────────
+        Task<(IEnumerable<AcademicSchedule> Data, int TotalCount)> GetByDepartmentIdAsync(
+            int departmentId,
+            AcademicScheduleSemesterQueries? filter = null,
             CancellationToken cancellationToken = default);
-        
+
+        // ─── Get by semester ──────────────────────────────────────────────────
+        Task<IEnumerable<AcademicSchedule>> GetBySemesterIdAsync(int semesterId);
+
+        // ─── Get by study year ──────────────────────────────────────────────
+        Task<IEnumerable<AcademicSchedule>> GetByStudyYearIdAsync(int studyYearId);
+
         // ─── Check existence ──────────────────────────────────────────────────
-        Task<bool> ScheduleExistsAsync(int studyYearId, int semesterId, int departmentId);
-        Task<bool> ScheduleExistsByIdAsync(int scheduleId);
-        
-        // ─── Counts ────────────────────────────────────────────────────────────
-        Task<int> GetCountByStudyYearAsync(int studyYearId);
-        Task<int> GetCountBySemesterAsync(int semesterId);
-        Task<int> GetCountByDepartmentAsync(int departmentId);
-        
-        // ─── Bulk operations ──────────────────────────────────────────────────
-        Task AddRangeAsync(IEnumerable<AcademicSchedule> schedules);
-        Task UpdateRangeAsync(IEnumerable<AcademicSchedule> schedules);
-        Task DeleteRangeAsync(IEnumerable<AcademicSchedule> schedules);
+        Task<bool> ExistsAsync(int departmentId, int semesterId, string title);
+        Task<bool> ExistsByIdAsync(int id);
+        // ─── Get by ID with details ──────────────────────────────────────────────
+        Task<AcademicSchedule?> GetByIdWithDetailsAsync(int id);
     }
 }

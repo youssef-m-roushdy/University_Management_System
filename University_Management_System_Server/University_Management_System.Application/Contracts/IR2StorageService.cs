@@ -11,5 +11,6 @@ namespace University_Management_System.Application.Contracts
         Task<string> UploadAsync(IFormFile file, string key, CancellationToken ct = default);
         Task<string> GetSignedUrlAsync(string key, TimeSpan expiry, CancellationToken ct = default);
         Task<bool> DeleteAsync(string key, CancellationToken ct = default);
+        string ExtractKeyFromUrl(string url);
     }
 }

@@ -151,6 +151,13 @@ builder.Services.Configure<CloudinarySettings>(
     builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
+// ────────────────────────────────────────────────────────────────────────
+// STORAGE SERVICES
+// ────────────────────────────────────────────────────────────────────────
+builder.Services.Configure<R2Settings>(
+    builder.Configuration.GetSection("R2Settings"));
+builder.Services.AddScoped<IR2StorageService, R2StorageService>();
+
 // MediatR
 builder.Services.AddMediatR(cfg => 
     cfg.RegisterServicesFromAssembly(typeof(University_Management_System.Application.AssemblyReference).Assembly));
