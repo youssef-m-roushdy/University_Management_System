@@ -6,7 +6,11 @@
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-w);
-  background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--primary-dark) 0%,
+    var(--primary) 100%
+  );
   color: var(--text-white);
   display: flex;
   flex-direction: column;
@@ -25,7 +29,7 @@
 
 .sidebar-header {
   padding: 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo-link {
@@ -64,7 +68,7 @@
   gap: 14px;
   padding: 11px 14px;
   border-radius: var(--radius-sm);
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   font-weight: 500;
   transition: var(--transition);
@@ -77,12 +81,12 @@
 }
 
 .nav-item:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
 .nav-item.active {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   color: white;
   font-weight: 600;
 }
@@ -108,7 +112,7 @@
 
 .sidebar-footer {
   padding: 12px 8px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logout-btn:hover {
@@ -314,7 +318,8 @@
   .app-layout:not(.sidebar-collapsed) .sidebar {
     transform: translateX(0);
   }
-  .main-wrapper, .sidebar-collapsed .main-wrapper {
+  .main-wrapper,
+  .sidebar-collapsed .main-wrapper {
     margin-left: 0;
   }
   .profile-info {

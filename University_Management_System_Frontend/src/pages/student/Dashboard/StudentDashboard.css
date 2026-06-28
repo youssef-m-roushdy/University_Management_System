@@ -1,0 +1,609 @@
+/* pages/student/Dashboard/StudentDashboard.css */
+
+/* ── Container ────────────────────────────────────────────────────── */
+.student-dashboard {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Loading ──────────────────────────────────────────────────────── */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2a5298;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* ── Header ────────────────────────────────────────────────────────── */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.header-left h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.header-subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  color: #1e293b;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.profile-btn:hover {
+  background: #e2e8f0;
+}
+
+/* ── Stats Grid ────────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.stat-icon.gpa {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.stat-icon.credits {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.stat-icon.completed {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.stat-icon.inprogress {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ── Dashboard Grid ───────────────────────────────────────────────── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Dashboard Section ────────────────────────────────────────────── */
+.dashboard-section {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.section-icon {
+  font-size: 1.1rem;
+  color: #2a5298;
+}
+
+.view-all-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #2a5298;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: gap 0.2s;
+}
+
+.view-all-link:hover {
+  gap: 8px;
+  text-decoration: underline;
+}
+
+/* ── Course List ───────────────────────────────────────────────────── */
+.course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.course-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.2s;
+}
+
+.course-item:hover {
+  border-color: #94a3b8;
+}
+
+.course-info {
+  flex: 1;
+}
+
+.course-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.course-code {
+  font-weight: 600;
+  color: #2a5298;
+  font-size: 0.9rem;
+}
+
+.course-status {
+  font-size: 0.7rem;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-completed {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-inprogress {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-upcoming {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.course-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.course-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.course-schedule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.schedule-icon {
+  font-size: 0.85rem;
+}
+
+.course-progress {
+  min-width: 120px;
+  margin-left: 16px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.progress-fill.progress-high {
+  background: #10b981;
+}
+
+.progress-fill.progress-medium {
+  background: #f59e0b;
+}
+
+.progress-fill.progress-low {
+  background: #ef4444;
+}
+
+/* ── Completed List ────────────────────────────────────────────────── */
+.completed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.completed-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.completed-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.completed-code {
+  font-weight: 600;
+  color: #2a5298;
+  font-size: 0.85rem;
+}
+
+.completed-name {
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.grade-badge {
+  background: #d1fae5;
+  color: #059669;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* ── Semester List ─────────────────────────────────────────────────── */
+.semester-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.semester-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.semester-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.semester-title {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.semester-status {
+  font-size: 0.7rem;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.semester-gpa {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #2a5298;
+}
+
+.gpa-icon {
+  font-size: 0.9rem;
+}
+
+.study-year-status {
+  font-size: 0.7rem;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* ── Events List ───────────────────────────────────────────────────── */
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.event-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.event-icon.exam {
+  color: #ef4444;
+}
+
+.event-icon.deadline {
+  color: #f59e0b;
+}
+
+.event-icon.assignment {
+  color: #8b5cf6;
+}
+
+.event-icon.lecture {
+  color: #3b82f6;
+}
+
+.event-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.event-title {
+  font-weight: 500;
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.event-date {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* ── Announcements ────────────────────────────────────────────────── */
+.announcements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.announcement-item {
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #2a5298;
+}
+
+.announcement-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.announcement-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.announcement-icon.info {
+  color: #3b82f6;
+}
+
+.announcement-icon.warning {
+  color: #f59e0b;
+}
+
+.announcement-icon.success {
+  color: #10b981;
+}
+
+.announcement-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.announcement-date {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.announcement-message {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .student-dashboard {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .header-left h1 {
+    font-size: 1.4rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+
+  .course-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .course-progress {
+    min-width: unset;
+    margin-left: 0;
+  }
+
+  .dashboard-section {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
