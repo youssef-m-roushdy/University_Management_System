@@ -175,7 +175,7 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             if (user == null)
                 throw new NotFoundException($"User with ID '{userId}' not found.");
 
-            // 3. ✅ Check if user is active
+            // 3. Check if user is active
             if (!user.IsActive)
                 throw new UnauthorizedAccessException("Account is deactivated. Please contact support.");
 
@@ -183,12 +183,12 @@ namespace University_Management_System.Infrastructure.Presistence.Services
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 throw new UnauthorizedAccessException("Email not confirmed.");
 
-            // 5. Generate new tokens
+            // 5. ⚠️ IMPORTANT: Revoke the old refresh token FIRST
+            await _jwtService.RevokeRefreshTokenAsync(refreshToken);
+
+            // 6. Generate new tokens
             var newAccessToken = await _jwtService.GenerateAccessTokenAsync(user);
             var newRefreshToken = await _jwtService.GenerateRefreshTokenAsync(userId);
-
-            // 6. Revoke old refresh token (rotate)
-            await _jwtService.RevokeRefreshTokenAsync(refreshToken);
 
             // 7. Get roles
             var roles = await _userManager.GetRolesAsync(user);

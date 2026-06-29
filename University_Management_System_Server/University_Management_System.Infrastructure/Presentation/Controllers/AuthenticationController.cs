@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 using University_Management_System.Application.Contracts;
 using University_Management_System.Application.Dtos.AuthDtos;
 using University_Management_System.Shared.Responses;
@@ -14,12 +15,13 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
+        private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(IServiceManager serviceManager)
+        public AuthenticationController(IServiceManager serviceManager, ILogger<AuthenticationController> logger)
         {
             _serviceManager = serviceManager;
+            _logger = logger;
         }
-
         // ────────────────────────────────────────────────────────────────────────
         // POST /api/auth/login
         // ────────────────────────────────────────────────────────────────────────
@@ -106,6 +108,7 @@ namespace University_Management_System.Infrastructure.Presentation.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Refresh token failed");
                 return StatusCode(500, ApiResponse<AuthResponseDto>.ServerErrorResponse(
                     "An error occurred while refreshing token"
                 ));

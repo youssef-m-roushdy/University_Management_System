@@ -146,15 +146,17 @@ namespace University_Management_System.Infrastructure.Presistence.Services
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
+            // When refreshing tokens we only need to verify the signature and extract claims.
+            // Issuer/Audience validation is intentionally disabled here because:
+            //   1. We are not authorizing a request — just identifying the user.
+            //   2. Old tokens may have been issued without iss/aud claims.
             var tokenValidationParameters = new TokenValidationParameters
             {
-                ValidateAudience = true,
-                ValidateIssuer = true,
+                ValidateAudience = false,
+                ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey)),
                 ValidateLifetime = false,
-                ValidIssuer = _settings.Issuer,
-                ValidAudience = _settings.Audience,
                 ClockSkew = TimeSpan.Zero
             };
 
