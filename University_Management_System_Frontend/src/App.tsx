@@ -5,7 +5,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { AuthProvider } from './contexts/AuthContext'; // Change from AuthProvider to AuthContext
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext'; // <-- import
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import RoleDashboardRedirect from './components/common/RoleDashboardRedirect';
@@ -17,67 +18,74 @@ import './styles/globals.css';
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
+    <ThemeProvider>
+      {' '}
+      {/* ← Wrap everything */}
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
 
-        <Routes>
-          {/* Public Routes */}
-          {publicRoutes.map(({ path, element }) => (
-            <Route key={path} path={path} element={element} />
-          ))}
+          <Routes>
+            {/* Public Routes */}
+            {publicRoutes.map(({ path, element }) => (
+              <Route key={path} path={path} element={element} />
+            ))}
 
-          {/* Protected Routes */}
-          <Route
-            path={ROUTES.HOME}
-            element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
-
-            {/* Dashboard redirect by role */}
+            {/* Protected Routes */}
             <Route
-              path={ROUTES.DASHBOARD}
+              path={ROUTES.HOME}
               element={
                 <ProtectedRoute>
-                  <RoleDashboardRedirect />
+                  <Layout />
                 </ProtectedRoute>
               }
-            />
-
-            {/* Role-specific dashboards */}
-            {protectedRoutes.map(({ path, element, roles }) => (
+            >
               <Route
-                key={path}
-                path={path}
+                index
+                element={<Navigate to={ROUTES.DASHBOARD} replace />}
+              />
+
+              {/* Dashboard redirect by role */}
+              <Route
+                path={ROUTES.DASHBOARD}
                 element={
-                  <ProtectedRoute roles={roles}>{element}</ProtectedRoute>
+                  <ProtectedRoute>
+                    <RoleDashboardRedirect />
+                  </ProtectedRoute>
                 }
               />
-            ))}
-          </Route>
 
-          {/* Catch-all */}
-          <Route
-            path="*"
-            element={<Navigate to={ROUTES.DASHBOARD} replace />}
-          />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+              {/* Role-specific dashboards */}
+              {protectedRoutes.map(({ path, element, roles }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <ProtectedRoute roles={roles}>{element}</ProtectedRoute>
+                  }
+                />
+              ))}
+            </Route>
+
+            {/* Catch-all */}
+            <Route
+              path="*"
+              element={<Navigate to={ROUTES.DASHBOARD} replace />}
+            />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 };
 
