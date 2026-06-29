@@ -52,9 +52,7 @@ export default function Login(): React.ReactElement {
 
   const isLoading = status === STATUS.LOADING;
 
-  const handleSubmit = async (
-    e: FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     clearError();
     try {

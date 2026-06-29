@@ -85,7 +85,7 @@ export const darkColors: ThemeColors = {
   primaryHover: '#60A5FA',
   textPrimary: '#F8FAFC',
   textSecondary: '#94A3B8',
-  border: '#334155',
+  border: '#152235',
   inputBackground: '#0F172A',
   inputBorder: '#334155',
   inputFocus: '#3B82F6',

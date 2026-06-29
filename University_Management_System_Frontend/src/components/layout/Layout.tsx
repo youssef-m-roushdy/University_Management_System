@@ -10,7 +10,6 @@ import {
   FiUsers,
   FiCalendar,
   FiGrid,
-  FiLogOut,
   FiMenu,
   FiX,
   FiUser,
@@ -21,8 +20,12 @@ import {
   FiLock,
   FiUserPlus,
   FiSettings,
+  FiSearch,
+  FiBell,
+  FiMail,
+  FiLogOut,
 } from 'react-icons/fi';
-import logo from '../../assets/images/logo.svg';
+import { AlertIcon, GraduationCapIcon } from '../icons/Icons';
 import './Layout.css';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -261,8 +264,15 @@ export default function Layout() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <Link to={ROUTES.DASHBOARD} className="logo-link">
-            <img src={logo} alt="AYA Academy" className="logo-img" />
-            {sidebarOpen && <span className="logo-text">AYA Academy</span>}
+            <div className="logo-icon">
+              <GraduationCapIcon width={22} height={22} />
+            </div>
+            {sidebarOpen && (
+              <div className="logo-text-block">
+                <span className="logo-title">UniMan</span>
+                <span className="logo-subtitle">University System</span>
+              </div>
+            )}
           </Link>
         </div>
 
@@ -283,12 +293,23 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="nav-item logout-btn" onClick={handleLogout}>
-            <span className="nav-icon">
-              <FiLogOut />
-            </span>
-            {sidebarOpen && <span className="nav-label">Logout</span>}
-          </button>
+          {sidebarOpen ? (
+            <div className="need-help-block">
+              <div className="need-help-icon">
+                <AlertIcon width={18} height={18} />
+              </div>
+              <div className="need-help-text">
+                <span className="need-help-title">Need Help?</span>
+                <a href="mailto:support@uniman.edu" className="need-help-link">
+                  Contact Support
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="need-help-icon-only" title="Need Help?">
+              <AlertIcon width={18} height={18} />
+            </div>
+          )}
         </div>
       </aside>
 
@@ -303,7 +324,24 @@ export default function Layout() {
             {sidebarOpen ? <FiX /> : <FiMenu />}
           </button>
 
+          <div className="header-search">
+            <FiSearch />
+            <input type="text" placeholder="Search anything..." />
+            <span className="shortcut">⌘ K</span>
+          </div>
+
           <div className="header-right">
+            <div className="header-icons">
+              <button className="header-icon-btn">
+                <FiBell />
+                <span className="icon-badge">3</span>
+              </button>
+              <button className="header-icon-btn">
+                <FiMail />
+                <span className="icon-badge">5</span>
+              </button>
+            </div>
+
             <div
               className="profile-dropdown"
               onClick={toggleProfile}

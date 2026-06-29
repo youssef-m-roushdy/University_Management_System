@@ -17,7 +17,12 @@ import React, {
   useState,
   ReactNode,
 } from 'react';
-import { ThemeMode, ThemeColors, getColors, applyCssVariables } from '../constants/colors';
+import {
+  ThemeMode,
+  ThemeColors,
+  getColors,
+  applyCssVariables,
+} from '../constants/colors';
 
 const STORAGE_KEY = 'uniman-theme';
 
@@ -36,7 +41,9 @@ const getInitialTheme = (): ThemeMode => {
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark') return stored;
 
-  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  const prefersDark = window.matchMedia?.(
+    '(prefers-color-scheme: dark)'
+  ).matches;
   return prefersDark ? 'dark' : 'light';
 };
 
@@ -46,15 +53,21 @@ interface ThemeProviderProps {
   defaultMode?: ThemeMode;
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, defaultMode }) => {
-  const [mode, setMode] = useState<ThemeMode>(() => defaultMode ?? getInitialTheme());
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({
+  children,
+  defaultMode,
+}) => {
+  const [mode, setMode] = useState<ThemeMode>(
+    () => defaultMode ?? getInitialTheme()
+  );
 
   useEffect(() => {
     applyCssVariables(mode);
     window.localStorage.setItem(STORAGE_KEY, mode);
   }, [mode]);
 
-  const toggleTheme = () => setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  const toggleTheme = () =>
+    setMode(prev => (prev === 'light' ? 'dark' : 'light'));
   const setTheme = (next: ThemeMode) => setMode(next);
 
   const value = useMemo<ThemeContextValue>(
@@ -62,7 +75,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, defaultM
     [mode]
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 };
 
 export const useTheme = (): ThemeContextValue => {

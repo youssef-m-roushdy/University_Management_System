@@ -7,7 +7,9 @@
 
 import React from 'react';
 
-const UniversityIllustration: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const UniversityIllustration: React.FC<
+  React.SVGProps<SVGSVGElement>
+> = props => (
   <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" {...props}>
     <defs>
       <radialGradient id="uni-glow" cx="50%" cy="50%" r="50%">
@@ -28,10 +30,23 @@ const UniversityIllustration: React.FC<React.SVGProps<SVGSVGElement>> = (props) 
     </defs>
 
     {/* ambient glow + scattered stars */}
-    <ellipse cx="200" cy="190" rx="170" ry="120" fill="url(#uni-glow)" filter="url(#uni-blur)" />
+    <ellipse
+      cx="200"
+      cy="190"
+      rx="170"
+      ry="120"
+      fill="url(#uni-glow)"
+      filter="url(#uni-blur)"
+    />
     {[
-      [40, 40, 0.6], [80, 70, 0.4], [130, 35, 0.5], [300, 55, 0.5],
-      [340, 90, 0.35], [250, 30, 0.4], [365, 130, 0.45], [25, 120, 0.35],
+      [40, 40, 0.6],
+      [80, 70, 0.4],
+      [130, 35, 0.5],
+      [300, 55, 0.5],
+      [340, 90, 0.35],
+      [250, 30, 0.4],
+      [365, 130, 0.45],
+      [25, 120, 0.35],
     ].map(([cx, cy, o], i) => (
       <circle key={i} cx={cx} cy={cy} r="1.6" fill="#FFFFFF" opacity={o} />
     ))}
@@ -41,7 +56,12 @@ const UniversityIllustration: React.FC<React.SVGProps<SVGSVGElement>> = (props) 
     <ellipse cx="200" cy="266" rx="150" ry="14" fill="#1B2A4F" />
 
     {/* trees */}
-    {[[55, 250], [82, 262], [318, 262], [345, 250]].map(([x, y], i) => (
+    {[
+      [55, 250],
+      [82, 262],
+      [318, 262],
+      [345, 250],
+    ].map(([x, y], i) => (
       <g key={i} transform={`translate(${x} ${y})`} opacity="0.85">
         <rect x="-2" y="0" width="4" height="14" fill="#1E2A52" />
         <path d="M-14 0 L0 -28 L14 0 Z" fill="#27336B" />
@@ -54,11 +74,26 @@ const UniversityIllustration: React.FC<React.SVGProps<SVGSVGElement>> = (props) 
     <path d="M110 252 L290 252 L300 264 L100 264 Z" fill="#1E2A52" />
 
     {/* building base */}
-    <rect x="125" y="150" width="150" height="92" fill="url(#uni-building)" rx="3" />
+    <rect
+      x="125"
+      y="150"
+      width="150"
+      height="92"
+      fill="url(#uni-building)"
+      rx="3"
+    />
 
     {/* columns */}
     {[135, 158, 181, 204, 227, 250].map((x, i) => (
-      <rect key={i} x={x} y="150" width="9" height="90" fill="#4A63B8" opacity="0.9" />
+      <rect
+        key={i}
+        x={x}
+        y="150"
+        width="9"
+        height="90"
+        fill="#4A63B8"
+        opacity="0.9"
+      />
     ))}
     <rect x="123" y="146" width="154" height="8" fill="#5B7CFA" />
 
@@ -72,8 +107,8 @@ const UniversityIllustration: React.FC<React.SVGProps<SVGSVGElement>> = (props) 
     <circle cx="200" cy="92" r="10" fill="#3B5BDB" />
 
     {/* windows (glow) */}
-    {[0, 1, 2].map((row) =>
-      [0, 1, 2, 3].map((col) => (
+    {[0, 1, 2].map(row =>
+      [0, 1, 2, 3].map(col => (
         <rect
           key={`${row}-${col}`}
           x={140 + col * 26}
