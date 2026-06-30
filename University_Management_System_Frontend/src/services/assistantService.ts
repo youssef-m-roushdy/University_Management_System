@@ -196,10 +196,7 @@ const assistantService = {
    * Get assistants by department
    * GET /api/Assistant/department/{departmentId}
    */
-  getByDepartment: (
-    departmentId: number,
-    params?: AssistantFilterParams
-  ) => {
+  getByDepartment: (departmentId: number, params?: AssistantFilterParams) => {
     const url = API_ENDPOINTS.ASSISTANTS.BY_DEPARTMENT(departmentId);
     if (params) {
       const queryString = buildQueryString(params);
@@ -249,7 +246,9 @@ const assistantService = {
    * Note: This is a placeholder as the update endpoint only accepts departmentId
    */
   toggleActive: (id: string, isActive: boolean) => {
-    console.warn('toggleActive is a placeholder - update endpoint only accepts departmentId');
+    console.warn(
+      'toggleActive is a placeholder - update endpoint only accepts departmentId'
+    );
     return assistantService.update(id, { departmentId: 0 });
   },
 
@@ -286,10 +285,7 @@ const assistantService = {
    * Get active assistants
    * GET /api/Assistant?IsActive=true
    */
-  getActive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getActive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: AssistantFilterParams = {
       IsActive: true,
       PageNumber: pageNumber,
@@ -302,10 +298,7 @@ const assistantService = {
    * Get inactive assistants
    * GET /api/Assistant?IsActive=false
    */
-  getInactive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getInactive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: AssistantFilterParams = {
       IsActive: false,
       PageNumber: pageNumber,
@@ -335,11 +328,7 @@ const assistantService = {
    * Get assistants by name
    * GET /api/Assistant?Name={name}
    */
-  getByName: (
-    name: string,
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getByName: (name: string, pageNumber: number = 1, pageSize: number = 10) => {
     const params: AssistantFilterParams = {
       Name: name,
       PageNumber: pageNumber,
@@ -366,18 +355,19 @@ const assistantService = {
   getStatistics: async () => {
     const response = await assistantService.getAllWithPagination({}, 1, 1000);
     const assistants = response.data || [];
-    
-    const active = assistants.filter((a) => a.isActive).length;
+
+    const active = assistants.filter(a => a.isActive).length;
     const inactive = assistants.length - active;
-    const male = assistants.filter((a) => a.gender === 'Male').length;
-    const female = assistants.filter((a) => a.gender === 'Female').length;
-    
+    const male = assistants.filter(a => a.gender === 'Male').length;
+    const female = assistants.filter(a => a.gender === 'Female').length;
+
     // Group by department
     const departmentStats: Record<string, number> = {};
-    assistants.forEach((a) => {
-      departmentStats[a.departmentName] = (departmentStats[a.departmentName] || 0) + 1;
+    assistants.forEach(a => {
+      departmentStats[a.departmentName] =
+        (departmentStats[a.departmentName] || 0) + 1;
     });
-    
+
     return {
       totalAssistants: assistants.length,
       active,

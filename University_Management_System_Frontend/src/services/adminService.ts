@@ -111,9 +111,7 @@ const adminService = {
         `${API_ENDPOINTS.ADMINS.BASE}${queryString ? `?${queryString}` : ''}`
       );
     }
-    return apiService.get<PaginatedResponse<Admin>>(
-      API_ENDPOINTS.ADMINS.BASE
-    );
+    return apiService.get<PaginatedResponse<Admin>>(API_ENDPOINTS.ADMINS.BASE);
   },
 
   /**
@@ -154,9 +152,7 @@ const adminService = {
    * GET /api/Admin/{id}
    */
   getById: (id: string) => {
-    return apiService.get<ApiResponse<Admin>>(
-      API_ENDPOINTS.ADMINS.BY_ID(id)
-    );
+    return apiService.get<ApiResponse<Admin>>(API_ENDPOINTS.ADMINS.BY_ID(id));
   },
 
   /**
@@ -164,10 +160,7 @@ const adminService = {
    * POST /api/Admin
    */
   create: (data: CreateAdminDto) => {
-    return apiService.post<ApiResponse<Admin>>(
-      API_ENDPOINTS.ADMINS.BASE,
-      data
-    );
+    return apiService.post<ApiResponse<Admin>>(API_ENDPOINTS.ADMINS.BASE, data);
   },
 
   /**
@@ -243,10 +236,7 @@ const adminService = {
    * Get active admins
    * GET /api/Admin?IsActive=true
    */
-  getActive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getActive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: AdminFilterParams = {
       IsActive: true,
       PageNumber: pageNumber,
@@ -259,10 +249,7 @@ const adminService = {
    * Get inactive admins
    * GET /api/Admin?IsActive=false
    */
-  getInactive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getInactive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: AdminFilterParams = {
       IsActive: false,
       PageNumber: pageNumber,
@@ -275,11 +262,7 @@ const adminService = {
    * Get admins by name
    * GET /api/Admin?Name={name}
    */
-  getByName: (
-    name: string,
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getByName: (name: string, pageNumber: number = 1, pageSize: number = 10) => {
     const params: AdminFilterParams = {
       Name: name,
       PageNumber: pageNumber,
@@ -310,7 +293,7 @@ const adminService = {
         PageSize: 1,
       });
       const admins = response.data || [];
-      return admins.some((admin) => admin.email === email);
+      return admins.some(admin => admin.email === email);
     } catch {
       return false;
     }
@@ -322,12 +305,12 @@ const adminService = {
   getStatistics: async () => {
     const response = await adminService.getAllWithPagination({}, 1, 1000);
     const admins = response.data || [];
-    
-    const active = admins.filter((a) => a.isActive).length;
+
+    const active = admins.filter(a => a.isActive).length;
     const inactive = admins.length - active;
-    const male = admins.filter((a) => a.gender === 'Male').length;
-    const female = admins.filter((a) => a.gender === 'Female').length;
-    
+    const male = admins.filter(a => a.gender === 'Male').length;
+    const female = admins.filter(a => a.gender === 'Female').length;
+
     return {
       totalAdmins: admins.length,
       active,
@@ -350,7 +333,7 @@ const adminService = {
         PageSize: 1,
       });
       const admins = response.data || [];
-      return admins.find((admin) => admin.email === email) || null;
+      return admins.find(admin => admin.email === email) || null;
     } catch {
       return null;
     }
@@ -360,7 +343,7 @@ const adminService = {
    * Bulk update admin status
    */
   bulkUpdateStatus: async (ids: string[], isActive: boolean): Promise<void> => {
-    const promises = ids.map((id) => adminService.toggleActive(id, isActive));
+    const promises = ids.map(id => adminService.toggleActive(id, isActive));
     await Promise.all(promises);
   },
 };

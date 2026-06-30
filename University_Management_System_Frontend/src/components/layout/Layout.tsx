@@ -18,8 +18,7 @@ import {
   FiShield,
   FiLayers,
   FiChevronDown,
-  FiChevronRight, // ← needed by RoleNavSection
-  FiArrowUp,
+  FiChevronRight,
   FiLock,
   FiUserPlus,
   FiSettings,
@@ -68,24 +67,32 @@ const ROLE_SECTION_META: Record<
 // ──────────────────────────────────────────────────────────────────────────────
 
 const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
+  // ─── Admin Navigation ──────────────────────────────────────────────────────
+  // Structured: Dashboard → User Management → Academic → System
   [USER_ROLES.ADMIN]: [
+    // Dashboard
     { to: ROUTES.ADMIN.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
-    { to: ROUTES.ADMIN.DEPARTMENTS, icon: <FiGrid />, label: 'Departments' },
-    { to: ROUTES.ADMIN.COURSES, icon: <FiBook />, label: 'Courses' },
-    { to: ROUTES.ADMIN.STUDENTS, icon: <FiUsers />, label: 'Students' },
+
+    // User Management
     { to: ROUTES.ADMIN.USERS, icon: <FiUserPlus />, label: 'Users' },
+    { to: ROUTES.ADMIN.ADMINS, icon: <FiUser />, label: 'Admins' },
+    { to: ROUTES.ADMIN.STUDENTS, icon: <FiUsers />, label: 'Students' },
+    { to: ROUTES.ADMIN.INSTRUCTORS, icon: <FiUser />, label: 'Instructors' },
+    { to: ROUTES.ADMIN.ASSISTANTS, icon: <FiUser />, label: 'Assistants' },
+
+    // Academic Structure
+    { to: ROUTES.ADMIN.DEPARTMENTS, icon: <FiGrid />, label: 'Departments' },
     {
       to: ROUTES.ADMIN.STUDY_YEARS,
       icon: <FiCalendar />,
       label: 'Study Years',
     },
+
+    // System
     { to: ROUTES.ADMIN.ROLES, icon: <FiShield />, label: 'Roles' },
-    {
-      to: ROUTES.ADMIN.PROMOTE_STUDENTS,
-      icon: <FiArrowUp />,
-      label: 'Promote Students',
-    },
   ],
+
+  // ─── Student Navigation ────────────────────────────────────────────────────
   [USER_ROLES.STUDENT]: [
     { to: ROUTES.STUDENT.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
     { to: ROUTES.STUDENT.MY_COURSES, icon: <FiBook />, label: 'My Courses' },
@@ -107,11 +114,15 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       label: 'Change Password',
     },
   ],
+
+  // ─── Instructor Navigation ─────────────────────────────────────────────────
   [USER_ROLES.INSTRUCTOR]: [
     { to: ROUTES.INSTRUCTOR.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
     { to: ROUTES.INSTRUCTOR.COURSES, icon: <FiBook />, label: 'My Courses' },
     { to: ROUTES.INSTRUCTOR.STUDENTS, icon: <FiUsers />, label: 'Students' },
   ],
+
+  // ─── Assistant Navigation ──────────────────────────────────────────────────
   [USER_ROLES.ASSISTANT]: [
     { to: ROUTES.ASSISTANT.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
     { to: ROUTES.ASSISTANT.COURSES, icon: <FiBook />, label: 'Courses' },
@@ -164,8 +175,6 @@ export default function Layout() {
   }, []);
 
   // ─── Build role sections for sidebar ──────────────────────────────────────
-  // Only sections the user actually HAS, ordered by ROLE_PRIORITY.
-  // Primary role's section opens by default, others start collapsed.
 
   const roleSections = useMemo(() => {
     if (!roles || roles.length === 0) return [];
@@ -310,7 +319,6 @@ export default function Layout() {
                   <span className="profile-name">
                     {user?.displayName || user?.name}
                   </span>
-                  {/* ─── All roles displayed, not just primary ─── */}
                   <span className="profile-role">{roleDisplay}</span>
                 </div>
               )}
@@ -346,7 +354,7 @@ export default function Layout() {
 
                   {isAdmin && (
                     <Link
-                      to={ROUTES.ADMIN.DEPARTMENTS}
+                      to={ROUTES.ADMIN.DASHBOARD}
                       className="dropdown-item"
                       onClick={closeProfile}
                     >

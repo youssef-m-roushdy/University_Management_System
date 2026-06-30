@@ -227,9 +227,12 @@ export const ROUTES = {
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
     DEPARTMENTS: '/admin/departments',
+    ADMINS: '/admin/admins',
     COURSES: '/admin/courses',
     STUDENTS: '/admin/students',
     USERS: '/admin/users',
+    ASSISTANTS: '/admin/assistants',
+    INSTRUCTORS: '/admin/instructors',
     STUDY_YEARS: '/admin/study-years',
     STUDY_YEAR_MANAGE: '/admin/study-year/:studyYearId/manage',
     SEMESTER_DETAIL:

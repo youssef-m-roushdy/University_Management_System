@@ -2,42 +2,95 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <!-- ─── BLOCKING THEME SCRIPT — prevents dark-mode FOUC ─── -->
+    <!-- Runs BEFORE React mounts. Reads localStorage, applies CSS variables
+         + data-theme attribute synchronously so the first frame paints
+         with the correct theme. No flash of light mode on reload. -->
+    <script>
+      (function() {
+        var STORAGE_KEY = 'uniman-theme';
+        var mode = 'dark';
+
+        try {
+          var stored = localStorage.getItem(STORAGE_KEY);
+          if (stored === 'light' || stored === 'dark') {
+            mode = stored;
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            mode = 'dark';
+          }
+        } catch (e) { /* localStorage blocked */ }
+
+        document.documentElement.setAttribute('data-theme', mode);
+
+        var vars = mode === 'dark' ? {
+          '--background': '#0F172A',
+          '--background-secondary': '#111827',
+          '--surface': '#1E293B',
+          '--navbar': '#111827',
+          '--sidebar': '#111827',
+          '--sidebar-active': '#192442',
+          '--primary': '#3B82F6',
+          '--primary-hover': '#60A5FA',
+          '--text-primary': '#F8FAFC',
+          '--text-secondary': '#94A3B8',
+          '--border': '#152235',
+          '--input-background': '#0F172A',
+          '--input-border': '#334155',
+          '--input-focus': '#3B82F6',
+          '--success': '#22C55E',
+          '--warning': '#F59E0B',
+          '--error': '#EF4444',
+          '--info': '#0EA5E9',
+          '--chart-blue': '#3B82F6',
+          '--chart-green': '#22C55E',
+          '--chart-purple': '#8B5CF6',
+          '--chart-orange': '#F59E0B',
+          '--chart-red': '#EF4444',
+          '--chart-cyan': '#06B6D4',
+          '--shadow-elevation': '0 4px 16px rgba(0, 0, 0, 0.35)'
+        } : {
+          '--background': '#F8FAFC',
+          '--background-secondary': '#F1F5F9',
+          '--surface': '#FFFFFF',
+          '--navbar': '#FFFFFF',
+          '--sidebar': '#FFFFFF',
+          '--sidebar-active': '#DBEAFE',
+          '--primary': '#2563EB',
+          '--primary-hover': '#1D4ED8',
+          '--text-primary': '#0F172A',
+          '--text-secondary': '#64748B',
+          '--border': '#E2E8F0',
+          '--input-background': '#FFFFFF',
+          '--input-border': '#CBD5E1',
+          '--input-focus': '#2563EB',
+          '--success': '#22C55E',
+          '--warning': '#F59E0B',
+          '--error': '#EF4444',
+          '--info': '#0EA5E9',
+          '--chart-blue': '#3B82F6',
+          '--chart-green': '#22C55E',
+          '--chart-purple': '#8B5CF6',
+          '--chart-orange': '#F59E0B',
+          '--chart-red': '#EF4444',
+          '--chart-cyan': '#06B6D4',
+          '--shadow-elevation': '0 4px 12px rgba(15, 23, 42, 0.08)'
+        };
+
+        var root = document.documentElement;
+        for (var key in vars) {
+          root.style.setProperty(key, vars[key]);
+        }
+      })();
+    </script>
+
+    <title>UniMan — University Management System</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

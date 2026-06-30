@@ -1,0 +1,666 @@
+/* pages/admin/Instructors/AdminInstructors.css */
+
+.instructors-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────────── */
+
+.instructors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.instructors-header-text h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.instructors-header-text p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.instructors-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--text-secondary);
+  transition: border-color 0.2s;
+}
+
+.search-box:focus-within {
+  border-color: var(--primary);
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.search-box input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* ─── Filters ───────────────────────────────────────────────────────────────── */
+
+.instructors-filters {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.filter-group select {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--background);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.instructors-stats {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.instructors-stats span {
+  font-weight: 500;
+}
+
+/* ─── Grid ──────────────────────────────────────────────────────────────────── */
+
+.instructors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* ─── Instructor Card ───────────────────────────────────────────────────────── */
+
+.instructor-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instructor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevation);
+}
+
+.instructor-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.instructor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary-light, rgba(59, 130, 246, 0.1));
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.instructor-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.instructor-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--background);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background: var(--success, #22C55E);
+}
+
+.status-dot.inactive {
+  background: var(--error, #EF4444);
+}
+
+.instructor-card-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.instructor-card-email {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: -4px 0 0;
+}
+
+.instructor-card-username {
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  margin: 0;
+}
+
+.instructor-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.instructor-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.instructor-detail-item svg {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.instructor-card-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.instructor-action-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.instructor-action-btn.view {
+  background: var(--background);
+  color: var(--text-secondary);
+}
+
+.instructor-action-btn.view:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.instructor-action-btn.edit {
+  background: var(--background);
+  color: var(--text-secondary);
+}
+
+.instructor-action-btn.edit:hover {
+  background: var(--warning, #F59E0B);
+  color: white;
+}
+
+.instructor-action-btn.delete {
+  background: var(--background);
+  color: var(--text-secondary);
+}
+
+.instructor-action-btn.delete:hover {
+  background: var(--error, #EF4444);
+  color: white;
+}
+
+/* ─── Pagination ────────────────────────────────────────────────────────────── */
+
+.instructors-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--background);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ─── Empty & Loading States ────────────────────────────────────────────────── */
+
+.instructors-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-secondary);
+}
+
+.instructors-empty p:first-child {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.instructors-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.instructors-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--error, #EF4444);
+}
+
+.instructors-error button {
+  margin-top: 12px;
+}
+
+/* ─── Modal ────────────────────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 720px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-elevation);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+  background: var(--background);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-group input.error {
+  border-color: var(--error, #EF4444);
+}
+
+.form-group .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.form-group .checkbox-label input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+.form-error {
+  display: block;
+  font-size: 12px;
+  color: var(--error, #EF4444);
+  margin-top: 4px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.confirm-dialog .confirm-body {
+  padding: 8px 0 16px;
+}
+
+.confirm-dialog .confirm-body p {
+  color: var(--text-secondary);
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.confirm-dialog .confirm-warning {
+  color: var(--error, #EF4444);
+  font-size: 13px;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────────── */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark, #2563EB);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: var(--background);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--error, #EF4444);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover {
+  background: var(--error-dark, #DC2626);
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .instructors-header {
+    flex-direction: column;
+  }
+
+  .instructors-header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .search-box input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .instructors-header-actions .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .instructors-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .instructors-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .instructors-stats {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    padding: 24px 20px;
+    margin: 12px;
+  }
+
+  .instructors-pagination {
+    flex-wrap: wrap;
+  }
+
+  .instructor-card-actions {
+    flex-direction: column;
+  }
+
+  .instructor-action-btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .instructors-page {
+    padding: 16px;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group select {
+    flex: 1;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -11,7 +11,13 @@ import {
 // TYPES
 // ──────────────────────────────────────────────────────────────────────────────
 
-export type StudentLevel = 'Preparatory_Year' | 'First_Year' | 'Second_Year' | 'Third_Year' | 'Fourth_Year' | 'Graduate';
+export type StudentLevel =
+  | 'Preparatory_Year'
+  | 'First_Year'
+  | 'Second_Year'
+  | 'Third_Year'
+  | 'Fourth_Year'
+  | 'Graduate';
 export type Gender = 'Male' | 'Female';
 
 export interface Student {
@@ -234,10 +240,7 @@ const studentService = {
    * Get students by department
    * GET /api/Student/department/{departmentId}
    */
-  getByDepartment: (
-    departmentId: number,
-    params?: StudentFilterParams
-  ) => {
+  getByDepartment: (departmentId: number, params?: StudentFilterParams) => {
     const url = API_ENDPOINTS.STUDENTS.BY_DEPARTMENT(departmentId);
     if (params) {
       const queryString = buildQueryString(params);
@@ -352,10 +355,7 @@ const studentService = {
   /**
    * Get graduated students
    */
-  getGraduated: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getGraduated: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: StudentFilterParams = {
       IsGraduated: true,
       PageNumber: pageNumber,
@@ -368,10 +368,7 @@ const studentService = {
    * Get active students
    * Note: The Student object doesn't have isActive property, so this uses the filter parameter
    */
-  getActive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getActive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: StudentFilterParams = {
       IsActive: true,
       PageNumber: pageNumber,
@@ -384,10 +381,7 @@ const studentService = {
    * Get inactive students
    * Note: The Student object doesn't have isActive property, so this uses the filter parameter
    */
-  getInactive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getInactive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: StudentFilterParams = {
       IsActive: false,
       PageNumber: pageNumber,
@@ -399,10 +393,7 @@ const studentService = {
   /**
    * Search students
    */
-  search: (
-    searchTerm: string,
-    maxResults: number = 20
-  ) => {
+  search: (searchTerm: string, maxResults: number = 20) => {
     const params: StudentFilterParams = {
       SearchTerm: searchTerm,
       PageSize: maxResults,
@@ -448,28 +439,28 @@ const studentService = {
   getStatistics: async () => {
     const response = await studentService.getAllWithPagination({}, 1, 1000);
     const students = response.data || [];
-    
+
     const totalStudents = students.length;
-    const graduated = students.filter((s) => s.level === 'Graduate').length;
-    
+    const graduated = students.filter(s => s.level === 'Graduate').length;
+
     const levels: Record<StudentLevel, number> = {
-      'Preparatory_Year': 0,
-      'First_Year': 0,
-      'Second_Year': 0,
-      'Third_Year': 0,
-      'Fourth_Year': 0,
-      'Graduate': 0,
+      Preparatory_Year: 0,
+      First_Year: 0,
+      Second_Year: 0,
+      Third_Year: 0,
+      Fourth_Year: 0,
+      Graduate: 0,
     };
-    
-    students.forEach((s) => {
+
+    students.forEach(s => {
       if (s.level in levels) {
         levels[s.level]++;
       }
     });
-    
+
     const totalGPA = students.reduce((sum, s) => sum + s.totalGPA, 0);
     const totalCredits = students.reduce((sum, s) => sum + s.totalCredits, 0);
-    
+
     return {
       totalStudents,
       graduated,
@@ -488,24 +479,24 @@ const studentService = {
       PageSize: 1000,
     });
     const students = response.data || [];
-    
+
     const levels: Record<StudentLevel, number> = {
-      'Preparatory_Year': 0,
-      'First_Year': 0,
-      'Second_Year': 0,
-      'Third_Year': 0,
-      'Fourth_Year': 0,
-      'Graduate': 0,
+      Preparatory_Year: 0,
+      First_Year: 0,
+      Second_Year: 0,
+      Third_Year: 0,
+      Fourth_Year: 0,
+      Graduate: 0,
     };
-    
-    students.forEach((s) => {
+
+    students.forEach(s => {
       if (s.level in levels) {
         levels[s.level]++;
       }
     });
-    
+
     const totalGPA = students.reduce((sum, s) => sum + s.totalGPA, 0);
-    
+
     return {
       departmentId,
       totalStudents: students.length,

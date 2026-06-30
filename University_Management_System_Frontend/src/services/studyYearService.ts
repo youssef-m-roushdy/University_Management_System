@@ -205,7 +205,8 @@ const studyYearService = {
   setAsCurrent: async (id: number): Promise<StudyYear> => {
     // First, unset all current study years
     const allYears = await studyYearService.getAllWithPagination({}, 1, 100);
-    const currentYears = allYears.data?.filter((y: StudyYear) => y.isCurrent) || [];
+    const currentYears =
+      allYears.data?.filter((y: StudyYear) => y.isCurrent) || [];
 
     for (const year of currentYears) {
       await studyYearService.patch(year.id, { isCurrent: false });
@@ -237,10 +238,7 @@ const studyYearService = {
   /**
    * Get study years with semesters
    */
-  getWithSemesters: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getWithSemesters: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: StudyYearFilterParams = {
       HasSemesters: true,
       PageNumber: pageNumber,
@@ -252,10 +250,7 @@ const studyYearService = {
   /**
    * Get study years with registrations
    */
-  getWithRegistrations: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getWithRegistrations: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: StudyYearFilterParams = {
       HasRegistrations: true,
       PageNumber: pageNumber,
@@ -309,7 +304,11 @@ const studyYearService = {
       PageSize: 1,
     });
     const years = response.data || [];
-    return years.find((y: StudyYear) => y.startYear === startYear && y.endYear === endYear) || null;
+    return (
+      years.find(
+        (y: StudyYear) => y.startYear === startYear && y.endYear === endYear
+      ) || null
+    );
   },
 
   /**
@@ -352,7 +351,10 @@ const studyYearService = {
     const endYear = startYear + 1;
 
     // Check if it already exists
-    const existing = await studyYearService.getByYearRangeExact(startYear, endYear);
+    const existing = await studyYearService.getByYearRangeExact(
+      startYear,
+      endYear
+    );
     if (existing) {
       // If exists, set as current if not already
       if (!existing.isCurrent) {
@@ -386,11 +388,20 @@ const studyYearService = {
     const totalYears = allYearsResponse.pagination?.totalCount ?? years.length;
     const currentYears = years.filter((y: StudyYear) => y.isCurrent).length;
     const withSemesters = withSemestersResponse.pagination?.totalCount ?? 0;
-    const withRegistrations = withRegistrationsResponse.pagination?.totalCount ?? 0;
+    const withRegistrations =
+      withRegistrationsResponse.pagination?.totalCount ?? 0;
 
-    const yearRanges = years.map((y: StudyYear) => `${y.startYear}-${y.endYear}`);
-    const oldestYear = years.length > 0 ? Math.min(...years.map((y: StudyYear) => y.startYear)) : null;
-    const newestYear = years.length > 0 ? Math.max(...years.map((y: StudyYear) => y.endYear)) : null;
+    const yearRanges = years.map(
+      (y: StudyYear) => `${y.startYear}-${y.endYear}`
+    );
+    const oldestYear =
+      years.length > 0
+        ? Math.min(...years.map((y: StudyYear) => y.startYear))
+        : null;
+    const newestYear =
+      years.length > 0
+        ? Math.max(...years.map((y: StudyYear) => y.endYear))
+        : null;
 
     return {
       totalYears,

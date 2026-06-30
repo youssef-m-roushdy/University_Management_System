@@ -193,10 +193,7 @@ const instructorService = {
    * Get instructors by department
    * GET /api/Instructor/department/{departmentId}
    */
-  getByDepartment: (
-    departmentId: number,
-    params?: InstructorFilterParams
-  ) => {
+  getByDepartment: (departmentId: number, params?: InstructorFilterParams) => {
     const url = API_ENDPOINTS.INSTRUCTORS.BY_DEPARTMENT(departmentId);
     if (params) {
       const queryString = buildQueryString(params);
@@ -248,7 +245,9 @@ const instructorService = {
   toggleActive: (id: string, isActive: boolean) => {
     // This is a placeholder - the actual implementation depends on your API
     // If your API supports updating isActive, you would need to modify this
-    console.warn('toggleActive is a placeholder - update endpoint only accepts departmentId');
+    console.warn(
+      'toggleActive is a placeholder - update endpoint only accepts departmentId'
+    );
     return instructorService.update(id, { departmentId: 0 });
   },
 
@@ -282,10 +281,7 @@ const instructorService = {
   /**
    * Get active instructors
    */
-  getActive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getActive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: InstructorFilterParams = {
       IsActive: true,
       PageNumber: pageNumber,
@@ -297,10 +293,7 @@ const instructorService = {
   /**
    * Get inactive instructors
    */
-  getInactive: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getInactive: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: InstructorFilterParams = {
       IsActive: false,
       PageNumber: pageNumber,
@@ -328,11 +321,7 @@ const instructorService = {
   /**
    * Get instructors by name
    */
-  getByName: (
-    name: string,
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getByName: (name: string, pageNumber: number = 1, pageSize: number = 10) => {
     const params: InstructorFilterParams = {
       Name: name,
       PageNumber: pageNumber,

@@ -43,9 +43,7 @@ const rolesService = {
    * GET /api/Roles
    */
   getAll: () => {
-    return apiService.get<ApiResponse<Role[]>>(
-      API_ENDPOINTS.ROLES.BASE
-    );
+    return apiService.get<ApiResponse<Role[]>>(API_ENDPOINTS.ROLES.BASE);
   },
 
   /**
@@ -53,9 +51,7 @@ const rolesService = {
    * GET /api/Roles/{roleId}
    */
   getById: (roleId: string) => {
-    return apiService.get<ApiResponse<Role>>(
-      API_ENDPOINTS.ROLES.BY_ID(roleId)
-    );
+    return apiService.get<ApiResponse<Role>>(API_ENDPOINTS.ROLES.BY_ID(roleId));
   },
 
   /**
@@ -73,10 +69,7 @@ const rolesService = {
    * POST /api/Roles
    */
   create: (data: CreateRoleDto) => {
-    return apiService.post<ApiResponse<Role>>(
-      API_ENDPOINTS.ROLES.BASE,
-      data
-    );
+    return apiService.post<ApiResponse<Role>>(API_ENDPOINTS.ROLES.BASE, data);
   },
 
   /**
@@ -169,7 +162,7 @@ const rolesService = {
   getAllRoleNames: async (): Promise<string[]> => {
     const response = await rolesService.getAll();
     const roles = response.data || [];
-    return roles.map((role) => role.name);
+    return roles.map(role => role.name);
   },
 
   /**
@@ -178,7 +171,7 @@ const rolesService = {
   getAllRoleIds: async (): Promise<string[]> => {
     const response = await rolesService.getAll();
     const roles = response.data || [];
-    return roles.map((role) => role.id);
+    return roles.map(role => role.id);
   },
 
   /**
@@ -188,7 +181,7 @@ const rolesService = {
     try {
       const response = await rolesService.getAll();
       const roles = response.data || [];
-      return roles.some((role) => role.name === roleName);
+      return roles.some(role => role.name === roleName);
     } catch {
       return false;
     }
