@@ -1,241 +1,180 @@
-// pages/auth/Login/Login.tsx
+// pages/auth/ForgotPassword/ForgotPassword.tsx
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { ROUTES, STATUS } from '../../../constants';
-import logo from '../../../assets/images/logo.svg'; // Update the path
+import { useTheme } from '../../../contexts/ThemeContext';
+import {
+  MailIcon,
+  ChevronLeftIcon,
+  SunIcon,
+  MoonIcon,
+  AlertIcon,
+} from '../../../components/icons/Icons';
+import UniversityIllustration from '../../../components/illustration/UniversityIllustration';
 import './ForgotPassword.css';
 
-// React Icons
-import {
-  MdEmail,
-  MdLock,
-  MdVisibility,
-  MdVisibilityOff,
-  MdErrorOutline,
-  MdSchool,
-  MdTimeline,
-  MdSchedule,
-  MdArrowForward,
-} from 'react-icons/md';
-import { FaUserGraduate } from 'react-icons/fa';
-import { RiDashboardLine } from 'react-icons/ri';
-
-export default function Login() {
+export default function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const { login, status, error, clearError } = useAuth();
+  const [submitted, setSubmitted] = useState(false);
+  const { status, error, clearError } = useAuth();
+  const { mode, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
+  const isLoading = status === STATUS.LOADING;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
-    try {
-      await login(email, password);
-      navigate(ROUTES.DASHBOARD);
-    } catch (_) {}
+    // TODO: Implement password reset API call
+    // For now, just simulate success
+    setSubmitted(true);
   };
 
-  const isLoading = status === STATUS.LOADING;
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearError();
+    setEmail(e.target.value);
+  };
 
   return (
-    <div className="login-container">
-      {/* Left Panel - Branding & Features */}
-      <div className="login-brand-panel">
-        <div className="brand-content">
-          <div className="brand-header">
-            <img src={logo} alt="AYA Academy" className="brand-logo" />
-            <h1 className="brand-title">AYA Academy</h1>
-            <p className="brand-subtitle">University Information System</p>
+    <div className="forgot-password-page">
+      <div className="forgot-password-card">
+        {/* Theme Toggle */}
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
+        </button>
+
+        {/* Back Button */}
+        <button
+          type="button"
+          className="back-button"
+          onClick={() => navigate(ROUTES.LOGIN)}
+          aria-label="Back to login"
+        >
+          <ChevronLeftIcon width={20} height={20} />
+          Back to Login
+        </button>
+
+        {/* Left: brand panel */}
+        <div className="forgot-panel forgot-panel--brand">
+          <div className="brand">
+            <p className="brand__name">Akhbar Alyoum Academy</p>
+            <p className="brand__tagline">University Information System</p>
           </div>
 
-          <div className="feature-grid">
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
-                <MdSchool className="feature-icon" />
-              </div>
-              <div className="feature-text">
-                <h3>Course Registration</h3>
-                <p>Easy enrollment and course management</p>
-              </div>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
-                <MdTimeline className="feature-icon" />
-              </div>
-              <div className="feature-text">
-                <h3>Academic Progress</h3>
-                <p>Track your grades and achievements</p>
-              </div>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
-                <MdSchedule className="feature-icon" />
-              </div>
-              <div className="feature-text">
-                <h3>Schedule Management</h3>
-                <p>Organize classes and departments</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="testimonial-badge">
-            <div className="testimonial-avatars">
-              <span className="avatar">JD</span>
-              <span className="avatar">MK</span>
-              <span className="avatar">AS</span>
-            </div>
-            <p className="testimonial-text">Trusted by 5000+ students</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Panel - Login Form */}
-      <div className="login-form-panel">
-        <div className="form-wrapper">
-          <div className="form-header">
-            <h2>Welcome Back</h2>
-            <p className="welcome-text">
-              Sign in to access your academic dashboard
+          <div className="brand-copy">
+            <h1 className="brand-heading">
+              Reset <span className="brand-heading__accent">Password</span>
+            </h1>
+            <p className="brand-subtext">
+              Don't worry! Enter your email address and we'll send you a link to reset your password.
             </p>
           </div>
 
-          {error && (
-            <div className="error-alert">
-              <MdErrorOutline className="error-icon" />
-              <span>{error}</span>
-            </div>
-          )}
+          <div className="illustration">
+            <UniversityIllustration />
+          </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="login-form">
-            {/* Email Field */}
-            <div className="input-group">
-              <label htmlFor="email" className="input-label">
-                Email Address
-              </label>
-              <div className="input-field-wrapper">
-                <MdEmail className="field-icon left-icon" />
-                <input
-                  id="email"
-                  type="email"
-                  className="form-input"
-                  value={email}
-                  onChange={e => {
-                    clearError();
-                    setEmail(e.target.value);
-                  }}
-                  placeholder="your.email@university.edu"
-                  required
-                  autoComplete="email"
-                />
+        {/* Right: form panel */}
+        <div className="forgot-panel forgot-panel--form">
+          {!submitted ? (
+            <>
+              <div className="form-header">
+                <h2 className="form-heading">Forgot Password?</h2>
+                <p className="form-subtext">
+                  Enter the email address associated with your account.
+                </p>
               </div>
-            </div>
 
-            {/* Password Field */}
-            <div className="input-group">
-              <div className="password-header">
-                <label htmlFor="password" className="input-label">
-                  Password
-                </label>
+              {error && (
+                <div className="error-alert" role="alert">
+                  <AlertIcon className="error-alert__icon" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <form className="forgot-form" onSubmit={handleSubmit}>
+                <div className="field">
+                  <label htmlFor="email" className="field__label">
+                    Email Address
+                  </label>
+                  <div className="field__control">
+                    <MailIcon className="field__icon" />
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={handleEmailChange}
+                      autoComplete="email"
+                      disabled={isLoading}
+                      required
+                    />
+                  </div>
+                </div>
+
                 <button
-                  type="button"
-                  className="forgot-link"
-                  onClick={() => navigate(ROUTES.FORGOT_PASSWORD)}
+                  type="submit"
+                  className="submit-button"
+                  disabled={isLoading}
                 >
-                  Forgot password?
-                </button>
-              </div>
-              <div className="input-field-wrapper">
-                <MdLock className="field-icon left-icon" />
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  className="form-input"
-                  value={password}
-                  onChange={e => {
-                    clearError();
-                    setPassword(e.target.value);
-                  }}
-                  placeholder="Enter your password"
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <MdVisibilityOff className="pass-icon" />
+                  {isLoading ? (
+                    <span className="submit-button__content">
+                      <span className="spinner" />
+                      Sending...
+                    </span>
                   ) : (
-                    <MdVisibility className="pass-icon" />
+                    'Send Reset Link'
                   )}
                 </button>
-              </div>
-            </div>
+              </form>
 
-            {/* Remember Me */}
-            <div className="form-options">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={e => setRememberMe(e.target.checked)}
-                  className="checkbox-input"
-                />
-                <span className="checkbox-custom"></span>
-                <span className="checkbox-text">Remember me</span>
-              </label>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="submit-button"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <span className="button-content">
-                  <span className="spinner"></span>
-                  Signing in...
-                </span>
-              ) : (
-                <span className="button-content">
+              <p className="back-to-login">
+                Remember your password?{' '}
+                <Link to={ROUTES.LOGIN} className="link-button link-button--inline">
                   Sign In
-                  <MdArrowForward className="button-icon" />
-                </span>
-              )}
-            </button>
-
-            {/* Demo Credentials */}
-            <div className="demo-credentials">
-              <p className="demo-title">Demo Credentials:</p>
-              <div className="credential-items">
-                <span className="credential-item">
-                  <FaUserGraduate /> user@akhbaracademy.edu
-                </span>
-                <span className="credential-item">
-                  <MdLock /> ••••••••
-                </span>
+                </Link>
+              </p>
+            </>
+          ) : (
+            <div className="success-container">
+              <div className="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
               </div>
+              <h2 className="success-heading">Check Your Email</h2>
+              <p className="success-message">
+                We've sent a password reset link to <strong>{email}</strong>
+              </p>
+              <p className="success-subtext">
+                If you don't see the email, check your spam folder.
+              </p>
+              <button
+                type="button"
+                className="submit-button"
+                onClick={() => navigate(ROUTES.LOGIN)}
+              >
+                Back to Login
+              </button>
             </div>
-          </form>
-
-          {/* Sign Up Link */}
-          <p className="signup-prompt">
-            Don't have an account?{' '}
-            <button type="button" className="signup-link">
-              Contact Administrator
-            </button>
-          </p>
+          )}
         </div>
       </div>
+
+      <p className="forgot-footer">
+        © {new Date().getFullYear()} AYA Academy. All rights reserved.
+      </p>
     </div>
   );
 }

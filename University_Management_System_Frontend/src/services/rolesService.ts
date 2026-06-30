@@ -130,7 +130,7 @@ const rolesService = {
   getRoleIdByName: async (roleName: string): Promise<string | null> => {
     try {
       const response = await rolesService.getByName(roleName);
-      return response.data.id || null;
+      return response.data?.id || null;
     } catch {
       return null;
     }
@@ -142,7 +142,7 @@ const rolesService = {
   getRoleNameById: async (roleId: string): Promise<string | null> => {
     try {
       const response = await rolesService.getById(roleId);
-      return response.data.name || null;
+      return response.data?.name || null;
     } catch {
       return null;
     }
@@ -159,7 +159,7 @@ const rolesService = {
     } catch {
       // Role doesn't exist, create it
       const response = await rolesService.create({ roleName });
-      return response.data|| null;
+      return response.data || null;
     }
   },
 
@@ -169,7 +169,7 @@ const rolesService = {
   getAllRoleNames: async (): Promise<string[]> => {
     const response = await rolesService.getAll();
     const roles = response.data || [];
-    return roles.map((role: Role) => role.name);
+    return roles.map((role) => role.name);
   },
 
   /**
@@ -178,7 +178,7 @@ const rolesService = {
   getAllRoleIds: async (): Promise<string[]> => {
     const response = await rolesService.getAll();
     const roles = response.data || [];
-    return roles.map((role: Role) => role.id);
+    return roles.map((role) => role.id);
   },
 
   /**
@@ -187,8 +187,8 @@ const rolesService = {
   isValidRoleName: async (roleName: string): Promise<boolean> => {
     try {
       const response = await rolesService.getAll();
-      const roles = response.data|| [];
-      return roles.some((role: Role) => role.name === roleName);
+      const roles = response.data || [];
+      return roles.some((role) => role.name === roleName);
     } catch {
       return false;
     }

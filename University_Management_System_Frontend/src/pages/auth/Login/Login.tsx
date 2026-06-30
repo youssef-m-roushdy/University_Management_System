@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { ROUTES, STATUS } from '../../../constants';
+import { getDashboardRoute } from '../../../utils/roleRouting'; // ← Import this
 import {
   MailIcon,
   LockIcon,
@@ -42,7 +43,7 @@ const features = [
 
 export default function Login(): React.ReactElement {
   const { mode, toggleTheme } = useTheme();
-  const { login, status, error, clearError } = useAuth();
+  const { login, status, error, clearError, primaryRole, roles } = useAuth(); // ← Add primaryRole and roles
   const navigate = useNavigate();
 
   const [email, setEmail] = useState<string>('');
@@ -57,7 +58,8 @@ export default function Login(): React.ReactElement {
     clearError();
     try {
       await login(email, password);
-      navigate(ROUTES.DASHBOARD);
+      // Use the generic role navigation
+      navigate(getDashboardRoute(primaryRole, roles));
     } catch (_) {
       // Error is surfaced via the `error` value from AuthContext
     }

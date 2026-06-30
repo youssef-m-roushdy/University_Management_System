@@ -40,6 +40,16 @@ export interface CreateAcademicScheduleDto {
   file?: File;
 }
 
+export interface UpdateAcademicScheduleDto {
+  title?: string;
+  description?: string;
+  departmentId?: number;
+  semesterId?: number;
+  studyYearId?: number;
+  scheduleDate?: string;
+  file?: File;
+}
+
 export interface AcademicScheduleFilterParams {
   DepartmentId?: string;
   ScheduleDateFrom?: string;
@@ -85,17 +95,30 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
-// Reuse existing PaginatedResponse and ApiResponse interfaces
-// export interface PaginatedResponse<T> { ... }
-// export interface ApiResponse<T> { ... }
-
 // ──────────────────────────────────────────────────────────────────────────────
 // ACADEMIC SCHEDULE SERVICE
 // ──────────────────────────────────────────────────────────────────────────────
 
 const academicScheduleService = {
   /**
-   * Get all academic schedules by department
+   * Get all academic schedules (with optional filters)
+   * GET /api/AcademicSchedule
+   */
+  getAll: (params?: AcademicScheduleFilterParams) => {
+    if (params) {
+      const queryString = buildQueryString(params);
+      return apiService.get<PaginatedResponse<AcademicSchedule>>(
+        `${API_ENDPOINTS.ACADEMIC_SCHEDULES.BASE}${queryString ? `?${queryString}` : ''}`
+      );
+    }
+    return apiService.get<PaginatedResponse<AcademicSchedule>>(
+      API_ENDPOINTS.ACADEMIC_SCHEDULES.BASE
+    );
+  },
+
+  /**
+   * Get academic schedules by department
+   * GET /api/AcademicSchedule/department/{departmentId}
    */
   getByDepartment: (
     departmentId: number,
@@ -113,6 +136,7 @@ const academicScheduleService = {
 
   /**
    * Get academic schedules by department with filters and pagination
+   * GET /api/AcademicSchedule/department/{departmentId}
    */
   getByDepartmentWithFilters: (
     departmentId: number,
@@ -135,6 +159,7 @@ const academicScheduleService = {
 
   /**
    * Get academic schedules by department and semester
+   * GET /api/AcademicSchedule/department/{departmentId}/semester/{semesterId}
    */
   getByDepartmentAndSemester: (
     departmentId: number,
@@ -156,6 +181,7 @@ const academicScheduleService = {
 
   /**
    * Get academic schedules by department and semester with filters and pagination
+   * GET /api/AcademicSchedule/department/{departmentId}/semester/{semesterId}
    */
   getByDepartmentAndSemesterWithFilters: (
     departmentId: number,
@@ -183,6 +209,7 @@ const academicScheduleService = {
 
   /**
    * Get academic schedule by ID
+   * GET /api/AcademicSchedule/{id}
    */
   getById: (id: number) => {
     return apiService.get<ApiResponse<AcademicSchedule>>(
@@ -192,6 +219,7 @@ const academicScheduleService = {
 
   /**
    * Create a new academic schedule (with file upload)
+   * POST /api/AcademicSchedule
    */
   create: (data: CreateAcademicScheduleDto) => {
     const formData = new FormData();
@@ -212,7 +240,28 @@ const academicScheduleService = {
   },
 
   /**
+   * Update an academic schedule
+   * PUT /api/AcademicSchedule/{id}
+   */
+  update: (id: number, data: UpdateAcademicScheduleDto) => {
+    const formData = new FormData();
+    if (data.title) formData.append('Title', data.title);
+    if (data.description) formData.append('Description', data.description);
+    if (data.departmentId) formData.append('DepartmentId', data.departmentId.toString());
+    if (data.semesterId) formData.append('SemesterId', data.semesterId.toString());
+    if (data.studyYearId) formData.append('StudyYearId', data.studyYearId.toString());
+    if (data.scheduleDate) formData.append('ScheduleDate', data.scheduleDate);
+    if (data.file) formData.append('File', data.file);
+
+    return apiService.put<ApiResponse<AcademicSchedule>>(
+      API_ENDPOINTS.ACADEMIC_SCHEDULES.BY_ID(id),
+      formData
+    );
+  },
+
+  /**
    * Delete an academic schedule
+   * DELETE /api/AcademicSchedule/{id}
    */
   delete: (id: number) => {
     return apiService.delete<ApiResponse<string>>(
@@ -244,11 +293,8 @@ const academicScheduleService = {
     pageNumber: number = 1,
     pageSize: number = 10
   ) => {
-    // Note: This requires the semester endpoint which might be different
-    // Using the department+semester endpoint with a generic departmentId
-    // You might want to add a specific endpoint for this if needed
     return academicScheduleService.getByDepartmentAndSemesterWithFilters(
-      0, // This might need adjustment based on your API
+      0,
       semesterId,
       {},
       pageNumber,
@@ -258,6 +304,7 @@ const academicScheduleService = {
 
   /**
    * Search academic schedules
+   * GET /api/AcademicSchedule/search
    */
   search: (
     searchTerm: string,
@@ -274,7 +321,6 @@ const academicScheduleService = {
       params.DepartmentId = departmentId.toString();
     }
     
-    // Use the appropriate endpoint based on provided parameters
     if (departmentId && semesterId) {
       return academicScheduleService.getByDepartmentAndSemester(
         departmentId,
@@ -284,13 +330,116 @@ const academicScheduleService = {
     } else if (departmentId) {
       return academicScheduleService.getByDepartment(departmentId, params);
     } else {
-      // If no department is specified, you might want to use a general search endpoint
-      // This would need to be added to the API if not available
       const queryString = buildQueryString(params);
       return apiService.get<PaginatedResponse<AcademicSchedule>>(
         `${API_ENDPOINTS.ACADEMIC_SCHEDULES.SEARCH}${queryString ? `?${queryString}` : ''}`
       );
     }
+  },
+
+  /**
+   * Get schedules by date range
+   * GET /api/AcademicSchedule?ScheduleDateFrom={from}&ScheduleDateTo={to}
+   */
+  getByDateRange: (
+    fromDate: string,
+    toDate: string,
+    departmentId?: number,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    const params: AcademicScheduleFilterParams = {
+      ScheduleDateFrom: fromDate,
+      ScheduleDateTo: toDate,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    };
+    
+    if (departmentId) {
+      params.DepartmentId = departmentId.toString();
+      return academicScheduleService.getByDepartment(departmentId, params);
+    }
+    
+    return academicScheduleService.getAll(params);
+  },
+
+  /**
+   * Check if an academic schedule exists
+   */
+  exists: async (id: number): Promise<boolean> => {
+    try {
+      await academicScheduleService.getById(id);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Get schedules by study year
+   */
+  getByStudyYear: (
+    studyYearId: number,
+    departmentId?: number,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    // Note: This would need a specific endpoint if not available
+    // Using the department endpoint as fallback
+    if (departmentId) {
+      return academicScheduleService.getByDepartmentWithFilters(
+        departmentId,
+        { PageNumber: pageNumber, PageSize: pageSize },
+        pageNumber,
+        pageSize
+      );
+    }
+    return academicScheduleService.getAll({
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    });
+  },
+
+  /**
+   * Get schedule statistics
+   */
+  getStatistics: async (departmentId?: number) => {
+    let response;
+    if (departmentId) {
+      response = await academicScheduleService.getByDepartment(departmentId, {
+        PageSize: 1000,
+      });
+    } else {
+      response = await academicScheduleService.getAll({
+        PageSize: 1000,
+      });
+    }
+    
+    const schedules = response.data || [];
+    
+    // Group by semester
+    const semesterStats: Record<string, number> = {};
+    schedules.forEach((s) => {
+      semesterStats[s.semesterTitle] = (semesterStats[s.semesterTitle] || 0) + 1;
+    });
+    
+    // Group by department
+    const deptStats: Record<string, number> = {};
+    schedules.forEach((s) => {
+      deptStats[s.departmentName] = (deptStats[s.departmentName] || 0) + 1;
+    });
+    
+    const now = new Date();
+    const upcoming = schedules.filter((s) => new Date(s.scheduleDate) > now).length;
+    const past = schedules.filter((s) => new Date(s.scheduleDate) < now).length;
+    
+    return {
+      totalSchedules: schedules.length,
+      upcoming,
+      past,
+      semesterStats,
+      departmentStats: deptStats,
+    };
   },
 };
 

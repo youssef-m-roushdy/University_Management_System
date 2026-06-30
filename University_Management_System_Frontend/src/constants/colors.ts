@@ -80,7 +80,7 @@ export const darkColors: ThemeColors = {
   surface: '#1E293B',
   navbar: '#111827',
   sidebar: '#111827',
-  sidebarActive: '#1D4ED8',
+  sidebarActive: '#192442',
   primary: '#3B82F6',
   primaryHover: '#60A5FA',
   textPrimary: '#F8FAFC',

@@ -1,41 +1,35 @@
 // components/common/RoleDashboardRedirect.tsx
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { USER_ROLES } from '../../constants';
+import { ROUTES, USER_ROLES } from '../../constants';
 
+/**
+ * Renders at ROUTES.DASHBOARD and forwards the user to their role-specific
+ * dashboard. Always uses full absolute paths from ROUTES — never builds a
+ * path by concatenating the role name, since that produces a path relative
+ * to the current route (e.g. '/dashboard' + 'admin' -> '/dashboard/admin')
+ * instead of the intended '/admin/dashboard'.
+ */
 const RoleDashboardRedirect: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { primaryRole } = useAuth();
 
-  useEffect(() => {
-    if (!isAuthenticated || !user) {
-      navigate('/login');
-      return;
-    }
-
-    const roles = user.roles || [];
-
-    if (roles.includes(USER_ROLES.ADMIN)) {
-      navigate('/dashboard/admin');
-    } else if (roles.includes(USER_ROLES.STUDENT)) {
-      navigate('/dashboard/student');
-    } else if (roles.includes(USER_ROLES.INSTRUCTOR)) {
-      navigate('/dashboard/instructor');
-    } else if (roles.includes(USER_ROLES.ASSISTANT)) {
-      navigate('/dashboard/assistant');
-    } else {
-      navigate('/dashboard');
-    }
-  }, [user, isAuthenticated, navigate]);
-
-  return (
-    <div className="loading-container">
-      <div className="loading-spinner"></div>
-      <p>Redirecting to your dashboard...</p>
-    </div>
-  );
+  switch (primaryRole) {
+    case USER_ROLES.ADMIN:
+      return <Navigate to={ROUTES.ADMIN.DASHBOARD} replace />;
+    case USER_ROLES.STUDENT:
+      return <Navigate to={ROUTES.STUDENT.DASHBOARD} replace />;
+    case USER_ROLES.INSTRUCTOR:
+      return <Navigate to={ROUTES.INSTRUCTOR.DASHBOARD} replace />;
+    case USER_ROLES.ASSISTANT:
+      return <Navigate to={ROUTES.ASSISTANT.DASHBOARD} replace />;
+    default:
+      // No recognized role — bounce to login rather than looping back
+      // to /dashboard, which would re-render this component and could
+      // cause a redirect loop.
+      return <Navigate to={ROUTES.LOGIN} replace />;
+  }
 };
 
 export default RoleDashboardRedirect;

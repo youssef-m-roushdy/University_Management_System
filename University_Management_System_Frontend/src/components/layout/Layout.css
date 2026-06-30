@@ -192,6 +192,7 @@ sidebar-footer {
   padding: 8px;
   color: var(--text-secondary);
   cursor: pointer;
+  margin-bottom: 1rem;
 }
 
 /* Main Wrapper */

@@ -313,7 +313,7 @@ const specializationService = {
     }
     
     const specializations = response.data || [];
-    return specializations.find((s: Specialization) => s.name === name) || null;
+    return specializations.find((s) => s.name === name) || null;
   },
 
   /**
@@ -336,10 +336,10 @@ const specializationService = {
     const specializations = response.data || [];
     
     const totalSpecializations = specializations.length;
-    const withStudents = specializations.filter((s: Specialization) => s.studentCount > 0).length;
-    const withCourses = specializations.filter((s: Specialization) => s.courseCount > 0).length;
-    const totalStudents = specializations.reduce((sum: number, s: Specialization) => sum + s.studentCount, 0);
-    const totalCourses = specializations.reduce((sum: number, s: Specialization) => sum + s.courseCount, 0);
+    const withStudents = specializations.filter((s) => s.studentCount > 0).length;
+    const withCourses = specializations.filter((s) => s.courseCount > 0).length;
+    const totalStudents = specializations.reduce((sum, s) => sum + s.studentCount, 0);
+    const totalCourses = specializations.reduce((sum, s) => sum + s.courseCount, 0);
     
     return {
       totalSpecializations,
@@ -364,14 +364,14 @@ const specializationService = {
     return {
       departmentId,
       totalSpecializations: specializations.length,
-      specializations: specializations.map((s: Specialization) => ({
+      specializations: specializations.map((s) => ({
         id: s.id,
         name: s.name,
         studentCount: s.studentCount,
         courseCount: s.courseCount,
       })),
-      totalStudents: specializations.reduce((sum: number, s: Specialization) => sum + s.studentCount, 0),
-      totalCourses: specializations.reduce((sum: number, s: Specialization) => sum + s.courseCount, 0),
+      totalStudents: specializations.reduce((sum, s) => sum + s.studentCount, 0),
+      totalCourses: specializations.reduce((sum, s) => sum + s.courseCount, 0),
     };
   },
 };

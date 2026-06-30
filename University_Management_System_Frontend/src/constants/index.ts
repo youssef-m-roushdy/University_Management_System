@@ -206,11 +206,9 @@ export const API_ENDPOINTS = {
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const ROUTES = {
-  HOME: '/',
   LOGIN: '/login',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
-  DASHBOARD: '/dashboard',
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
     DEPARTMENTS: '/admin/departments',

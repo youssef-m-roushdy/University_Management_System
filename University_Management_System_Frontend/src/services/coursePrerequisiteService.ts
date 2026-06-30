@@ -178,8 +178,8 @@ const coursePrerequisiteService = {
      * Get dependency count for a course
      */
     getDependencyCount: async (id: number): Promise<number> => {
-        const dependencies = await coursePrerequisiteService.getDependencies(id);
-        return dependencies.data?.length ?? 0;
+        const response = await coursePrerequisiteService.getDependencies(id);
+        return response.data?.length ?? 0;
     },
 
     /**
@@ -192,8 +192,7 @@ const coursePrerequisiteService = {
     ): Promise<any> => {
         // First, get existing prerequisites
         const existingPrereqs = await coursePrerequisiteService.getPrerequisites(courseId);
-        // existingPrereqs.data is the ApiResponse object
-        // existingPrereqs.data.data is the Course[] array
+        // existingPrereqs.data is the Course[] array (since ApiResponse<Course[]> has data: Course[])
         const existingIds = existingPrereqs.data?.map((c) => c.id) ?? [];
 
         // Remove all existing prerequisites
@@ -222,8 +221,7 @@ const coursePrerequisiteService = {
     ): Promise<any> => {
         // First, get existing dependencies
         const existingDeps = await coursePrerequisiteService.getDependencies(prerequisiteCourseId);
-        // existingDeps.data is the ApiResponse object
-        // existingDeps.data.data is the Course[] array
+        // existingDeps.data is the Course[] array (since ApiResponse<Course[]> has data: Course[])
         const existingIds = existingDeps.data?.map((c) => c.id) ?? [];
 
         // Remove all existing dependencies

@@ -1,5 +1,9 @@
 // routes/index.ts
 
-export { publicRoutes } from './publicRoutes';
-export { protectedRoutes } from './protectedRoutes';
-export type { AppRouteConfig } from './routesTypes';
+export * from './routesTypes';
+export * from './publicRoutes';
+export * from './adminRoutes';
+export * from './studentRoutes';
+export * from './instructorRoutes';
+export * from './assistantRoutes';
+export * from './protectedRoutes';

@@ -258,7 +258,7 @@ const semesterGPAService = {
     const records = response.data || [];
     if (records.length === 0) return 0;
     
-    const totalGPA = records.reduce((sum: number, record: SemesterGPA) => sum + record.gpa, 0);
+    const totalGPA = records.reduce((sum, record) => sum + record.gpa, 0);
     return totalGPA / records.length;
   },
 
@@ -272,7 +272,7 @@ const semesterGPAService = {
     const records = response.data || [];
     if (records.length === 0) return 0;
     
-    const totalGPA = records.reduce((sum: number, record: SemesterGPA) => sum + record.gpa, 0);
+    const totalGPA = records.reduce((sum, record) => sum + record.gpa, 0);
     return totalGPA / records.length;
   },
 
@@ -374,15 +374,15 @@ const semesterGPAService = {
       };
     }
 
-    const gpas = records.map((r: SemesterGPA) => r.gpa);
-    const creditHours = records.map((r: SemesterGPA) => r.totalCreditHours);
+    const gpas = records.map((r) => r.gpa);
+    const creditHours = records.map((r) => r.totalCreditHours);
     
     return {
       count: records.length,
-      averageGPA: gpas.reduce((a: number, b: number) => a + b, 0) / gpas.length,
+      averageGPA: gpas.reduce((a, b) => a + b, 0) / gpas.length,
       minGPA: Math.min(...gpas),
       maxGPA: Math.max(...gpas),
-      totalCreditHours: creditHours.reduce((a: number, b: number) => a + b, 0),
+      totalCreditHours: creditHours.reduce((a, b) => a + b, 0),
     };
   },
 };

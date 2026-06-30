@@ -206,11 +206,11 @@ const studyYearService = {
     // First, unset all current study years
     const allYears = await studyYearService.getAllWithPagination({}, 1, 100);
     const currentYears = allYears.data?.filter((y: StudyYear) => y.isCurrent) || [];
-    
+
     for (const year of currentYears) {
       await studyYearService.patch(year.id, { isCurrent: false });
     }
-    
+
     // Then set the specified study year as current
     const response = await studyYearService.patch(id, { isCurrent: true });
     return response.data as StudyYear;
@@ -350,7 +350,7 @@ const studyYearService = {
     const currentYear = now.getFullYear();
     const startYear = now.getMonth() >= 8 ? currentYear : currentYear - 1;
     const endYear = startYear + 1;
-    
+
     // Check if it already exists
     const existing = await studyYearService.getByYearRangeExact(startYear, endYear);
     if (existing) {
@@ -360,7 +360,7 @@ const studyYearService = {
       }
       return existing;
     }
-    
+
     // Create new study year
     const response = await studyYearService.create({
       startYear,
@@ -374,18 +374,24 @@ const studyYearService = {
    * Get study year statistics
    */
   getStatistics: async () => {
-    const response = await studyYearService.getAllWithPagination({}, 1, 100);
-    const years = response.data || [];
-    
-    const totalYears = years.length;
+    const [allYearsResponse, withSemestersResponse, withRegistrationsResponse] =
+      await Promise.all([
+        studyYearService.getAllWithPagination({}, 1, 100),
+        studyYearService.getWithSemesters(1, 1),
+        studyYearService.getWithRegistrations(1, 1),
+      ]);
+
+    const years = allYearsResponse.data || [];
+
+    const totalYears = allYearsResponse.pagination?.totalCount ?? years.length;
     const currentYears = years.filter((y: StudyYear) => y.isCurrent).length;
-    const withSemesters = years.filter((y: StudyYear) => y).length;
-    const withRegistrations = years.filter((y: StudyYear) => y).length;
-    
+    const withSemesters = withSemestersResponse.pagination?.totalCount ?? 0;
+    const withRegistrations = withRegistrationsResponse.pagination?.totalCount ?? 0;
+
     const yearRanges = years.map((y: StudyYear) => `${y.startYear}-${y.endYear}`);
     const oldestYear = years.length > 0 ? Math.min(...years.map((y: StudyYear) => y.startYear)) : null;
     const newestYear = years.length > 0 ? Math.max(...years.map((y: StudyYear) => y.endYear)) : null;
-    
+
     return {
       totalYears,
       currentYears,

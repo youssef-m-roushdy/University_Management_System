@@ -118,6 +118,7 @@ const adminService = {
 
   /**
    * Get admins with filters
+   * GET /api/Admin
    */
   getAllWithFilters: (params: AdminFilterParams) => {
     const queryString = buildQueryString(params);
@@ -128,6 +129,7 @@ const adminService = {
 
   /**
    * Get admins with pagination
+   * GET /api/Admin
    */
   getAllWithPagination: (
     filters: AdminFilterParams = {},
@@ -202,6 +204,7 @@ const adminService = {
 
   /**
    * Toggle admin active status
+   * PATCH /api/Admin/{id}
    */
   toggleActive: (id: string, isActive: boolean) => {
     return adminService.update(id, { isActive });
@@ -209,6 +212,7 @@ const adminService = {
 
   /**
    * Search admins
+   * GET /api/Admin?SearchTerm={searchTerm}
    */
   search: (searchTerm: string, maxResults: number = 20) => {
     const params: AdminFilterParams = {
@@ -220,6 +224,7 @@ const adminService = {
 
   /**
    * Get admins by gender
+   * GET /api/Admin?Gender={gender}
    */
   getByGender: (
     gender: 'Male' | 'Female',
@@ -236,6 +241,7 @@ const adminService = {
 
   /**
    * Get active admins
+   * GET /api/Admin?IsActive=true
    */
   getActive: (
     pageNumber: number = 1,
@@ -251,6 +257,7 @@ const adminService = {
 
   /**
    * Get inactive admins
+   * GET /api/Admin?IsActive=false
    */
   getInactive: (
     pageNumber: number = 1,
@@ -262,6 +269,99 @@ const adminService = {
       PageSize: pageSize,
     };
     return adminService.getAllWithFilters(params);
+  },
+
+  /**
+   * Get admins by name
+   * GET /api/Admin?Name={name}
+   */
+  getByName: (
+    name: string,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    const params: AdminFilterParams = {
+      Name: name,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    };
+    return adminService.getAllWithFilters(params);
+  },
+
+  /**
+   * Check if an admin exists
+   */
+  exists: async (id: string): Promise<boolean> => {
+    try {
+      await adminService.getById(id);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Check if an admin exists by email
+   */
+  existsByEmail: async (email: string): Promise<boolean> => {
+    try {
+      const response = await adminService.getAllWithFilters({
+        SearchTerm: email,
+        PageSize: 1,
+      });
+      const admins = response.data || [];
+      return admins.some((admin) => admin.email === email);
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Get admin statistics
+   */
+  getStatistics: async () => {
+    const response = await adminService.getAllWithPagination({}, 1, 1000);
+    const admins = response.data || [];
+    
+    const active = admins.filter((a) => a.isActive).length;
+    const inactive = admins.length - active;
+    const male = admins.filter((a) => a.gender === 'Male').length;
+    const female = admins.filter((a) => a.gender === 'Female').length;
+    
+    return {
+      totalAdmins: admins.length,
+      active,
+      inactive,
+      male,
+      female,
+      activePercentage: admins.length > 0 ? (active / admins.length) * 100 : 0,
+      malePercentage: admins.length > 0 ? (male / admins.length) * 100 : 0,
+      femalePercentage: admins.length > 0 ? (female / admins.length) * 100 : 0,
+    };
+  },
+
+  /**
+   * Get admin by email
+   */
+  getByEmail: async (email: string): Promise<Admin | null> => {
+    try {
+      const response = await adminService.getAllWithFilters({
+        SearchTerm: email,
+        PageSize: 1,
+      });
+      const admins = response.data || [];
+      return admins.find((admin) => admin.email === email) || null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Bulk update admin status
+   */
+  bulkUpdateStatus: async (ids: string[], isActive: boolean): Promise<void> => {
+    const promises = ids.map((id) => adminService.toggleActive(id, isActive));
+    await Promise.all(promises);
   },
 };
 

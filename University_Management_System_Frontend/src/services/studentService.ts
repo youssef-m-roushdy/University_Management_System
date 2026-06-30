@@ -366,6 +366,7 @@ const studentService = {
 
   /**
    * Get active students
+   * Note: The Student object doesn't have isActive property, so this uses the filter parameter
    */
   getActive: (
     pageNumber: number = 1,
@@ -381,6 +382,7 @@ const studentService = {
 
   /**
    * Get inactive students
+   * Note: The Student object doesn't have isActive property, so this uses the filter parameter
    */
   getInactive: (
     pageNumber: number = 1,
@@ -448,8 +450,7 @@ const studentService = {
     const students = response.data || [];
     
     const totalStudents = students.length;
-    const graduated = students.filter((s: Student) => s.level === 'Graduate').length;
-    const active = students.filter((s: Student) => s).length;
+    const graduated = students.filter((s) => s.level === 'Graduate').length;
     
     const levels: Record<StudentLevel, number> = {
       'Preparatory_Year': 0,
@@ -460,20 +461,18 @@ const studentService = {
       'Graduate': 0,
     };
     
-    students.forEach((s: Student) => {
+    students.forEach((s) => {
       if (s.level in levels) {
         levels[s.level]++;
       }
     });
     
-    const totalGPA = students.reduce((sum: number, s: Student) => sum + s.totalGPA, 0);
-    const totalCredits = students.reduce((sum: number, s: Student) => sum + s.totalCredits, 0);
+    const totalGPA = students.reduce((sum, s) => sum + s.totalGPA, 0);
+    const totalCredits = students.reduce((sum, s) => sum + s.totalCredits, 0);
     
     return {
       totalStudents,
       graduated,
-      active,
-      inactive: totalStudents - active,
       levels,
       averageGPA: totalStudents > 0 ? totalGPA / totalStudents : 0,
       totalCredits,
@@ -499,13 +498,13 @@ const studentService = {
       'Graduate': 0,
     };
     
-    students.forEach((s: Student) => {
+    students.forEach((s) => {
       if (s.level in levels) {
         levels[s.level]++;
       }
     });
     
-    const totalGPA = students.reduce((sum: number, s: Student) => sum + s.totalGPA, 0);
+    const totalGPA = students.reduce((sum, s) => sum + s.totalGPA, 0);
     
     return {
       departmentId,

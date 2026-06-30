@@ -4,6 +4,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTES, USER_ROLES, UserRole } from '../../constants';
+import { getDashboardRoute } from '../../utils/roleRouting';
 import {
   FiHome,
   FiBook,
@@ -62,11 +63,11 @@ export default function Layout() {
   const [profileOpen, setProfileOpen] = useState<boolean>(false);
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
-
   const handleLogout = useCallback(() => {
     logout();
     navigate(ROUTES.LOGIN);
   }, [logout, navigate]);
+  
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen(prev => !prev);
@@ -91,7 +92,7 @@ export default function Layout() {
         roles: [USER_ROLES.ADMIN],
       },
       {
-        to: ROUTES.ADMIN.DEPARTMENTS,
+        to: ROUTES.ADMIN.DEPARTMENTS, // ← This is the link
         icon: <FiGrid />,
         label: 'Departments',
         roles: [USER_ROLES.ADMIN],
@@ -263,7 +264,7 @@ export default function Layout() {
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <Link to={ROUTES.DASHBOARD} className="logo-link">
+          <Link to={getDashboardRoute(primaryRole, roles)} className="logo-link">
             <div className="logo-icon">
               <GraduationCapIcon width={22} height={22} />
             </div>

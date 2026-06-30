@@ -6,7 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext'; // <-- import
+import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import RoleDashboardRedirect from './components/common/RoleDashboardRedirect';
@@ -19,8 +19,6 @@ import './styles/globals.css';
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      {' '}
-      {/* ← Wrap everything */}
       <BrowserRouter>
         <AuthProvider>
           <ToastContainer
@@ -36,52 +34,44 @@ const App: React.FC = () => {
           />
 
           <Routes>
-            {/* Public Routes */}
+            {/* Public routes */}
             {publicRoutes.map(({ path, element }) => (
               <Route key={path} path={path} element={element} />
             ))}
 
-            {/* Protected Routes */}
+            {/* Protected app shell */}
             <Route
-              path={ROUTES.HOME}
+              path="/"
               element={
                 <ProtectedRoute>
                   <Layout />
                 </ProtectedRoute>
               }
             >
-              <Route
-                index
-                element={<Navigate to={ROUTES.DASHBOARD} replace />}
-              />
+              {/* Visiting "/" while authenticated resolves to the
+                  user's own dashboard based on role */}
+              <Route index element={<RoleDashboardRedirect />} />
 
-              {/* Dashboard redirect by role */}
-              <Route
-                path={ROUTES.DASHBOARD}
-                element={
-                  <ProtectedRoute>
-                    <RoleDashboardRedirect />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Role-specific dashboards */}
               {protectedRoutes.map(({ path, element, roles }) => (
                 <Route
                   key={path}
                   path={path}
                   element={
-                    <ProtectedRoute roles={roles}>{element}</ProtectedRoute>
+                    roles && roles.length > 0 ? (
+                      <ProtectedRoute roles={roles}>{element}</ProtectedRoute>
+                    ) : (
+                      element
+                    )
                   }
                 />
               ))}
+
+              {/* Unmatched paths inside the authenticated shell */}
+              <Route path="*" element={<RoleDashboardRedirect />} />
             </Route>
 
-            {/* Catch-all */}
-            <Route
-              path="*"
-              element={<Navigate to={ROUTES.DASHBOARD} replace />}
-            />
+            {/* Unmatched paths outside the shell */}
+            <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

@@ -408,7 +408,7 @@ const specializationCourseService = {
     const response = await specializationCourseService.getBySpecialization(specializationId, {
       PageSize: 1,
     });
-    return response.data.length || 0;
+    return response.pagination?.totalCount ?? response.data?.length ?? 0;
   },
 
   /**
@@ -422,7 +422,7 @@ const specializationCourseService = {
       Role: role,
       PageSize: 1,
     });
-    return response.data.length || 0;
+    return response.pagination?.totalCount ?? response.data?.length ?? 0;
   },
 
   /**
@@ -434,10 +434,10 @@ const specializationCourseService = {
     });
     const courses = response.data || [];
     
-    const coreCourses = courses.filter((c: SpecializationCourse) => c.role === 'Core');
-    const specCoreCourses = courses.filter((c: SpecializationCourse) => c.role === 'Specialization_Core');
-    const electiveCourses = courses.filter((c: SpecializationCourse) => c.role === 'Elective');
-    const withPrereqs = courses.filter((c: SpecializationCourse) => c.prerequisitesCount > 0);
+    const coreCourses = courses.filter((c) => c.role === 'Core');
+    const specCoreCourses = courses.filter((c) => c.role === 'Specialization_Core');
+    const electiveCourses = courses.filter((c) => c.role === 'Elective');
+    const withPrereqs = courses.filter((c) => c.prerequisitesCount > 0);
     
     return {
       totalCourses: courses.length,
@@ -446,9 +446,9 @@ const specializationCourseService = {
       electiveCourses: electiveCourses.length,
       coursesWithPrerequisites: withPrereqs.length,
       coursesWithoutPrerequisites: courses.length - withPrereqs.length,
-      totalCredits: courses.reduce((sum: number, c: SpecializationCourse) => sum + c.credits, 0),
+      totalCredits: courses.reduce((sum, c) => sum + c.credits, 0),
       averageCredits: courses.length > 0 
-        ? courses.reduce((sum: number, c: SpecializationCourse) => sum + c.credits, 0) / courses.length 
+        ? courses.reduce((sum, c) => sum + c.credits, 0) / courses.length 
         : 0,
     };
   },
@@ -468,7 +468,7 @@ const specializationCourseService = {
     const existingCourses = existing.data || [];
     
     // Remove all existing courses
-    const deletePromises = existingCourses.map((sc: SpecializationCourse) =>
+    const deletePromises = existingCourses.map((sc) =>
       specializationCourseService.delete(specializationId, sc.courseId)
     );
     await Promise.all(deletePromises);

@@ -351,7 +351,7 @@ const studentStudyYearService = {
     const timeline = response.data;
     if (!timeline) return null;
     
-    const currentYear = timeline.studyYears.find((y: any) => y.isCurrent);
+    const currentYear = timeline.studyYears.find((y) => y.isCurrent);
     if (!currentYear) return null;
     
     // Get the full study year record
@@ -408,20 +408,20 @@ const studentStudyYearService = {
       'Graduate': 0,
     };
     
-    records.forEach((r: StudentStudyYear) => {
+    records.forEach((r) => {
       if (r.level in levels) {
         levels[r.level]++;
       }
     });
     
-    const totalGPA = records.reduce((sum: number, r: StudentStudyYear) => sum + r.totalGPA, 0);
-    const totalCredits = records.reduce((sum: number, r: StudentStudyYear) => sum + r.totalCredits, 0);
+    const totalGPA = records.reduce((sum, r) => sum + r.totalGPA, 0);
+    const totalCredits = records.reduce((sum, r) => sum + r.totalCredits, 0);
     
     return {
       studyYearId,
       totalRecords: records.length,
-      active: records.filter((r: StudentStudyYear) => r.isActive).length,
-      inactive: records.filter((r: StudentStudyYear) => !r.isActive).length,
+      active: records.filter((r) => r.isActive).length,
+      inactive: records.filter((r) => !r.isActive).length,
       levels,
       averageGPA: records.length > 0 ? totalGPA / records.length : 0,
       totalCredits,
@@ -439,7 +439,7 @@ const studentStudyYearService = {
     const records = response.data || [];
     
     const departments: Record<string, number> = {};
-    records.forEach((r: StudentStudyYear) => {
+    records.forEach((r) => {
       departments[r.departmentName] = (departments[r.departmentName] || 0) + 1;
     });
     

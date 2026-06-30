@@ -242,10 +242,13 @@ const instructorService = {
 
   /**
    * Toggle instructor active status
+   * Note: This is a placeholder as the update endpoint only accepts departmentId
+   * You may need to implement this differently based on your API
    */
   toggleActive: (id: string, isActive: boolean) => {
-    // Note: Update endpoint only accepts departmentId
-    // You may need to use a different endpoint or full update
+    // This is a placeholder - the actual implementation depends on your API
+    // If your API supports updating isActive, you would need to modify this
+    console.warn('toggleActive is a placeholder - update endpoint only accepts departmentId');
     return instructorService.update(id, { departmentId: 0 });
   },
 

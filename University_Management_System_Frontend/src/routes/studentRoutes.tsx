@@ -1,13 +1,13 @@
-import { StudentDashboard } from '@pages/student';
-import { ROUTES, USER_ROLES } from '../constants';
-import { AppRouteConfig, relative } from './routesTypes';
+// routes/studentRoutes.tsx
 
-const STUDENT_ONLY = [USER_ROLES.STUDENT];
+import { ROUTES, USER_ROLES } from '../constants';
+import { AppRouteConfig } from './routesTypes';
+import StudentDashboard from '../pages/student/Dashboard/StudentDashboard';
 
 export const studentRoutes: AppRouteConfig[] = [
   {
-    path: relative(ROUTES.STUDENT.DASHBOARD),
+    path: ROUTES.STUDENT.DASHBOARD,
     element: <StudentDashboard />,
-    roles: STUDENT_ONLY,
+    roles: [USER_ROLES.STUDENT],
   },
 ];

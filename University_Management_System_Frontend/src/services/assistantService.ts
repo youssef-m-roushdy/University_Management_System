@@ -119,6 +119,7 @@ const assistantService = {
 
   /**
    * Get assistants with filters
+   * GET /api/Assistant
    */
   getAllWithFilters: (params: AssistantFilterParams) => {
     const queryString = buildQueryString(params);
@@ -129,6 +130,7 @@ const assistantService = {
 
   /**
    * Get assistants with pagination
+   * GET /api/Assistant
    */
   getAllWithPagination: (
     filters: AssistantFilterParams = {},
@@ -205,13 +207,12 @@ const assistantService = {
         `${url}${queryString ? `?${queryString}` : ''}`
       );
     }
-    return apiService.get<PaginatedResponse<Assistant>>(
-      url
-    );
+    return apiService.get<PaginatedResponse<Assistant>>(url);
   },
 
   /**
    * Get assistants by department with filters and pagination
+   * GET /api/Assistant/department/{departmentId}
    */
   getByDepartmentWithFilters: (
     departmentId: number,
@@ -245,16 +246,16 @@ const assistantService = {
 
   /**
    * Toggle assistant active status
+   * Note: This is a placeholder as the update endpoint only accepts departmentId
    */
   toggleActive: (id: string, isActive: boolean) => {
-    // Note: Update endpoint only accepts departmentId
-    // You might need to use a different endpoint or full update
-    // This is a placeholder - you may need to implement this differently
-    return assistantService.update(id, { departmentId: 0 }); // Placeholder
+    console.warn('toggleActive is a placeholder - update endpoint only accepts departmentId');
+    return assistantService.update(id, { departmentId: 0 });
   },
 
   /**
    * Search assistants
+   * GET /api/Assistant?SearchTerm={searchTerm}
    */
   search: (searchTerm: string, maxResults: number = 20) => {
     const params: AssistantFilterParams = {
@@ -266,6 +267,7 @@ const assistantService = {
 
   /**
    * Get assistants by gender
+   * GET /api/Assistant?Gender={gender}
    */
   getByGender: (
     gender: 'Male' | 'Female',
@@ -282,6 +284,7 @@ const assistantService = {
 
   /**
    * Get active assistants
+   * GET /api/Assistant?IsActive=true
    */
   getActive: (
     pageNumber: number = 1,
@@ -297,6 +300,7 @@ const assistantService = {
 
   /**
    * Get inactive assistants
+   * GET /api/Assistant?IsActive=false
    */
   getInactive: (
     pageNumber: number = 1,
@@ -312,6 +316,7 @@ const assistantService = {
 
   /**
    * Get assistants by department search
+   * GET /api/Assistant?DepartmentSearch={departmentSearch}
    */
   getByDepartmentSearch: (
     departmentSearch: string,
@@ -324,6 +329,66 @@ const assistantService = {
       PageSize: pageSize,
     };
     return assistantService.getAllWithFilters(params);
+  },
+
+  /**
+   * Get assistants by name
+   * GET /api/Assistant?Name={name}
+   */
+  getByName: (
+    name: string,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    const params: AssistantFilterParams = {
+      Name: name,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    };
+    return assistantService.getAllWithFilters(params);
+  },
+
+  /**
+   * Check if an assistant exists
+   */
+  exists: async (id: string): Promise<boolean> => {
+    try {
+      await assistantService.getById(id);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Get assistant statistics
+   */
+  getStatistics: async () => {
+    const response = await assistantService.getAllWithPagination({}, 1, 1000);
+    const assistants = response.data || [];
+    
+    const active = assistants.filter((a) => a.isActive).length;
+    const inactive = assistants.length - active;
+    const male = assistants.filter((a) => a.gender === 'Male').length;
+    const female = assistants.filter((a) => a.gender === 'Female').length;
+    
+    // Group by department
+    const departmentStats: Record<string, number> = {};
+    assistants.forEach((a) => {
+      departmentStats[a.departmentName] = (departmentStats[a.departmentName] || 0) + 1;
+    });
+    
+    return {
+      totalAssistants: assistants.length,
+      active,
+      inactive,
+      male,
+      female,
+      departmentStats,
+      topDepartments: Object.entries(departmentStats)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5),
+    };
   },
 };
 

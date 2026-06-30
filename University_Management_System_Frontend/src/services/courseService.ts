@@ -110,6 +110,7 @@ export interface ApiResponse<T> {
 const courseService = {
   /**
    * Get all courses (with optional filters)
+   * GET /api/Courses
    */
   getAll: (params?: CourseFilterParams) => {
     if (params) {
@@ -125,6 +126,7 @@ const courseService = {
 
   /**
    * Get courses with filters
+   * GET /api/Courses
    */
   getAllWithFilters: (params: CourseFilterParams) => {
     const queryString = buildQueryString(params);
@@ -135,6 +137,7 @@ const courseService = {
 
   /**
    * Get courses with pagination
+   * GET /api/Courses
    */
   getAllWithPagination: (
     filters: CourseFilterParams = {},
@@ -143,7 +146,6 @@ const courseService = {
     sortBy: string | null = null,
     sortDirection: 'Ascending' | 'Descending' = 'Ascending'
   ) => {
-    // Fix: Convert null to undefined
     const sortByParam = sortBy || undefined;
     const params = createFilterPageParams(
       filters,
@@ -157,6 +159,7 @@ const courseService = {
 
   /**
    * Get course by ID
+   * GET /api/Courses/{id}
    */
   getById: (id: number) => {
     return apiService.get<ApiResponse<Course>>(API_ENDPOINTS.COURSES.BY_ID(id));
@@ -164,6 +167,7 @@ const courseService = {
 
   /**
    * Create a new course
+   * POST /api/Courses
    */
   create: (data: CreateCourseDto) => {
     return apiService.post<ApiResponse<Course>>(
@@ -174,6 +178,7 @@ const courseService = {
 
   /**
    * Update a course
+   * PUT /api/Courses/{id}
    */
   update: (id: number, data: UpdateCourseDto) => {
     return apiService.put<ApiResponse<Course>>(
@@ -184,6 +189,7 @@ const courseService = {
 
   /**
    * Delete a course
+   * DELETE /api/Courses/{id}
    */
   delete: (id: number) => {
     return apiService.delete<ApiResponse<string>>(
@@ -193,6 +199,7 @@ const courseService = {
 
   /**
    * Update course status
+   * PATCH /api/Courses/{id}/status
    */
   updateStatus: (id: number, data: UpdateCourseStatusDto) => {
     return apiService.patch<ApiResponse<Course>>(
@@ -203,6 +210,7 @@ const courseService = {
 
   /**
    * Get course uploads
+   * GET /api/Courses/{id}/uploads
    */
   getUploads: (id: number) => {
     return apiService.get(API_ENDPOINTS.COURSES.UPLOADS(id));
@@ -210,6 +218,7 @@ const courseService = {
 
   /**
    * Get course registrations
+   * GET /api/Courses/{id}/registrations
    */
   getRegistrations: (id: number, yearId: number) => {
     return apiService.get(API_ENDPOINTS.COURSES.REGISTRATIONS(id, yearId));
@@ -217,6 +226,7 @@ const courseService = {
 
   /**
    * Upload file for a course
+   * POST /api/Courses/{courseId}/upload
    */
   uploadFile: (courseId: number, formData: FormData) => {
     return apiService.postForm(
@@ -227,6 +237,7 @@ const courseService = {
 
   /**
    * Get courses by department with filters
+   * GET /api/Courses/department/{deptId}
    */
   getDeptCourses: (
     deptId: number,
@@ -237,7 +248,6 @@ const courseService = {
     sortDirection: 'Ascending' | 'Descending' = 'Ascending'
   ) => {
     const url = API_ENDPOINTS.COURSES.DEPT_COURSES(deptId);
-    // Fix: Convert null to undefined
     const sortByParam = sortBy || undefined;
     const params = createFilterPageParams(
       filters,
@@ -254,6 +264,7 @@ const courseService = {
 
   /**
    * Get course prerequisites
+   * GET /api/Courses/{id}/prerequisites
    */
   getPrerequisites: (id: number) => {
     return apiService.get<ApiResponse<Course[]>>(
@@ -263,6 +274,7 @@ const courseService = {
 
   /**
    * Get course dependencies
+   * GET /api/Courses/{id}/dependencies
    */
   getDependencies: (id: number) => {
     return apiService.get<ApiResponse<Course[]>>(
@@ -272,6 +284,7 @@ const courseService = {
 
   /**
    * Get open courses by department
+   * GET /api/Courses/department/{deptId}/open
    */
   getDeptOpenCourses: (deptId: number) => {
     return apiService.get<ApiResponse<Course[]>>(
@@ -281,6 +294,7 @@ const courseService = {
 
   /**
    * Search courses
+   * GET /api/Courses/search
    */
   search: (q: string, departmentId?: number, maxResults: number = 20) => {
     const params = new URLSearchParams();
@@ -294,6 +308,7 @@ const courseService = {
 
   /**
    * Get student registration courses
+   * GET /api/Courses/student-registration
    */
   getStudentRegistrationCourses: (
     userId: string,
@@ -306,6 +321,107 @@ const courseService = {
         semesterId
       )
     );
+  },
+
+  /**
+   * Get course statistics
+   */
+  getStatistics: async () => {
+    const response = await courseService.getAllWithPagination({}, 1, 1000);
+    const courses = response.data || [];
+    
+    const openedCourses = courses.filter((c) => c.status === 'Opened');
+    const closedCourses = courses.filter((c) => c.status === 'Closed');
+    const withPrerequisites = courses.filter((c) => c.prerequisitesCount > 0);
+    const withDependencies = courses.filter((c) => c.dependenciesCount > 0);
+    
+    const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
+    
+    return {
+      totalCourses: courses.length,
+      openedCourses: openedCourses.length,
+      closedCourses: closedCourses.length,
+      withPrerequisites: withPrerequisites.length,
+      withDependencies: withDependencies.length,
+      totalCredits,
+      averageCredits: courses.length > 0 ? totalCredits / courses.length : 0,
+    };
+  },
+
+  /**
+   * Get courses by credit range
+   */
+  getByCreditRange: (
+    minCredits: number,
+    maxCredits: number,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    const params: CourseFilterParams = {
+      MinCredits: minCredits,
+      MaxCredits: maxCredits,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    };
+    return courseService.getAllWithFilters(params);
+  },
+
+  /**
+   * Get courses by status
+   */
+  getByStatus: (
+    status: 'Opened' | 'Closed',
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    const params: CourseFilterParams = {
+      Status: status,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    };
+    return courseService.getAllWithFilters(params);
+  },
+
+  /**
+   * Get courses with prerequisites
+   */
+  getWithPrerequisites: (
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    const params: CourseFilterParams = {
+      HasPrerequisites: true,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    };
+    return courseService.getAllWithFilters(params);
+  },
+
+  /**
+   * Get courses without prerequisites
+   */
+  getWithoutPrerequisites: (
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    const params: CourseFilterParams = {
+      HasPrerequisites: false,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    };
+    return courseService.getAllWithFilters(params);
+  },
+
+  /**
+   * Check if a course exists
+   */
+  exists: async (id: number): Promise<boolean> => {
+    try {
+      await courseService.getById(id);
+      return true;
+    } catch {
+      return false;
+    }
   },
 };
 

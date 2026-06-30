@@ -1,10 +1,10 @@
-// src/routes/publicRoutes.tsx — paths simplify now that auth/ is flat
+// routes/publicRoutes.tsx
+
 import { ROUTES } from '../constants';
 import { AppRouteConfig } from './routesTypes';
-
-import Login from '../pages/auth/Login/Login';
-import ForgotPassword from '../pages/auth/ForgotPassword/ForgotPassword';
-import ResetPassword from '../pages/auth/ResetPassword/ResetPassword';
+import Login from '../pages/auth/Login';
+import ForgotPassword from '../pages/auth/ForgotPassword';
+import ResetPassword from '../pages/auth/ResetPassword';
 
 export const publicRoutes: AppRouteConfig[] = [
   { path: ROUTES.LOGIN, element: <Login /> },

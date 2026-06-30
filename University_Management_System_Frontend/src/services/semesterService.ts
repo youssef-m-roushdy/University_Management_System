@@ -255,19 +255,16 @@ const semesterService = {
     title: SemesterTitle,
     studyYearId?: number
   ): Promise<Semester | null> => {
-    let params: SemesterFilterParams = {};
-    
     if (studyYearId) {
       // If studyYearId is provided, use the study year endpoint
       const response = await semesterService.getByStudyYear(studyYearId);
       const semesters = response.data || [];
-      return semesters.find((s: Semester) => s.title === title) || null;
+      return semesters.find((s) => s.title === title) || null;
     } else {
       // Otherwise search all semesters
-      // Note: This might need to be adjusted based on API capabilities
       const response = await semesterService.getAllWithPagination({}, 1, 100);
       const semesters = response.data || [];
-      return semesters.find((s: Semester) => s.title === title) || null;
+      return semesters.find((s) => s.title === title) || null;
     }
   },
 
@@ -287,12 +284,11 @@ const semesterService = {
    * Get current semester
    */
   getCurrentSemester: async (): Promise<Semester | null> => {
-    const now = new Date().toISOString();
     const response = await semesterService.getAllWithPagination({}, 1, 100);
     const semesters = response.data || [];
     
     // Find semester where current date is between start and end date
-    return semesters.find((s: Semester) => {
+    return semesters.find((s) => {
       const start = new Date(s.startDate);
       const end = new Date(s.endDate);
       const current = new Date();
@@ -307,11 +303,10 @@ const semesterService = {
     pageNumber: number = 1,
     pageSize: number = 10
   ): Promise<Semester[]> => {
-    const now = new Date().toISOString();
     const response = await semesterService.getAllWithPagination({}, pageNumber, pageSize);
     const semesters = response.data || [];
     
-    return semesters.filter((s: Semester) => {
+    return semesters.filter((s) => {
       const start = new Date(s.startDate);
       return start > new Date();
     });
@@ -324,11 +319,10 @@ const semesterService = {
     pageNumber: number = 1,
     pageSize: number = 10
   ): Promise<Semester[]> => {
-    const now = new Date().toISOString();
     const response = await semesterService.getAllWithPagination({}, pageNumber, pageSize);
     const semesters = response.data || [];
     
-    return semesters.filter((s: Semester) => {
+    return semesters.filter((s) => {
       const end = new Date(s.endDate);
       return end < new Date();
     });
@@ -339,7 +333,7 @@ const semesterService = {
    */
   getCountByStudyYear: async (studyYearId: number): Promise<number> => {
     const response = await semesterService.getByStudyYear(studyYearId);
-    return response.data.length || 0;
+    return response.pagination?.totalCount ?? response.data?.length ?? 0;
   },
 
   /**

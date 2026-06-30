@@ -289,7 +289,7 @@ const feeService = {
       PageSize: 1000, // Get all fees
     });
     const fees = response.data || [];
-    return fees.reduce((total: number, fee: Fee) => total + fee.amount, 0);
+    return fees.reduce((total, fee) => total + fee.amount, 0);
   },
 
   /**
@@ -298,7 +298,7 @@ const feeService = {
   getTotalAcademicFees: async (studyYearId: number): Promise<number> => {
     const response = await feeService.getAcademicFees(studyYearId, 1, 1000);
     const fees = response.data || [];
-    return fees.reduce((total: number, fee: Fee) => total + fee.amount, 0);
+    return fees.reduce((total, fee) => total + fee.amount, 0);
   },
 
   /**
@@ -307,7 +307,7 @@ const feeService = {
   getTotalRegistrationFees: async (studyYearId: number): Promise<number> => {
     const response = await feeService.getRegistrationFees(studyYearId, 1, 1000);
     const fees = response.data || [];
-    return fees.reduce((total: number, fee: Fee) => total + fee.amount, 0);
+    return fees.reduce((total, fee) => total + fee.amount, 0);
   },
 };
 
