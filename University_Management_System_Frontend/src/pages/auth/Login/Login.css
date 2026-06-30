@@ -2,7 +2,16 @@
    Every color here comes from a CSS variable set by ThemeContext
    (src/styles/colors.ts -> applyCssVariables). Nothing is hard-coded,
    so the whole page re-themes instantly when the mode toggles. */
-
+.field__control input:-webkit-autofill,
+.field__control input:-webkit-autofill:hover,
+.field__control input:-webkit-autofill:focus,
+.field__control input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0px 1000px var(--input-background) inset;
+  box-shadow: 0 0 0px 1000px var(--input-background) inset;
+  caret-color: var(--text-primary);
+  transition: background-color 5000s ease-in-out 0s;
+}
 .login-page {
   min-height: 100vh;
   width: 100%;

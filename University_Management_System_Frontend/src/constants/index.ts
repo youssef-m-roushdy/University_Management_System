@@ -20,6 +20,32 @@ export const API_ENDPOINTS = {
     VERIFY_EMAIL: '/api/auth/verify-email',
     RESEND_VERIFICATION: '/api/auth/resend-verification',
   },
+  ACADEMIC_SCHEDULES: {
+    BASE: '/api/AcademicSchedule',
+    BY_ID: (id: number) => `/api/AcademicSchedule/${id}`,
+    BY_DEPARTMENT: (departmentId: number) => 
+      `/api/AcademicSchedule/department/${departmentId}`,
+    BY_DEPARTMENT_SEMESTER: (departmentId: number, semesterId: number) =>
+      `/api/AcademicSchedule/department/${departmentId}/semester/${semesterId}`,
+    SEARCH: '/api/AcademicSchedule/search', // You might need to add this endpoint
+  },
+  ADMINS: {
+    BASE: '/api/Admin',
+    BY_ID: (id: string) => `/api/Admin/${id}`,
+    ADD_TO_EXISTING_USER: '/api/Admin/add-to-existing-user',
+  },
+  ASSISTANTS: {
+    BASE: '/api/Assistant',
+    BY_ID: (id: string) => `/api/Assistant/${id}`,
+    BY_DEPARTMENT: (departmentId: number) => `/api/Assistant/department/${departmentId}`,
+    ADD_TO_EXISTING_USER: '/api/Assistant/add-to-existing-user',
+  },
+  INSTRUCTORS: {
+    BASE: '/api/Instructor',
+    BY_ID: (id: string) => `/api/Instructor/${id}`,
+    BY_DEPARTMENT: (departmentId: number) => `/api/Instructor/department/${departmentId}`,
+    ADD_TO_EXISTING_USER: '/api/Instructor/add-to-existing-user',
+  },
   USERS: {
     BASE: `${API_BASE}/User`,
     MY_PROFILE: `${API_BASE}/User/profile`,
@@ -35,17 +61,23 @@ export const API_ENDPOINTS = {
     DEACTIVATE: (userId: string) => `${API_BASE}/User/deactivate/${userId}`,
   },
   ROLES: {
-    BASE: `${API_BASE}/Roles`,
-    BY_ID: (id: number) => `${API_BASE}/Roles/${id}`,
-    BY_NAME: (name: string) => `${API_BASE}/Roles/by-name/${name}`,
-    UPDATE_BY_EMAIL: `${API_BASE}/Roles/update-user-role-by-email`,
-    UPDATE_BY_CODE: `${API_BASE}/Roles/update-user-role`,
-    USER_ROLE_INFO: (code: string) =>
-      `${API_BASE}/Roles/user-role-info/${code}`,
+    BASE: '/api/Roles',
+    BY_ID: (roleId: string) => `/api/Roles/${roleId}`,
+    BY_NAME: (roleName: string) => `/api/Roles/by-name/${roleName}`,
   },
   DEPARTMENTS: {
     BASE: `${API_BASE}/Departments`,
     BY_ID: (id: number) => `${API_BASE}/Departments/${id}`,
+  },
+  DEPARTMENT_COURSES: {
+    BASE: '/api/DepartmentCourse',
+    ALL: '/api/DepartmentCourse/all',
+    BY_DEPARTMENT: (departmentId: number) => `/api/DepartmentCourse/department/${departmentId}`,
+    BULK: '/api/DepartmentCourse/bulk',
+    UPDATE: (departmentId: number, courseId: number) => 
+      `/api/DepartmentCourse/${departmentId}/${courseId}`,
+    DELETE: (departmentId: number, courseId: number) => 
+      `/api/DepartmentCourse/${departmentId}/${courseId}`,
   },
   COURSES: {
     BASE: `${API_BASE}/Course`,
@@ -64,21 +96,82 @@ export const API_ENDPOINTS = {
     STUDENT_REGISTRATION_COURSES: (studyYearId: number, semesterId: number) =>
       `${API_BASE}/Course/student-registration/study-year/${studyYearId}/semester/${semesterId}`,
   },
+  COURSE_PREREQUISITES: {
+    PREREQUISITES: (id: number) => `/api/CoursePrerequisite/${id}/prerequisites`,
+    DEPENDENCIES: (id: number) => `/api/CoursePrerequisite/${id}/dependencies`,
+    ADD_PREREQUISITE: '/api/CoursePrerequisite/prerequisites',
+    ADD_PREREQUISITES_BULK: '/api/CoursePrerequisite/prerequisites/bulk',
+    REMOVE_PREREQUISITE: (courseId: number, prerequisiteCourseId: number) => 
+      `/api/CoursePrerequisite/prerequisites/${courseId}/${prerequisiteCourseId}`,
+    ADD_DEPENDENCY: '/api/CoursePrerequisite/dependencies',
+    ADD_DEPENDENCIES_BULK: '/api/CoursePrerequisite/dependencies/bulk',
+    REMOVE_DEPENDENCY: (courseId: number, dependencyCourseId: number) => 
+      `/api/CoursePrerequisite/dependencies/${courseId}/${dependencyCourseId}`,
+  },
   REGISTRATIONS: {
-    BASE: `${API_BASE}/Registration`,
-    BY_ID: (id: number) => `${API_BASE}/Registration/${id}`,
-    BY_YEAR: (yearId: number) => `${API_BASE}/Registration/${yearId}/year`,
-    BY_SEMESTER: (yearId: number, semId: number) =>
-      `${API_BASE}/Registration/student/${yearId}/year/${semId}/semester`,
-    PENDING: (studyYearId: number, semesterId: number) =>
-      `${API_BASE}/Registration/${studyYearId}/year/${semesterId}/semester`,
+    BASE: '/api/Registration',
+    BY_ID: (id: number) => `/api/Registration/${id}`,
+    STUDENT_ALL: '/api/Registration/student/all',
+    BY_STUDY_YEAR: (studyYearId: number) => `/api/Registration/${studyYearId}/year`,
+    BY_STUDY_YEAR_SEMESTER: (studyYearId: number, semesterId: number) => 
+      `/api/Registration/student/${studyYearId}/year/${semesterId}/semester`,
+    BY_SEMESTER_STUDY_YEAR: (semesterId: number, studyYearId: number) => 
+      `/api/Registration/semester/${semesterId}/study-year/${studyYearId}`,
+    REGISTRATIONS_BY_STUDY_YEAR: (studyYearId: number) => 
+      `/api/Registration/study-year/${studyYearId}/registrations`,
+    UPDATE_STATUS: (registrationId: number) => 
+      `/api/Registration/${registrationId}/status`,
+    UPDATE_GRADE: (registrationId: number) => 
+      `/api/Registration/${registrationId}/grade`,
+    BULK_UPDATE_GRADES: '/api/Registration/grades/bulk',
   },
   SEMESTERS: {
-    BY_YEAR: (yearId: number) => `${API_BASE}/Semester/${yearId}/study-year`,
+    BASE: '/api/Semester',
+    BY_ID: (id: number) => `/api/Semester/${id}`,
+    BY_STUDY_YEAR: (studyYearId: number) => `/api/Semester/study-year/${studyYearId}`,
+    CREATE_FOR_STUDY_YEAR: (studyYearId: number) => `/api/Semester/study-year/${studyYearId}`,
+  },
+  SEMESTER_GPA: {
+    BY_STUDENT: (id: number) => `/api/SemesterGPA/student/${id}`,
+    BY_STUDY_YEAR: (studyYearId: number) => `/api/SemesterGPA/studyyear/${studyYearId}`,
+    BY_SEMESTER: (semesterId: number) => `/api/SemesterGPA/semester/${semesterId}`,
+  },
+  SPECIALIZATIONS: {
+    BASE: '/api/Specialization',
+    BY_ID: (id: number) => `/api/Specialization/${id}`,
+    BY_DEPARTMENT: (departmentId: number) => `/api/Specialization/department/${departmentId}`,
+  },
+  SPECIALIZATION_COURSES: {
+    BASE: '/api/SpecializationCourse',
+    BY_SPECIALIZATION: (specializationId: number) => 
+      `/api/SpecializationCourse/specialization/${specializationId}`,
+    BY_COURSE: (courseId: number) => 
+      `/api/SpecializationCourse/course/${courseId}`,
+    BULK: '/api/SpecializationCourse/bulk',
+    UPDATE: (specializationId: number, courseId: number) => 
+      `/api/SpecializationCourse/${specializationId}/${courseId}`,
+    DELETE: (specializationId: number, courseId: number) => 
+      `/api/SpecializationCourse/${specializationId}/${courseId}`,
   },
   STUDY_YEARS: {
-    BASE: `${API_BASE}/StudyYear`,
-    BY_ID: (id: number) => `${API_BASE}/StudyYear/${id}`,
+    BASE: '/api/StudyYear',
+    BY_ID: (id: number) => `/api/StudyYear/${id}`,
+    CURRENT: '/api/StudyYear/current',
+  },
+  STUDENTS: {
+    BASE: '/api/Student',
+    BY_ID: (id: string) => `/api/Student/${id}`,
+    BY_DEPARTMENT: (departmentId: number) => `/api/Student/department/${departmentId}`,
+    BY_ACADEMIC_CODE: (academicCode: string) => `/api/Student/academic-code/${academicCode}`,
+    ADD_TO_EXISTING_USER: '/api/Student/add-to-existing-user',
+  },
+  STUDENT_STUDY_YEARS: {
+    BASE: '/api/StudentStudyYear',
+    BY_ID: (id: number) => `/api/StudentStudyYear/${id}`,
+    BY_STUDY_YEAR: (studyYearId: number) => `/api/StudentStudyYear/study-year/${studyYearId}`,
+    ME: '/api/StudentStudyYear/me',
+    ME_CURRENT: '/api/StudentStudyYear/me/current',
+    STUDENT_TIMELINE: (studentId: string) => `/api/StudentStudyYear/student/${studentId}/timeline`,
   },
   FEES: {
     BASE: `${API_BASE}/Fee`,
@@ -105,14 +198,6 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE}/DepartmentFees`,
     BY_DEPT_GRADE: (name: string, grade: string) =>
       `${API_BASE}/DepartmentFees/${name}/${grade}`,
-  },
-  SCHEDULES: {
-    BASE: `${API_BASE}/AcademicSchedule`,
-    BY_ID: (id: number) => `${API_BASE}/AcademicSchedule/${id}`,
-    CREATE: (yearId: number, deptId: number, semId: number) =>
-      `${API_BASE}/AcademicSchedule/study-year/${yearId}/department/${deptId}/semester/${semId}`,
-    BY_SEMESTER: (semId: number) =>
-      `${API_BASE}/AcademicSchedule/semester/${semId}`,
   },
 } as const;
 
