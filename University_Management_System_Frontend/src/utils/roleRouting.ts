@@ -2,11 +2,6 @@
 
 import { ROUTES, USER_ROLES, UserRole } from '../constants';
 
-/**
- * Single source of truth for "which dashboard does this role land on".
- * Used by both ProtectedRoute (unauthorized fallback) and
- * RoleDashboardRedirect (post-login landing), so they can never disagree.
- */
 const ROLE_DASHBOARD_MAP: Record<UserRole, string> = {
   [USER_ROLES.ADMIN]: ROUTES.ADMIN.DASHBOARD,
   [USER_ROLES.STUDENT]: ROUTES.STUDENT.DASHBOARD,
@@ -15,9 +10,8 @@ const ROLE_DASHBOARD_MAP: Record<UserRole, string> = {
 };
 
 /**
- * Returns the dashboard path for a user's primary role, or falls back to
- * the first role in their roles list if primaryRole isn't set, or to
- * /login if the user has no recognized role at all.
+ * Returns the dashboard path for a user's primary role.
+ * Falls back to first role in list, or /login if no role.
  */
 export function getDashboardRoute(
   primaryRole: UserRole | null | undefined,
@@ -33,4 +27,23 @@ export function getDashboardRoute(
   }
 
   return ROUTES.LOGIN;
+}
+
+/**
+ * Returns the initial landing route after authentication:
+ * - 1 role → direct role dashboard (clean URL)
+ * - Multiple roles → composite dashboard (/dashboard/me)
+ * - No roles → login
+ */
+export function getInitialDashboardRoute(
+  primaryRole: UserRole | null | undefined,
+  roles?: UserRole[] | null
+): string {
+  if (!roles || roles.length === 0) return ROUTES.LOGIN;
+
+  if (roles.length === 1) {
+    return getDashboardRoute(primaryRole, roles);
+  }
+
+  return ROUTES.DASHBOARD_ME;
 }

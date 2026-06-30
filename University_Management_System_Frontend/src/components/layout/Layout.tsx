@@ -1,10 +1,11 @@
 // components/layout/Layout.tsx
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTES, USER_ROLES, UserRole } from '../../constants';
 import { getDashboardRoute } from '../../utils/roleRouting';
+import RoleNavSection from './RoleNavSection';
 import {
   FiHome,
   FiBook,
@@ -17,6 +18,7 @@ import {
   FiShield,
   FiLayers,
   FiChevronDown,
+  FiChevronRight, // ← needed by RoleNavSection
   FiArrowUp,
   FiLock,
   FiUserPlus,
@@ -26,7 +28,14 @@ import {
   FiMail,
   FiLogOut,
 } from 'react-icons/fi';
-import { AlertIcon, GraduationCapIcon } from '../icons/Icons';
+import {
+  AlertIcon,
+  GraduationCapIcon,
+  StudentIcon,
+  ClipboardListIcon,
+  CpuIcon,
+  BookOpenIcon,
+} from '../icons/Icons';
 import './Layout.css';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -37,37 +46,110 @@ interface NavItem {
   to: string;
   icon: React.ReactNode;
   label: string;
-  roles: UserRole[];
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ROLE SECTION METADATA — display name + icon for each role group in sidebar
+// ──────────────────────────────────────────────────────────────────────────────
+
+const ROLE_SECTION_META: Record<
+  UserRole,
+  { label: string; icon: React.ReactNode }
+> = {
+  [USER_ROLES.STUDENT]: { label: 'Student', icon: <StudentIcon /> },
+  [USER_ROLES.ADMIN]: { label: 'Admin', icon: <CpuIcon /> },
+  [USER_ROLES.INSTRUCTOR]: { label: 'Instructor', icon: <BookOpenIcon /> },
+  [USER_ROLES.ASSISTANT]: { label: 'Assistant', icon: <ClipboardListIcon /> },
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+// NAV ITEMS — keyed by role, not in separate arrays
+// Each role owns its nav items; no cross-role filtering needed.
+// ──────────────────────────────────────────────────────────────────────────────
+
+const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
+  [USER_ROLES.ADMIN]: [
+    { to: ROUTES.ADMIN.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
+    { to: ROUTES.ADMIN.DEPARTMENTS, icon: <FiGrid />, label: 'Departments' },
+    { to: ROUTES.ADMIN.COURSES, icon: <FiBook />, label: 'Courses' },
+    { to: ROUTES.ADMIN.STUDENTS, icon: <FiUsers />, label: 'Students' },
+    { to: ROUTES.ADMIN.USERS, icon: <FiUserPlus />, label: 'Users' },
+    {
+      to: ROUTES.ADMIN.STUDY_YEARS,
+      icon: <FiCalendar />,
+      label: 'Study Years',
+    },
+    { to: ROUTES.ADMIN.ROLES, icon: <FiShield />, label: 'Roles' },
+    {
+      to: ROUTES.ADMIN.PROMOTE_STUDENTS,
+      icon: <FiArrowUp />,
+      label: 'Promote Students',
+    },
+  ],
+  [USER_ROLES.STUDENT]: [
+    { to: ROUTES.STUDENT.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
+    { to: ROUTES.STUDENT.MY_COURSES, icon: <FiBook />, label: 'My Courses' },
+    { to: ROUTES.STUDENT.MY_TIMELINE, icon: <FiLayers />, label: 'Timeline' },
+    {
+      to: ROUTES.STUDENT.MY_STUDY_YEARS,
+      icon: <FiCalendar />,
+      label: 'Study Years',
+    },
+    {
+      to: ROUTES.STUDENT.DEPARTMENT_COURSES,
+      icon: <FiGrid />,
+      label: 'Department Courses',
+    },
+    { to: ROUTES.STUDENT.PROFILE, icon: <FiUser />, label: 'Profile' },
+    {
+      to: ROUTES.STUDENT.CHANGE_PASSWORD,
+      icon: <FiLock />,
+      label: 'Change Password',
+    },
+  ],
+  [USER_ROLES.INSTRUCTOR]: [
+    { to: ROUTES.INSTRUCTOR.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
+    { to: ROUTES.INSTRUCTOR.COURSES, icon: <FiBook />, label: 'My Courses' },
+    { to: ROUTES.INSTRUCTOR.STUDENTS, icon: <FiUsers />, label: 'Students' },
+  ],
+  [USER_ROLES.ASSISTANT]: [
+    { to: ROUTES.ASSISTANT.DASHBOARD, icon: <FiHome />, label: 'Dashboard' },
+    { to: ROUTES.ASSISTANT.COURSES, icon: <FiBook />, label: 'Courses' },
+    { to: ROUTES.ASSISTANT.STUDENTS, icon: <FiUsers />, label: 'Students' },
+    { to: ROUTES.ASSISTANT.GRADING, icon: <FiShield />, label: 'Grading' },
+  ],
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ROLE PRIORITY — order of sections in sidebar when user has multiple roles
+// Student first (most common), then upward in responsibility
+// ──────────────────────────────────────────────────────────────────────────────
+
+const ROLE_PRIORITY: UserRole[] = [
+  USER_ROLES.STUDENT,
+  USER_ROLES.ASSISTANT,
+  USER_ROLES.INSTRUCTOR,
+  USER_ROLES.ADMIN,
+];
 
 // ──────────────────────────────────────────────────────────────────────────────
 // COMPONENT
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function Layout() {
-  const {
-    user,
-    logout,
-    isAdmin,
-    isStudent,
-    isInstructor,
-    isAssistant,
-    roles,
-    primaryRole,
-    hasAnyRole,
-    hasRole,
-  } = useAuth();
+  const { user, logout, roles, primaryRole, hasRole, isAdmin, isStudent } =
+    useAuth();
 
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [profileOpen, setProfileOpen] = useState<boolean>(false);
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
+
   const handleLogout = useCallback(() => {
     logout();
     navigate(ROUTES.LOGIN);
   }, [logout, navigate]);
-  
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen(prev => !prev);
@@ -81,179 +163,34 @@ export default function Layout() {
     setProfileOpen(false);
   }, []);
 
-  // ─── Navigation Items ──────────────────────────────────────────────────────
+  // ─── Build role sections for sidebar ──────────────────────────────────────
+  // Only sections the user actually HAS, ordered by ROLE_PRIORITY.
+  // Primary role's section opens by default, others start collapsed.
 
-  const adminNav: NavItem[] = useMemo(
-    () => [
-      {
-        to: ROUTES.ADMIN.DASHBOARD,
-        icon: <FiHome />,
-        label: 'Dashboard',
-        roles: [USER_ROLES.ADMIN],
-      },
-      {
-        to: ROUTES.ADMIN.DEPARTMENTS, // ← This is the link
-        icon: <FiGrid />,
-        label: 'Departments',
-        roles: [USER_ROLES.ADMIN],
-      },
-      {
-        to: ROUTES.ADMIN.COURSES,
-        icon: <FiBook />,
-        label: 'Courses',
-        roles: [USER_ROLES.ADMIN],
-      },
-      {
-        to: ROUTES.ADMIN.STUDENTS,
-        icon: <FiUsers />,
-        label: 'Students',
-        roles: [USER_ROLES.ADMIN],
-      },
-      {
-        to: ROUTES.ADMIN.USERS,
-        icon: <FiUserPlus />,
-        label: 'Users',
-        roles: [USER_ROLES.ADMIN],
-      },
-      {
-        to: ROUTES.ADMIN.STUDY_YEARS,
-        icon: <FiCalendar />,
-        label: 'Study Years',
-        roles: [USER_ROLES.ADMIN],
-      },
-      {
-        to: ROUTES.ADMIN.ROLES,
-        icon: <FiShield />,
-        label: 'Roles',
-        roles: [USER_ROLES.ADMIN],
-      },
-      {
-        to: ROUTES.ADMIN.PROMOTE_STUDENTS,
-        icon: <FiArrowUp />,
-        label: 'Promote Students',
-        roles: [USER_ROLES.ADMIN],
-      },
-    ],
-    []
-  );
+  const roleSections = useMemo(() => {
+    if (!roles || roles.length === 0) return [];
 
-  const studentNav: NavItem[] = useMemo(
-    () => [
-      {
-        to: ROUTES.STUDENT.DASHBOARD,
-        icon: <FiHome />,
-        label: 'Dashboard',
-        roles: [USER_ROLES.STUDENT],
-      },
-      {
-        to: ROUTES.STUDENT.MY_COURSES,
-        icon: <FiBook />,
-        label: 'My Courses',
-        roles: [USER_ROLES.STUDENT],
-      },
-      {
-        to: ROUTES.STUDENT.MY_TIMELINE,
-        icon: <FiLayers />,
-        label: 'Timeline',
-        roles: [USER_ROLES.STUDENT],
-      },
-      {
-        to: ROUTES.STUDENT.MY_STUDY_YEARS,
-        icon: <FiCalendar />,
-        label: 'Study Years',
-        roles: [USER_ROLES.STUDENT],
-      },
-      {
-        to: ROUTES.STUDENT.DEPARTMENT_COURSES,
-        icon: <FiGrid />,
-        label: 'Department Courses',
-        roles: [USER_ROLES.STUDENT],
-      },
-      {
-        to: ROUTES.STUDENT.PROFILE,
-        icon: <FiUser />,
-        label: 'Profile',
-        roles: [USER_ROLES.STUDENT],
-      },
-      {
-        to: ROUTES.STUDENT.CHANGE_PASSWORD,
-        icon: <FiLock />,
-        label: 'Change Password',
-        roles: [USER_ROLES.STUDENT],
-      },
-    ],
-    []
-  );
+    const sorted = [...roles].sort((a, b) => {
+      const aIdx = ROLE_PRIORITY.indexOf(a);
+      const bIdx = ROLE_PRIORITY.indexOf(b);
+      return aIdx - bIdx;
+    });
 
-  const instructorNav: NavItem[] = useMemo(
-    () => [
-      {
-        to: ROUTES.INSTRUCTOR.DASHBOARD,
-        icon: <FiHome />,
-        label: 'Dashboard',
-        roles: [USER_ROLES.INSTRUCTOR],
-      },
-      {
-        to: ROUTES.INSTRUCTOR.COURSES,
-        icon: <FiBook />,
-        label: 'My Courses',
-        roles: [USER_ROLES.INSTRUCTOR],
-      },
-      {
-        to: ROUTES.INSTRUCTOR.STUDENTS,
-        icon: <FiUsers />,
-        label: 'Students',
-        roles: [USER_ROLES.INSTRUCTOR],
-      },
-    ],
-    []
-  );
+    return sorted
+      .filter(role => ROLE_NAV_ITEMS[role]?.length > 0)
+      .map(role => ({
+        role,
+        meta: ROLE_SECTION_META[role],
+        items: ROLE_NAV_ITEMS[role],
+      }));
+  }, [roles]);
 
-  const assistantNav: NavItem[] = useMemo(
-    () => [
-      {
-        to: ROUTES.ASSISTANT.DASHBOARD,
-        icon: <FiHome />,
-        label: 'Dashboard',
-        roles: [USER_ROLES.ASSISTANT],
-      },
-      {
-        to: ROUTES.ASSISTANT.COURSES,
-        icon: <FiBook />,
-        label: 'Courses',
-        roles: [USER_ROLES.ASSISTANT],
-      },
-      {
-        to: ROUTES.ASSISTANT.STUDENTS,
-        icon: <FiUsers />,
-        label: 'Students',
-        roles: [USER_ROLES.ASSISTANT],
-      },
-      {
-        to: ROUTES.ASSISTANT.GRADING,
-        icon: <FiShield />,
-        label: 'Grading',
-        roles: [USER_ROLES.ASSISTANT],
-      },
-    ],
-    []
-  );
+  // ─── Display role string for header ───────────────────────────────────────
 
-  // ─── Combine and Filter Navigation ────────────────────────────────────────
-
-  const navItems = useMemo(() => {
-    const allItems = [
-      ...adminNav,
-      ...studentNav,
-      ...instructorNav,
-      ...assistantNav,
-    ];
-    return allItems.filter(item => hasAnyRole(item.roles));
-  }, [adminNav, studentNav, instructorNav, assistantNav, hasAnyRole]);
-
-  // ─── User Info ─────────────────────────────────────────────────────────────
-
-  const primaryUserRole = useMemo(() => primaryRole || 'User', [primaryRole]);
+  const roleDisplay = useMemo(() => {
+    if (!roles || roles.length === 0) return 'User';
+    return roles.map(r => ROLE_SECTION_META[r]?.label || r).join(' · ');
+  }, [roles]);
 
   // ──────────────────────────────────────────────────────────────────────────────
   // RENDER
@@ -264,7 +201,10 @@ export default function Layout() {
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <Link to={getDashboardRoute(primaryRole, roles)} className="logo-link">
+          <Link
+            to={getDashboardRoute(primaryRole, roles)}
+            className="logo-link"
+          >
             <div className="logo-icon">
               <GraduationCapIcon width={22} height={22} />
             </div>
@@ -277,19 +217,17 @@ export default function Layout() {
           </Link>
         </div>
 
+        {/* ─── Role-Grouped Navigation ─── */}
         <nav className="sidebar-nav">
-          {navItems.map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `nav-item ${isActive ? 'active' : ''}`
-              }
-              onClick={closeProfile}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              {sidebarOpen && <span className="nav-label">{item.label}</span>}
-            </NavLink>
+          {roleSections.map(section => (
+            <RoleNavSection
+              key={section.role}
+              roleName={section.meta.label}
+              roleIcon={section.meta.icon}
+              items={section.items}
+              defaultOpen={section.role === primaryRole}
+              sidebarOpen={sidebarOpen}
+            />
           ))}
         </nav>
 
@@ -349,9 +287,7 @@ export default function Layout() {
               role="button"
               tabIndex={0}
               onKeyDown={e => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  toggleProfile();
-                }
+                if (e.key === 'Enter' || e.key === ' ') toggleProfile();
               }}
             >
               <div className="avatar">
@@ -374,12 +310,8 @@ export default function Layout() {
                   <span className="profile-name">
                     {user?.displayName || user?.name}
                   </span>
-                  <span className="profile-role">{primaryUserRole}</span>
-                  {roles && roles.length > 1 && (
-                    <span className="profile-more-roles">
-                      +{roles.length - 1} more
-                    </span>
-                  )}
+                  {/* ─── All roles displayed, not just primary ─── */}
+                  <span className="profile-role">{roleDisplay}</span>
                 </div>
               )}
 
@@ -394,7 +326,7 @@ export default function Layout() {
                     <div className="user-roles">
                       {roles?.map(role => (
                         <span key={role} className="role-badge">
-                          {role}
+                          {ROLE_SECTION_META[role]?.label || role}
                         </span>
                       ))}
                     </div>

@@ -60,7 +60,7 @@ const App: React.FC = () => {
                     roles && roles.length > 0 ? (
                       <ProtectedRoute roles={roles}>{element}</ProtectedRoute>
                     ) : (
-                      element
+                      element // ← CompositeDashboard hits THIS branch (no roles = no extra guard)
                     )
                   }
                 />
