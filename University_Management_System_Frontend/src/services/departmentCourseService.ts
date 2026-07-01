@@ -211,7 +211,7 @@ const departmentCourseService = {
       PageNumber: pageNumber,
       PageSize: pageSize,
     };
-    
+
     if (departmentId) {
       params.DepartmentId = departmentId;
       return departmentCourseService.getByDepartmentWithFilters(
@@ -221,29 +221,56 @@ const departmentCourseService = {
         pageSize
       );
     }
-    
+
     return departmentCourseService.getAll(params);
   },
 
   /**
    * Get major courses
    */
-  getMajorCourses: (departmentId?: number, pageNumber: number = 1, pageSize: number = 10) => {
-    return departmentCourseService.getByRole('Major', departmentId, pageNumber, pageSize);
+  getMajorCourses: (
+    departmentId?: number,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    return departmentCourseService.getByRole(
+      'Major',
+      departmentId,
+      pageNumber,
+      pageSize
+    );
   },
 
   /**
    * Get minor courses
    */
-  getMinorCourses: (departmentId?: number, pageNumber: number = 1, pageSize: number = 10) => {
-    return departmentCourseService.getByRole('Minor', departmentId, pageNumber, pageSize);
+  getMinorCourses: (
+    departmentId?: number,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    return departmentCourseService.getByRole(
+      'Minor',
+      departmentId,
+      pageNumber,
+      pageSize
+    );
   },
 
   /**
    * Get elective courses
    */
-  getElectiveCourses: (departmentId?: number, pageNumber: number = 1, pageSize: number = 10) => {
-    return departmentCourseService.getByRole('Elective', departmentId, pageNumber, pageSize);
+  getElectiveCourses: (
+    departmentId?: number,
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ) => {
+    return departmentCourseService.getByRole(
+      'Elective',
+      departmentId,
+      pageNumber,
+      pageSize
+    );
   },
 
   /**
@@ -258,7 +285,7 @@ const departmentCourseService = {
       SearchTerm: searchTerm,
       PageSize: maxResults,
     };
-    
+
     if (departmentId) {
       return departmentCourseService.getByDepartmentWithFilters(
         departmentId,
@@ -267,7 +294,7 @@ const departmentCourseService = {
         maxResults
       );
     }
-    
+
     return departmentCourseService.getAll(params);
   },
 
@@ -276,11 +303,14 @@ const departmentCourseService = {
    */
   exists: async (departmentId: number, courseId: number): Promise<boolean> => {
     try {
-      const response = await departmentCourseService.getByDepartment(departmentId, {
-        PageSize: 1,
-      });
+      const response = await departmentCourseService.getByDepartment(
+        departmentId,
+        {
+          PageSize: 1,
+        }
+      );
       const courses = response.data || [];
-      return courses.some((dc) => dc.courseId === courseId);
+      return courses.some(dc => dc.courseId === courseId);
     } catch {
       return false;
     }
@@ -314,15 +344,18 @@ const departmentCourseService = {
    * Get department course statistics
    */
   getStatistics: async (departmentId: number) => {
-    const response = await departmentCourseService.getByDepartment(departmentId, {
-      PageSize: 1000,
-    });
+    const response = await departmentCourseService.getByDepartment(
+      departmentId,
+      {
+        PageSize: 1000,
+      }
+    );
     const courses = response.data || [];
-    
-    const majorCourses = courses.filter((c) => c.role === 'Major');
-    const minorCourses = courses.filter((c) => c.role === 'Minor');
-    const electiveCourses = courses.filter((c) => c.role === 'Elective');
-    
+
+    const majorCourses = courses.filter(c => c.role === 'Major');
+    const minorCourses = courses.filter(c => c.role === 'Minor');
+    const electiveCourses = courses.filter(c => c.role === 'Elective');
+
     return {
       departmentId,
       totalCourses: courses.length,
@@ -330,9 +363,10 @@ const departmentCourseService = {
       minorCourses: minorCourses.length,
       electiveCourses: electiveCourses.length,
       totalCredits: courses.reduce((sum, c) => sum + c.credits, 0),
-      averageCredits: courses.length > 0 
-        ? courses.reduce((sum, c) => sum + c.credits, 0) / courses.length 
-        : 0,
+      averageCredits:
+        courses.length > 0
+          ? courses.reduce((sum, c) => sum + c.credits, 0) / courses.length
+          : 0,
     };
   },
 
@@ -340,9 +374,12 @@ const departmentCourseService = {
    * Get course count by department
    */
   getCourseCount: async (departmentId: number): Promise<number> => {
-    const response = await departmentCourseService.getByDepartment(departmentId, {
-      PageSize: 1,
-    });
+    const response = await departmentCourseService.getByDepartment(
+      departmentId,
+      {
+        PageSize: 1,
+      }
+    );
     return response.pagination?.totalCount ?? response.data?.length ?? 0;
   },
 
@@ -353,10 +390,13 @@ const departmentCourseService = {
     departmentId: number,
     role: 'Major' | 'Minor' | 'Elective'
   ): Promise<number> => {
-    const response = await departmentCourseService.getByDepartment(departmentId, {
-      Role: role,
-      PageSize: 1,
-    });
+    const response = await departmentCourseService.getByDepartment(
+      departmentId,
+      {
+        Role: role,
+        PageSize: 1,
+      }
+    );
     return response.pagination?.totalCount ?? response.data?.length ?? 0;
   },
 };

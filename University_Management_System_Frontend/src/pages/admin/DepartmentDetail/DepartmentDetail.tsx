@@ -15,7 +15,9 @@ import {
   DepartmentCourses,
   DepartmentSpecializations,
 } from './components';
-import departmentService, { Department } from '../../../services/departmentService';
+import departmentService, {
+  Department,
+} from '../../../services/departmentService';
 import specializationService from '../../../services/specializationService';
 import './DepartmentDetail.css';
 
@@ -44,7 +46,7 @@ export default function DepartmentDetail() {
   const [specializations, setSpecializations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [statistics, setStatistics] = useState({
     totalCourses: 0,
     totalSpecializations: 0,
@@ -88,7 +90,6 @@ export default function DepartmentDetail() {
         averageCredits: 0,
         totalCredits: 0,
       });
-
     } catch (err) {
       setError('Failed to load department data. Please try again.');
       console.error('Error loading department:', err);
@@ -129,7 +130,12 @@ export default function DepartmentDetail() {
   };
 
   const handleDeleteCourse = async (id: number) => {
-    if (!window.confirm('Are you sure you want to remove this course from the department?')) return;
+    if (
+      !window.confirm(
+        'Are you sure you want to remove this course from the department?'
+      )
+    )
+      return;
     try {
       // Find the department course to get courseId
       // The delete endpoint needs departmentId and courseId
@@ -166,7 +172,8 @@ export default function DepartmentDetail() {
   };
 
   const handleDeleteSpecialization = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this specialization?')) return;
+    if (!window.confirm('Are you sure you want to delete this specialization?'))
+      return;
     try {
       await specializationService.delete(id);
       await loadData();
@@ -220,7 +227,10 @@ export default function DepartmentDetail() {
     return (
       <div className="dept-detail-error">
         <p>{error || 'Department not found'}</p>
-        <button className="btn-primary" onClick={() => navigate('/admin/departments')}>
+        <button
+          className="btn-primary"
+          onClick={() => navigate('/admin/departments')}
+        >
           Back to Departments
         </button>
       </div>
@@ -262,7 +272,7 @@ export default function DepartmentDetail() {
 
       {/* Tabs */}
       <div className="dept-detail-tabs">
-        {tabs.map((tab) => (
+        {tabs.map(tab => (
           <button
             key={tab.id}
             className={`dept-tab-btn ${activeTab === tab.id ? 'active' : ''}`}

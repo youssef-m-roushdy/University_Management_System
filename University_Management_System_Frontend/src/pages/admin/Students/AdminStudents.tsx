@@ -24,6 +24,7 @@ import studentService, {
   Gender,
 } from '../../../services/studentService';
 import './AdminStudents.css';
+import anounmousProfilePic from '../../../assets/images/anonymous-profile.jpg';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
@@ -66,7 +67,7 @@ const StudentCard: React.FC<{
           {student.profilePicture ? (
             <img src={student.profilePicture} alt={student.name} />
           ) : (
-            <span>{student.name.charAt(0)}</span>
+            <img src={anounmousProfilePic} alt="Anonymous" />
           )}
         </div>
         <div

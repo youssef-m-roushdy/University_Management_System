@@ -78,7 +78,14 @@ const CourseCard: React.FC<{
   onView: (id: number) => void;
   onAddPrerequisite: (id: number) => void;
   onAddDependency: (id: number) => void;
-}> = ({ departmentCourse, onEdit, onDelete, onView, onAddPrerequisite, onAddDependency }) => {
+}> = ({
+  departmentCourse,
+  onEdit,
+  onDelete,
+  onView,
+  onAddPrerequisite,
+  onAddDependency,
+}) => {
   const [showPrerequisites, setShowPrerequisites] = useState(false);
   const [showDependencies, setShowDependencies] = useState(false);
   const [prerequisites, setPrerequisites] = useState<PrerequisiteCourse[]>([]);
@@ -93,7 +100,9 @@ const CourseCard: React.FC<{
     if (!showPrerequisites) return;
     try {
       setLoadingPrereqs(true);
-      const response = await coursePrerequisiteService.getPrerequisites(departmentCourse.courseId);
+      const response = await coursePrerequisiteService.getPrerequisites(
+        departmentCourse.courseId
+      );
       const data = response.data || [];
       setPrerequisites(data);
       setPrereqCount(data.length);
@@ -109,7 +118,9 @@ const CourseCard: React.FC<{
     if (!showDependencies) return;
     try {
       setLoadingDeps(true);
-      const response = await coursePrerequisiteService.getDependencies(departmentCourse.courseId);
+      const response = await coursePrerequisiteService.getDependencies(
+        departmentCourse.courseId
+      );
       const data = response.data || [];
       setDependencies(data);
       setDepCount(data.length);
@@ -149,9 +160,15 @@ const CourseCard: React.FC<{
     <div className="dept-course-card">
       <div className="dept-course-card-header">
         <div className="dept-course-code-wrapper">
-          <span className="dept-course-code">{departmentCourse.courseCode}</span>
-          <span className="dept-course-credits-badge">{departmentCourse.credits} CR</span>
-          <span className={`dept-course-role ${getRoleBadgeClass(departmentCourse.role)}`}>
+          <span className="dept-course-code">
+            {departmentCourse.courseCode}
+          </span>
+          <span className="dept-course-credits-badge">
+            {departmentCourse.credits} CR
+          </span>
+          <span
+            className={`dept-course-role ${getRoleBadgeClass(departmentCourse.role)}`}
+          >
             {departmentCourse.role}
           </span>
         </div>
@@ -176,21 +193,27 @@ const CourseCard: React.FC<{
 
       {/* Prerequisites Section */}
       <div className="dept-course-prerequisites-section">
-        <button 
+        <button
           className="dept-course-prereq-toggle"
           onClick={() => setShowPrerequisites(!showPrerequisites)}
         >
-          {showPrerequisites ? <ChevronUpIcon width={14} height={14} /> : <ChevronDownIcon width={14} height={14} />}
+          {showPrerequisites ? (
+            <ChevronUpIcon width={14} height={14} />
+          ) : (
+            <ChevronDownIcon width={14} height={14} />
+          )}
           {showPrerequisites ? 'Hide' : 'View'} Prerequisites
-          {prereqCount > 0 && <span className="prereq-count">{prereqCount}</span>}
+          {prereqCount > 0 && (
+            <span className="prereq-count">{prereqCount}</span>
+          )}
         </button>
-        
+
         {showPrerequisites && (
           <div className="dept-course-prereq-list">
             {loadingPrereqs ? (
               <div className="prereq-loading">Loading prerequisites...</div>
             ) : prerequisites.length > 0 ? (
-              prerequisites.map((prereq) => (
+              prerequisites.map(prereq => (
                 <div key={prereq.id} className="dept-course-prereq-item">
                   <span className="prereq-code">{prereq.code}</span>
                   <span className="prereq-name">{prereq.name}</span>
@@ -201,9 +224,14 @@ const CourseCard: React.FC<{
                       <XCircleIcon width={12} height={12} />
                     )}
                   </span>
-                  <button 
+                  <button
                     className="prereq-remove-btn"
-                    onClick={() => coursePrerequisiteService.removePrerequisite(departmentCourse.courseId, prereq.id)}
+                    onClick={() =>
+                      coursePrerequisiteService.removePrerequisite(
+                        departmentCourse.courseId,
+                        prereq.id
+                      )
+                    }
                     title="Remove prerequisite"
                   >
                     <XIcon width={12} height={12} />
@@ -213,7 +241,7 @@ const CourseCard: React.FC<{
             ) : (
               <div className="prereq-empty">No prerequisites found</div>
             )}
-            <button 
+            <button
               className="prereq-add-btn"
               onClick={() => onAddPrerequisite(departmentCourse.courseId)}
             >
@@ -226,21 +254,25 @@ const CourseCard: React.FC<{
 
       {/* Dependencies Section */}
       <div className="dept-course-prerequisites-section">
-        <button 
+        <button
           className="dept-course-prereq-toggle"
           onClick={() => setShowDependencies(!showDependencies)}
         >
-          {showDependencies ? <ChevronUpIcon width={14} height={14} /> : <ChevronDownIcon width={14} height={14} />}
+          {showDependencies ? (
+            <ChevronUpIcon width={14} height={14} />
+          ) : (
+            <ChevronDownIcon width={14} height={14} />
+          )}
           {showDependencies ? 'Hide' : 'View'} Dependencies
           {depCount > 0 && <span className="prereq-count">{depCount}</span>}
         </button>
-        
+
         {showDependencies && (
           <div className="dept-course-prereq-list">
             {loadingDeps ? (
               <div className="prereq-loading">Loading dependencies...</div>
             ) : dependencies.length > 0 ? (
-              dependencies.map((dep) => (
+              dependencies.map(dep => (
                 <div key={dep.id} className="dept-course-prereq-item">
                   <span className="prereq-code">{dep.code}</span>
                   <span className="prereq-name">{dep.name}</span>
@@ -251,9 +283,14 @@ const CourseCard: React.FC<{
                       <XCircleIcon width={12} height={12} />
                     )}
                   </span>
-                  <button 
+                  <button
                     className="prereq-remove-btn"
-                    onClick={() => coursePrerequisiteService.removeDependency(departmentCourse.courseId, dep.id)}
+                    onClick={() =>
+                      coursePrerequisiteService.removeDependency(
+                        departmentCourse.courseId,
+                        dep.id
+                      )
+                    }
                     title="Remove dependency"
                   >
                     <XIcon width={12} height={12} />
@@ -263,7 +300,7 @@ const CourseCard: React.FC<{
             ) : (
               <div className="prereq-empty">No dependencies found</div>
             )}
-            <button 
+            <button
               className="prereq-add-btn"
               onClick={() => onAddDependency(departmentCourse.courseId)}
             >
@@ -276,15 +313,24 @@ const CourseCard: React.FC<{
 
       {/* Actions */}
       <div className="dept-course-actions">
-        <button className="dept-course-action-btn view" onClick={() => onView(departmentCourse.id)}>
+        <button
+          className="dept-course-action-btn view"
+          onClick={() => onView(departmentCourse.id)}
+        >
           <EyeIcon width={15} height={15} />
           View
         </button>
-        <button className="dept-course-action-btn edit" onClick={() => onEdit(departmentCourse.id)}>
+        <button
+          className="dept-course-action-btn edit"
+          onClick={() => onEdit(departmentCourse.id)}
+        >
           <EditIcon width={15} height={15} />
           Edit
         </button>
-        <button className="dept-course-action-btn delete" onClick={() => onDelete(departmentCourse.id)}>
+        <button
+          className="dept-course-action-btn delete"
+          onClick={() => onDelete(departmentCourse.id)}
+        >
           <TrashIcon width={15} height={15} />
           Delete
         </button>
@@ -331,12 +377,17 @@ export default function DepartmentCourses({
   onAddPrerequisite,
   onAddDependency,
 }: DepartmentCoursesProps) {
-  const [departmentCourses, setDepartmentCourses] = useState<DepartmentCourse[]>([]);
+  const [allCourses, setAllCourses] = useState<DepartmentCourse[]>([]);
+  const [displayCourses, setDisplayCourses] = useState<DepartmentCourse[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState<'All' | 'Major' | 'Minor' | 'Elective'>('All');
+  const [filterRole, setFilterRole] = useState<
+    'All' | 'Major' | 'Minor' | 'Elective'
+  >('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);
+  const [itemsPerPage] = useState(10);
   const [isLoading, setIsLoading] = useState(loading);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   // ─── Load Department Courses ──────────────────────────────────────────────
 
@@ -344,16 +395,33 @@ export default function DepartmentCourses({
     if (!departmentId) return;
     try {
       setIsLoading(true);
-      const response = await departmentCourseService.getByDepartment(departmentId, {
-        PageSize: 100,
-      });
-      setDepartmentCourses(response.data || []);
+
+      // Fetch all courses with a large page size to get everything
+      const response = await departmentCourseService.getByDepartmentWithFilters(
+        departmentId,
+        {
+          PageSize: 1000, // Get all courses at once
+          PageNumber: 1,
+        },
+        1,
+        1000
+      );
+
+      const data = response.data || [];
+      setAllCourses(data);
+      setDisplayCourses(data);
+      setTotalCount(response.pagination?.totalCount || data.length);
+      setTotalPages(
+        Math.ceil(
+          (response.pagination?.totalCount || data.length) / itemsPerPage
+        )
+      );
     } catch (error) {
       console.error('Error loading department courses:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [departmentId]);
+  }, [departmentId, itemsPerPage]);
 
   useEffect(() => {
     loadDepartmentCourses();
@@ -361,32 +429,34 @@ export default function DepartmentCourses({
 
   // ─── Filtering ─────────────────────────────────────────────────────────────
 
-  const filteredCourses = useMemo(() => {
-    let result = departmentCourses;
+  useEffect(() => {
+    let result = allCourses;
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
-        (c) =>
+        c =>
           c.courseName.toLowerCase().includes(term) ||
           c.courseCode.toLowerCase().includes(term)
       );
     }
 
     if (filterRole !== 'All') {
-      result = result.filter((c) => c.role === filterRole);
+      result = result.filter(c => c.role === filterRole);
     }
 
-    return result;
-  }, [departmentCourses, searchTerm, filterRole]);
+    setDisplayCourses(result);
+    setTotalCount(result.length);
+    setTotalPages(Math.ceil(result.length / itemsPerPage));
+    setCurrentPage(1);
+  }, [allCourses, searchTerm, filterRole, itemsPerPage]);
 
   // ─── Pagination ────────────────────────────────────────────────────────────
 
-  const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
   const paginatedCourses = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
-    return filteredCourses.slice(start, start + itemsPerPage);
-  }, [filteredCourses, currentPage, itemsPerPage]);
+    return displayCourses.slice(start, start + itemsPerPage);
+  }, [displayCourses, currentPage, itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -396,10 +466,10 @@ export default function DepartmentCourses({
   // ─── Statistics ────────────────────────────────────────────────────────────
 
   const stats = {
-    total: departmentCourses.length,
-    major: departmentCourses.filter(c => c.role === 'Major').length,
-    minor: departmentCourses.filter(c => c.role === 'Minor').length,
-    elective: departmentCourses.filter(c => c.role === 'Elective').length,
+    total: allCourses.length,
+    major: allCourses.filter(c => c.role === 'Major').length,
+    minor: allCourses.filter(c => c.role === 'Minor').length,
+    elective: allCourses.filter(c => c.role === 'Elective').length,
   };
 
   // ─── Render ────────────────────────────────────────────────────────────────
@@ -419,7 +489,7 @@ export default function DepartmentCourses({
           </div>
         </div>
         <div className="dept-courses-grid">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map(i => (
             <CourseCardSkeleton key={i} />
           ))}
         </div>
@@ -434,7 +504,7 @@ export default function DepartmentCourses({
         <div className="dept-courses-title">
           <BookIcon width={22} height={22} />
           <h3>Department Courses</h3>
-          <span className="dept-courses-count">{departmentCourses.length} total</span>
+          <span className="dept-courses-count">{allCourses.length} total</span>
         </div>
         <div className="dept-courses-toolbar">
           <div className="search-box">
@@ -443,13 +513,13 @@ export default function DepartmentCourses({
               type="text"
               placeholder="Search courses..."
               value={searchTerm}
-              onChange={(e) => {
+              onChange={e => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
             />
             {searchTerm && (
-              <button 
+              <button
                 className="search-clear"
                 onClick={() => setSearchTerm('')}
               >
@@ -459,9 +529,9 @@ export default function DepartmentCourses({
           </div>
           <div className="filter-group">
             <FilterIcon width={16} height={16} />
-            <select 
+            <select
               value={filterRole}
-              onChange={(e) => {
+              onChange={e => {
                 setFilterRole(e.target.value as any);
                 setCurrentPage(1);
               }}
@@ -503,12 +573,12 @@ export default function DepartmentCourses({
         <div className="stat-divider"></div>
         <div className="stat-item">
           <span className="stat-label">Showing</span>
-          <span className="stat-number">{filteredCourses.length}</span>
+          <span className="stat-number">{displayCourses.length}</span>
         </div>
       </div>
 
       {/* Courses Grid */}
-      {filteredCourses.length === 0 ? (
+      {paginatedCourses.length === 0 ? (
         <div className="dept-courses-empty">
           <BookIcon width={56} height={56} />
           <h4>No courses found</h4>
@@ -521,7 +591,7 @@ export default function DepartmentCourses({
       ) : (
         <>
           <div className="dept-courses-grid">
-            {paginatedCourses.map((deptCourse) => (
+            {paginatedCourses.map(deptCourse => (
               <CourseCard
                 key={deptCourse.id}
                 departmentCourse={deptCourse}
@@ -546,15 +616,17 @@ export default function DepartmentCourses({
                 Previous
               </button>
               <div className="pagination-pages">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    className={`page-btn ${page === currentPage ? 'active' : ''}`}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  page => (
+                    <button
+                      key={page}
+                      className={`page-btn ${page === currentPage ? 'active' : ''}`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
               </div>
               <button
                 className="pagination-btn"

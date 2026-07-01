@@ -1,7 +1,8 @@
-/* src/pages/Login/LoginPage.css
+/* src/pages/auth/Login/LoginPage.css
    Every color here comes from a CSS variable set by ThemeContext
    (src/styles/colors.ts -> applyCssVariables). Nothing is hard-coded,
    so the whole page re-themes instantly when the mode toggles. */
+
 .field__control input:-webkit-autofill,
 .field__control input:-webkit-autofill:hover,
 .field__control input:-webkit-autofill:focus,
@@ -12,6 +13,7 @@
   caret-color: var(--text-primary);
   transition: background-color 5000s ease-in-out 0s;
 }
+
 .login-page {
   min-height: 100vh;
   width: 100%;
@@ -341,17 +343,26 @@
   text-decoration: underline;
 }
 
+/* ---------- Submit button — fixed height prevents jump on loading ---------- */
+
+/* ---------- Submit button — fixed height prevents jump on loading ---------- */
+
 .submit-button {
   margin-top: 0.25rem;
-  padding: 0.85rem;
+  height: 48px;                              /* ← FIXED height, not min-height */
+  padding: 0;                                 /* ← ZERO padding — let flex center the content */
   border: none;
   border-radius: 10px;
   background-color: var(--primary);
   color: #fff;
   font-weight: 600;
   font-size: 0.95rem;
+  line-height: 1;                             /* ← Prevent line-height from adding space */
   cursor: pointer;
   transition: background-color 0.15s ease, transform 0.05s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .submit-button:hover {
@@ -361,6 +372,76 @@
 .submit-button:active {
   transform: scale(0.99);
 }
+
+.submit-button__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  line-height: 1;                             /* ← Same line-height as parent */
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  animation: uniman-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes uniman-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Error banner ---------- */
+
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--error);
+  color: var(--error);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.error-alert__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ---------- Real logo asset ---------- */
+
+.brand__logo {
+  height: 42px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+/* ---------- Disabled states while a request is in flight ---------- */
+
+.submit-button:disabled,
+.oauth-button:disabled,
+.link-button:disabled,
+.field__action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.field__control input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ---------- Divider ---------- */
 
 .divider {
   position: relative;
@@ -386,6 +467,8 @@
 .divider::after {
   right: 0;
 }
+
+/* ---------- OAuth ---------- */
 
 .oauth-row {
   display: grid;
@@ -417,6 +500,8 @@
   width: 18px;
   height: 18px;
 }
+
+/* ---------- Signup hint ---------- */
 
 .signup-hint {
   text-align: center;
@@ -465,67 +550,4 @@
   .field__control {
     transition: none;
   }
-/* Error banner */
-.error-alert {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: 10px;
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid var(--error);
-  color: var(--error);
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
-
-.error-alert__icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-/* Real logo asset (replaces the placeholder icon box) */
-.brand__logo {
-  height: 42px;
-  width: auto;
-  flex-shrink: 0;
-}
-
-/* Submit button loading state */
-.submit-button__content {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-}
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #fff;
-  animation: uniman-spin 0.7s linear infinite;
-}
-
-@keyframes uniman-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Disabled states while a request is in flight */
-.submit-button:disabled,
-.oauth-button:disabled,
-.link-button:disabled,
-.field__action:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.field__control input:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
 }

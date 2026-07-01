@@ -11,40 +11,42 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '../../../components/icons/Icons';
-import departmentService, { Department } from '../../../services/departmentService';
+import departmentService, {
+  Department,
+} from '../../../services/departmentService';
 import './AdminDepartments.css';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // COMPONENTS
 // ──────────────────────────────────────────────────────────────────────────────
 
-const DepartmentCard: React.FC<{ department: Department; onEdit: (id: number) => void; onDelete: (id: number) => void; onView: (id: number) => void }> = ({
-  department,
-  onEdit,
-  onDelete,
-  onView,
-}) => {
+const DepartmentCard: React.FC<{
+  department: Department;
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
+  onView: (id: number) => void;
+}> = ({ department, onEdit, onDelete, onView }) => {
   return (
     <div className="dept-card">
       <div className="dept-card-header">
         <div className="dept-card-code">{department.code}</div>
         <div className="dept-card-actions">
-          <button 
-            className="dept-action-btn view" 
+          <button
+            className="dept-action-btn view"
             onClick={() => onView(department.id)}
             title="View Details"
           >
             <EyeIcon width={16} height={16} />
           </button>
-          <button 
-            className="dept-action-btn edit" 
+          <button
+            className="dept-action-btn edit"
             onClick={() => onEdit(department.id)}
             title="Edit Department"
           >
             <EditIcon width={16} height={16} />
           </button>
-          <button 
-            className="dept-action-btn delete" 
+          <button
+            className="dept-action-btn delete"
             onClick={() => onDelete(department.id)}
             title="Delete Department"
           >
@@ -53,11 +55,11 @@ const DepartmentCard: React.FC<{ department: Department; onEdit: (id: number) =>
         </div>
       </div>
       <h3 className="dept-card-name">{department.name}</h3>
-      <p className="dept-card-description">{department.description || 'No description available'}</p>
+      <p className="dept-card-description">
+        {department.description || 'No description available'}
+      </p>
       <div className="dept-card-footer">
-        <span className="dept-card-meta">
-          ID: #{department.id}
-        </span>
+        <span className="dept-card-meta">ID: #{department.id}</span>
         {department.createdAt && (
           <span className="dept-card-meta">
             Created: {new Date(department.createdAt).toLocaleDateString()}
@@ -97,12 +99,12 @@ const DepartmentModal: React.FC<{
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     const newErrors: { name?: string; code?: string } = {};
     if (!formData.name.trim()) newErrors.name = 'Department name is required';
     if (!formData.code.trim()) newErrors.code = 'Department code is required';
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -116,10 +118,12 @@ const DepartmentModal: React.FC<{
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{isEditing ? 'Edit Department' : 'Create Department'}</h2>
-          <button className="modal-close-btn" onClick={onClose}>×</button>
+          <button className="modal-close-btn" onClick={onClose}>
+            ×
+          </button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -128,7 +132,7 @@ const DepartmentModal: React.FC<{
               id="dept-name"
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Computer Science"
               className={errors.name ? 'error' : ''}
             />
@@ -141,7 +145,9 @@ const DepartmentModal: React.FC<{
               id="dept-code"
               type="text"
               value={formData.code}
-              onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+              onChange={e =>
+                setFormData({ ...formData, code: e.target.value.toUpperCase() })
+              }
               placeholder="e.g., CS"
               className={errors.code ? 'error' : ''}
               maxLength={10}
@@ -154,7 +160,9 @@ const DepartmentModal: React.FC<{
             <textarea
               id="dept-description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Brief description of the department..."
               rows={4}
             />
@@ -184,13 +192,20 @@ const ConfirmDialog: React.FC<{
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content confirm-dialog" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content confirm-dialog"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h2>Delete Department</h2>
-          <button className="modal-close-btn" onClick={onClose}>×</button>
+          <button className="modal-close-btn" onClick={onClose}>
+            ×
+          </button>
         </div>
         <div className="confirm-body">
-          <p>Are you sure you want to delete <strong>"{departmentName}"</strong>?</p>
+          <p>
+            Are you sure you want to delete <strong>"{departmentName}"</strong>?
+          </p>
           <p className="confirm-warning">This action cannot be undone.</p>
         </div>
         <div className="modal-actions">
@@ -215,24 +230,30 @@ export default function Departments() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(9);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   // Search
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredDepartments, setFilteredDepartments] = useState<Department[]>([]);
-  
+  const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
+    []
+  );
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(
+    null
+  );
   const [isEditing, setIsEditing] = useState(false);
-  
+
   // Confirm dialog
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [deletingDepartmentId, setDeletingDepartmentId] = useState<number | null>(null);
+  const [deletingDepartmentId, setDeletingDepartmentId] = useState<
+    number | null
+  >(null);
   const [deletingDepartmentName, setDeletingDepartmentName] = useState('');
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -270,7 +291,7 @@ export default function Departments() {
     } else {
       const term = searchTerm.toLowerCase();
       const filtered = departments.filter(
-        (dept) =>
+        dept =>
           dept.name.toLowerCase().includes(term) ||
           dept.code.toLowerCase().includes(term) ||
           (dept.description && dept.description.toLowerCase().includes(term))
@@ -292,7 +313,11 @@ export default function Departments() {
   // CRUD OPERATIONS
   // ────────────────────────────────────────────────────────────────────────────
 
-  const handleCreate = async (data: { name: string; code: string; description: string }) => {
+  const handleCreate = async (data: {
+    name: string;
+    code: string;
+    description: string;
+  }) => {
     try {
       await departmentService.create(data);
       await loadDepartments();
@@ -302,7 +327,11 @@ export default function Departments() {
     }
   };
 
-  const handleUpdate = async (data: { name: string; code: string; description: string }) => {
+  const handleUpdate = async (data: {
+    name: string;
+    code: string;
+    description: string;
+  }) => {
     if (!editingDepartment) return;
     try {
       await departmentService.update(editingDepartment.id, data);
@@ -335,7 +364,7 @@ export default function Departments() {
   };
 
   const openEditModal = (id: number) => {
-    const dept = departments.find((d) => d.id === id);
+    const dept = departments.find(d => d.id === id);
     if (dept) {
       setEditingDepartment(dept);
       setIsEditing(true);
@@ -344,7 +373,7 @@ export default function Departments() {
   };
 
   const openDeleteConfirm = (id: number) => {
-    const dept = departments.find((d) => d.id === id);
+    const dept = departments.find(d => d.id === id);
     if (dept) {
       setDeletingDepartmentId(id);
       setDeletingDepartmentName(dept.name);
@@ -395,7 +424,7 @@ export default function Departments() {
               type="text"
               placeholder="Search departments..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
           <button className="btn-primary" onClick={openCreateModal}>
@@ -417,7 +446,9 @@ export default function Departments() {
         </div>
         <div className="stat-item">
           <span className="stat-label">Page</span>
-          <span className="stat-value">{currentPage} of {totalPages || 1}</span>
+          <span className="stat-value">
+            {currentPage} of {totalPages || 1}
+          </span>
         </div>
       </div>
 
@@ -430,7 +461,7 @@ export default function Departments() {
       ) : (
         <>
           <div className="departments-grid">
-            {paginatedDepartments.map((department) => (
+            {paginatedDepartments.map(department => (
               <DepartmentCard
                 key={department.id}
                 department={department}
@@ -446,7 +477,7 @@ export default function Departments() {
             <div className="departments-pagination">
               <button
                 className="pagination-btn"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeftIcon width={16} height={16} />
@@ -457,7 +488,7 @@ export default function Departments() {
               </span>
               <button
                 className="pagination-btn"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
                 Next

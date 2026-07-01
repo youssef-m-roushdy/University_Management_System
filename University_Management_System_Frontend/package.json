@@ -1,6 +1,7 @@
 {
-  "name": "aya-uis-frontend",
-  "version": "1.0.0",
+  "name": "university-management-system-frontend",
+  "version": "0.1.0",
+  "proxy": "http://localhost:5282",
   "description": "Frontend application for AYA University Information System",
   "private": true,
   "author": "AYA University Development Team",
@@ -104,6 +105,5 @@
       }
     }
   },
-  "homepage": ".",
-  "proxy": "http://localhost:5282"
+  "homepage": "."
 }

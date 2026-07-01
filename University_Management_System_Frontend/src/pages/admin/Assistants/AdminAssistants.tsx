@@ -21,6 +21,7 @@ import assistantService, {
   Assistant,
 } from '../../../services/assistantService';
 import './AdminAssistants.css';
+import anounmousProfilePic from '../../../assets/images/anonymous-profile.jpg';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // COMPONENTS
@@ -39,7 +40,7 @@ const AssistantCard: React.FC<{
           {assistant.profilePicture ? (
             <img src={assistant.profilePicture} alt={assistant.name} />
           ) : (
-            <span>{assistant.name.charAt(0)}</span>
+            <img src={anounmousProfilePic} alt="Anonymous" />
           )}
         </div>
         <div className="assistant-status-badge">

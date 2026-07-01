@@ -4,8 +4,8 @@ import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { ROUTES, STATUS } from '../../../constants';
-import { getDashboardRoute } from '../../../utils/roleRouting'; // ← Import this
+import { ROUTES, STATUS, UserRole } from '../../../constants'; // ← add UserRole
+import { getInitialDashboardRoute } from '../../../utils/roleRouting'; // ← Changed: use getInitialDashboardRoute
 import {
   MailIcon,
   LockIcon,
@@ -43,7 +43,7 @@ const features = [
 
 export default function Login(): React.ReactElement {
   const { mode, toggleTheme } = useTheme();
-  const { login, status, error, clearError, primaryRole, roles } = useAuth(); // ← Add primaryRole and roles
+  const { login, status, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState<string>('');
@@ -57,9 +57,17 @@ export default function Login(): React.ReactElement {
     e.preventDefault();
     clearError();
     try {
-      await login(email, password);
-      // Use the generic role navigation
-      navigate(getDashboardRoute(primaryRole, roles));
+      // login() returns { user, data } — use the response directly
+      const result = await login(email, password);
+
+      // Read roles from the LOGIN RESPONSE, not from context state.
+      // Context state (primaryRole, roles) still holds the OLD values
+      // because React hasn't re-rendered yet.
+      const userRoles = (result?.roles || []) as UserRole[];
+      const userPrimaryRole = userRoles[0] ?? null;
+
+      const targetRoute = getInitialDashboardRoute(userPrimaryRole, userRoles);
+      navigate(targetRoute);
     } catch (_) {
       // Error is surfaced via the `error` value from AuthContext
     }
@@ -230,14 +238,16 @@ export default function Login(): React.ReactElement {
               className="submit-button"
               disabled={isLoading}
             >
-              {isLoading ? (
-                <span className="submit-button__content">
-                  <span className="spinner" />
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
+              <span className="submit-button__content">
+                {isLoading ? (
+                  <>
+                    <span className="spinner" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </span>
             </button>
           </form>
 

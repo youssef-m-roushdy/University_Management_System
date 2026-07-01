@@ -1,5 +1,5 @@
 import { STORAGE_KEYS, API_ENDPOINTS } from '../constants';
-import { AuthResponse } from '../types';
+import { AuthResponse, AuthData } from '../types';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -7,11 +7,7 @@ import { AuthResponse } from '../types';
 
 interface RequestOptions extends RequestInit {
   isFormData?: boolean;
-}
-
-interface FailedQueueItem {
-  resolve: (value: string) => void;
-  reject: (reason?: any) => void;
+  skipAuth?: boolean; // ← NEW: skip Authorization header for login/refresh
 }
 
 interface ApiError {
@@ -25,13 +21,7 @@ interface ApiError {
 // ──────────────────────────────────────────────────────────────────────────────
 
 class ApiService {
-  private _isRefreshing: boolean = false;
-  private _failedQueue: FailedQueueItem[] = [];
-
-  constructor() {
-    this._isRefreshing = false;
-    this._failedQueue = [];
-  }
+  private _refreshPromise: Promise<AuthData> | null = null;
 
   // ─── Token Management ──────────────────────────────────────────────────────
 
@@ -57,50 +47,59 @@ class ApiService {
 
   // ─── Headers ──────────────────────────────────────────────────────────────
 
-  getHeaders(isFormData: boolean = false): Record<string, string> {
+  /**
+   * Returns true for URLs that should NEVER have an Authorization header.
+   * These are public auth endpoints — sending a stale/invalid token can
+   * cause the server to reject the request or behave unexpectedly.
+   */
+  private isAuthEndpoint(url: string): boolean {
+    const authPrefixes = [
+      API_ENDPOINTS.AUTH.LOGIN,
+      API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
+      API_ENDPOINTS.AUTH.RESET_PASSWORD,
+      API_ENDPOINTS.AUTH.REFRESH_TOKEN,
+      API_ENDPOINTS.AUTH.VERIFY_EMAIL,
+      API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
+    ];
+    return authPrefixes.some(
+      prefix => url.startsWith(prefix) || url === prefix
+    );
+  }
+
+  getHeaders(
+    isFormData: boolean = false,
+    skipAuth: boolean = false
+  ): Record<string, string> {
     const headers: Record<string, string> = {};
 
     if (!isFormData) {
       headers['Content-Type'] = 'application/json';
     }
 
-    const token = this.getToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (!skipAuth) {
+      const token = this.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
     }
 
     return headers;
   }
 
-  // ─── Queue Management ─────────────────────────────────────────────────────
+  // ─── Refresh Token (single source of truth) ───────────────────────────────
 
-  private _enqueue(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this._failedQueue.push({ resolve, reject });
-    });
+  async refreshAccessToken(): Promise<AuthData> {
+    if (!this._refreshPromise) {
+      this._refreshPromise = this._doRefresh().finally(() => {
+        this._refreshPromise = null;
+      });
+    }
+    return this._refreshPromise;
   }
 
-  private _flushQueue(
-    error?: ApiError | null,
-    newToken: string | null = null
-  ): void {
-    this._failedQueue.forEach(({ resolve, reject }) => {
-      if (error) {
-        reject(error);
-      } else if (newToken) {
-        resolve(newToken);
-      }
-    });
-    this._failedQueue = [];
-  }
-
-  // ─── Refresh Token ────────────────────────────────────────────────────────
-
-  private async _tryRefresh(): Promise<string> {
+  private async _doRefresh(): Promise<AuthData> {
+    const accessToken = this.getToken();
     const refreshToken = this.getRefreshToken();
-    console.log('🔄 Attempting refresh...');
-    console.log('Refresh token exists:', !!refreshToken);
-    console.log('Refresh token value:', refreshToken?.substring(0, 20) + '...');
 
     if (!refreshToken) {
       throw new Error('No refresh token.');
@@ -109,25 +108,33 @@ class ApiService {
     const res = await fetch(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      // Refresh endpoint intentionally does NOT send Authorization header
+      body: JSON.stringify({ accessToken, refreshToken }),
     });
-
-    console.log('Refresh response status:', res.status);
 
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
-      console.error('Refresh failed response:', errBody);
+      console.error('Refresh failed:', res.status, errBody);
       throw new Error('Refresh failed.');
     }
 
-    const data = (await res.json()) as AuthResponse;
-    console.log(
-      '✅ Refresh success, new token:',
-      data.data?.accessToken?.substring(0, 20) + '...'
-    );
+    const body = (await res.json()) as AuthResponse;
 
-    this.setTokens(data.data.accessToken, data.data.refreshToken);
-    return data.data.accessToken;
+    if (!body?.success || !body?.data) {
+      throw new Error('Refresh failed: malformed response.');
+    }
+
+    const {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      accessTokenExpiry,
+    } = body.data;
+
+    this.setTokens(newAccessToken, newRefreshToken);
+    localStorage.setItem(STORAGE_KEYS.TOKEN_EXPIRY, accessTokenExpiry);
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(body.data));
+
+    return body.data;
   }
 
   // ─── Main Request Method ─────────────────────────────────────────────────
@@ -136,10 +143,13 @@ class ApiService {
     url: string,
     options: RequestOptions = {}
   ): Promise<T> {
-    // Build and fire the request
+    // Auto-detect auth endpoints — never send stale tokens to login/refresh
+    const skipAuth = options.skipAuth || this.isAuthEndpoint(url);
+
     const makeRequest = (token: string | null): Promise<Response> => {
-      const headers = this.getHeaders(options.isFormData);
-      if (token) {
+      const headers = this.getHeaders(options.isFormData, skipAuth);
+      // Only set Authorization if we're NOT skipping auth AND we have a token
+      if (!skipAuth && token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
@@ -151,37 +161,18 @@ class ApiService {
 
     let res = await makeRequest(this.getToken());
 
-    // ── 401 handling — try refresh then retry ────────────────────────────
-    if (res.status === 401) {
-      // If a refresh is already running, wait for it then retry
-      if (this._isRefreshing) {
-        try {
-          const newToken = await this._enqueue();
-          res = await makeRequest(newToken);
-        } catch {
-          this.clearTokens();
-          window.location.href = '/login';
-          throw { status: 401, errorMessage: 'Session expired.' } as ApiError;
-        }
-      } else {
-        // This request triggers the refresh
-        this._isRefreshing = true;
-
-        try {
-          const newToken = await this._tryRefresh();
-          this._flushQueue(null, newToken); // unblock queued requests
-          res = await makeRequest(newToken); // retry this request
-        } catch (err) {
-          this._flushQueue(err as ApiError);
-          this.clearTokens();
-          window.location.href = '/login';
-          throw {
-            status: 401,
-            errorMessage: 'Session expired. Please log in again.',
-          } as ApiError;
-        } finally {
-          this._isRefreshing = false;
-        }
+    // ── 401 handling — refresh once (shared across concurrent 401s), retry ──
+    if (res.status === 401 && !skipAuth) {
+      try {
+        const authData = await this.refreshAccessToken();
+        res = await makeRequest(authData.accessToken);
+      } catch {
+        this.clearTokens();
+        window.location.href = '/login';
+        throw {
+          status: 401,
+          errorMessage: 'Session expired. Please log in again.',
+        } as ApiError;
       }
     }
 
@@ -236,24 +227,38 @@ class ApiService {
   // ─── Form Data Methods ──────────────────────────────────────────────────
 
   postForm<T = any>(url: string, formData: FormData): Promise<T> {
+    const skipAuth = this.isAuthEndpoint(url);
+    const headers: Record<string, string> = {};
+    if (!skipAuth) {
+      const token = this.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
     return this.request<T>(url, {
       method: 'POST',
       body: formData,
       isFormData: true,
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      } as Record<string, string>,
+      headers,
     });
   }
 
   patchForm<T = any>(url: string, formData: FormData): Promise<T> {
+    const skipAuth = this.isAuthEndpoint(url);
+    const headers: Record<string, string> = {};
+    if (!skipAuth) {
+      const token = this.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
     return this.request<T>(url, {
       method: 'PATCH',
       body: formData,
       isFormData: true,
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      } as Record<string, string>,
+      headers,
     });
   }
 }

@@ -329,14 +329,14 @@ const courseService = {
   getStatistics: async () => {
     const response = await courseService.getAllWithPagination({}, 1, 1000);
     const courses = response.data || [];
-    
-    const openedCourses = courses.filter((c) => c.status === 'Opened');
-    const closedCourses = courses.filter((c) => c.status === 'Closed');
-    const withPrerequisites = courses.filter((c) => c.prerequisitesCount > 0);
-    const withDependencies = courses.filter((c) => c.dependenciesCount > 0);
-    
+
+    const openedCourses = courses.filter(c => c.status === 'Opened');
+    const closedCourses = courses.filter(c => c.status === 'Closed');
+    const withPrerequisites = courses.filter(c => c.prerequisitesCount > 0);
+    const withDependencies = courses.filter(c => c.dependenciesCount > 0);
+
     const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
-    
+
     return {
       totalCourses: courses.length,
       openedCourses: openedCourses.length,
@@ -385,10 +385,7 @@ const courseService = {
   /**
    * Get courses with prerequisites
    */
-  getWithPrerequisites: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getWithPrerequisites: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: CourseFilterParams = {
       HasPrerequisites: true,
       PageNumber: pageNumber,
@@ -400,10 +397,7 @@ const courseService = {
   /**
    * Get courses without prerequisites
    */
-  getWithoutPrerequisites: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getWithoutPrerequisites: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: CourseFilterParams = {
       HasPrerequisites: false,
       PageNumber: pageNumber,

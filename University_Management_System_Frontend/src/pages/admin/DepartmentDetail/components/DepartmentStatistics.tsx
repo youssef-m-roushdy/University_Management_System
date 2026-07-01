@@ -1,9 +1,9 @@
 // pages/admin/DepartmentDetail/components/DepartmentStatistics.tsx
 
 import React from 'react';
-import { 
-  BookIcon, 
-  UsersIcon, 
+import {
+  BookIcon,
+  UsersIcon,
   GraduationCapIcon,
   CalendarIcon,
   TrendingUpIcon,
@@ -143,12 +143,12 @@ export default function DepartmentStatistics({
 
       {/* Stats Grid */}
       <div className="dept-statistics-grid">
-        {stats.map((stat) => (
+        {stats.map(stat => (
           <div key={stat.id} className="dept-stat-card">
             <div className="dept-stat-card-left">
-              <div 
+              <div
                 className="dept-stat-icon"
-                style={{ 
+                style={{
                   backgroundColor: stat.bgColor,
                   color: stat.color,
                 }}
@@ -161,7 +161,9 @@ export default function DepartmentStatistics({
               </div>
             </div>
             {stat.trend && (
-              <div className={`dept-stat-trend ${stat.trendUp ? 'up' : 'down'}`}>
+              <div
+                className={`dept-stat-trend ${stat.trendUp ? 'up' : 'down'}`}
+              >
                 <span>{stat.trend}</span>
               </div>
             )}
@@ -171,28 +173,28 @@ export default function DepartmentStatistics({
 
       {/* Quick Actions */}
       <div className="dept-stat-actions">
-        <button 
+        <button
           className="dept-stat-action-btn primary"
           onClick={() => onActionClick?.('courses')}
         >
           <BookIcon width={16} height={16} />
           Manage Courses
         </button>
-        <button 
+        <button
           className="dept-stat-action-btn secondary"
           onClick={() => onActionClick?.('specializations')}
         >
           <GraduationCapIcon width={16} height={16} />
           Manage Specializations
         </button>
-        <button 
+        <button
           className="dept-stat-action-btn secondary"
           onClick={() => onActionClick?.('students')}
         >
           <UsersIcon width={16} height={16} />
           View Students
         </button>
-        <button 
+        <button
           className="dept-stat-action-btn secondary"
           onClick={() => onActionClick?.('instructors')}
         >
@@ -222,7 +224,7 @@ function DepartmentStatisticsSkeleton() {
         </div>
       </div>
       <div className="skeleton-grid">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+        {[1, 2, 3, 4, 5, 6].map(i => (
           <div key={i} className="skeleton-card">
             <div className="skeleton-card-left">
               <div className="skeleton-icon"></div>
@@ -236,7 +238,7 @@ function DepartmentStatisticsSkeleton() {
         ))}
       </div>
       <div className="skeleton-actions">
-        {[1, 2, 3, 4].map((i) => (
+        {[1, 2, 3, 4].map(i => (
           <div key={i} className="skeleton-action-btn"></div>
         ))}
       </div>

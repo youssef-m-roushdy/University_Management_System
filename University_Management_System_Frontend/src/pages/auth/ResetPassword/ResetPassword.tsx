@@ -12,7 +12,6 @@ import {
 } from 'react-icons/md';
 import apiService from '../../../services/apiService';
 import { API_ENDPOINTS, ROUTES } from '../../../constants';
-import logo from '../../../assets/images/logo.svg';
 import './ResetPassword.css';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -197,9 +196,7 @@ export default function ResetPassword(): React.ReactElement {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo-wrapper">
-          <img src={logo} alt="AYA Academy" className="auth-logo" />
-        </div>
+        <div className="auth-logo-wrapper"></div>
 
         {success ? (
           <div className="auth-success">

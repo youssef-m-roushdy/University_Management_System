@@ -19,6 +19,7 @@ import {
 } from '../../../components/icons/Icons';
 import adminService, { Admin } from '../../../services/adminService';
 import './AdminAdmins.css';
+import anounmousProfilePic from '../../../assets/images/anonymous-profile.jpg';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // COMPONENTS
@@ -37,7 +38,7 @@ const AdminCard: React.FC<{
           {admin.profilePicture ? (
             <img src={admin.profilePicture} alt={admin.name} />
           ) : (
-            <span>{admin.name.charAt(0)}</span>
+            <img src={anounmousProfilePic} alt="Anonymous" />
           )}
         </div>
         <div className="admin-status-badge">

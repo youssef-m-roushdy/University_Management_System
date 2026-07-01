@@ -1,5 +1,3 @@
-// services/authService.ts
-
 import apiService from './apiService';
 import { API_ENDPOINTS, STORAGE_KEYS, UserRole } from '../constants';
 import {
@@ -13,7 +11,6 @@ import {
   LoginResponse,
 } from '../types';
 
-// Helper to convert AuthData to User
 const convertAuthDataToUser = (authData: AuthData): User => {
   return {
     id: authData.userId,
@@ -31,10 +28,6 @@ const convertAuthDataToUser = (authData: AuthData): User => {
 };
 
 const authService = {
-  // ──────────────────────────────────────────────────────────────────────────────
-  // AUTHENTICATION
-  // ──────────────────────────────────────────────────────────────────────────────
-
   async login(
     email: string,
     password: string
@@ -52,7 +45,6 @@ const authService = {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data));
 
       const user = convertAuthDataToUser(response.data);
-
       return { user, data: response.data };
     }
 
@@ -73,35 +65,13 @@ const authService = {
     this.clearAuthData();
   },
 
+  // FIXED: no longer duplicates the refresh logic. Delegates to apiService,
+  // which owns the single shared _refreshPromise — so this shares the same
+  // in-flight request as the 401 interceptor instead of racing it.
   async refreshToken(): Promise<{ user: User; data: AuthData }> {
-    const accessToken = apiService.getToken();
-    const refreshToken = apiService.getRefreshToken();
-
-    if (!accessToken || !refreshToken) {
-      throw new Error('No tokens available for refresh');
-    }
-
-    const response = await apiService.post<AuthResponse>(
-      API_ENDPOINTS.AUTH.REFRESH_TOKEN,
-      { accessToken, refreshToken }
-    );
-
-    if (response?.success && response?.data) {
-      const {
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-        accessTokenExpiry,
-      } = response.data;
-
-      apiService.setTokens(newAccessToken, newRefreshToken);
-      localStorage.setItem(STORAGE_KEYS.TOKEN_EXPIRY, accessTokenExpiry);
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data));
-
-      const user = convertAuthDataToUser(response.data);
-      return { user, data: response.data };
-    }
-
-    throw new Error('Token refresh failed');
+    const authData = await apiService.refreshAccessToken();
+    const user = convertAuthDataToUser(authData);
+    return { user, data: authData };
   },
 
   async revokeToken(refreshToken: string): Promise<ApiResponse<string>> {
@@ -111,10 +81,6 @@ const authService = {
   async revokeAllTokens(): Promise<ApiResponse<string>> {
     return apiService.post(API_ENDPOINTS.AUTH.REVOKE_ALL_TOKENS);
   },
-
-  // ──────────────────────────────────────────────────────────────────────────────
-  // PASSWORD MANAGEMENT
-  // ──────────────────────────────────────────────────────────────────────────────
 
   async forgotPassword(email: string): Promise<ApiResponse<string>> {
     return apiService.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
@@ -132,10 +98,6 @@ const authService = {
     return apiService.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, data);
   },
 
-  // ──────────────────────────────────────────────────────────────────────────────
-  // EMAIL VERIFICATION
-  // ──────────────────────────────────────────────────────────────────────────────
-
   async verifyEmail(data: VerifyEmailRequest): Promise<ApiResponse<string>> {
     return apiService.post(API_ENDPOINTS.AUTH.VERIFY_EMAIL, data);
   },
@@ -144,10 +106,8 @@ const authService = {
     return apiService.post(API_ENDPOINTS.AUTH.RESEND_VERIFICATION, { email });
   },
 
-  // ──────────────────────────────────────────────────────────────────────────────
-  // HELPERS
-  // ──────────────────────────────────────────────────────────────────────────────
-
+  // apiService.clearTokens() already clears ACCESS_TOKEN, REFRESH_TOKEN,
+  // USER and TOKEN_EXPIRY — no need to duplicate that here.
   clearAuthData(): void {
     apiService.clearTokens();
   },
@@ -155,10 +115,8 @@ const authService = {
   getCurrentUser(): User | null {
     const userData = localStorage.getItem(STORAGE_KEYS.USER);
     if (!userData) return null;
-
     try {
-      const authData = JSON.parse(userData) as AuthData;
-      return convertAuthDataToUser(authData);
+      return convertAuthDataToUser(JSON.parse(userData) as AuthData);
     } catch {
       return null;
     }
@@ -167,7 +125,6 @@ const authService = {
   getCurrentAuthData(): AuthData | null {
     const userData = localStorage.getItem(STORAGE_KEYS.USER);
     if (!userData) return null;
-
     try {
       return JSON.parse(userData) as AuthData;
     } catch {
@@ -175,31 +132,31 @@ const authService = {
     }
   },
 
+  // FIXED: pure read, no destructive side effect. An expired access token
+  // with a valid refresh token still counts as "authenticated" — that's
+  // the whole point of having a refresh token.
   isAuthenticated(): boolean {
     const token = apiService.getToken();
+    const refreshToken = apiService.getRefreshToken();
+    return !!token || !!refreshToken;
+  },
+
+  isAccessTokenExpired(): boolean {
     const expiry = localStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY);
-
-    if (!token) return false;
-
-    if (expiry) {
-      const expiryDate = new Date(expiry);
-      if (expiryDate <= new Date()) {
-        this.clearAuthData();
-        return false;
-      }
+    if (!expiry) return true;
+    try {
+      return new Date(expiry) <= new Date();
+    } catch {
+      return true;
     }
-
-    return true;
   },
 
   getUserRoles(): UserRole[] {
-    const user = this.getCurrentUser();
-    return (user?.roles || []) as UserRole[];
+    return (this.getCurrentUser()?.roles || []) as UserRole[];
   },
 
   hasRole(role: UserRole): boolean {
-    const roles = this.getUserRoles();
-    return roles.includes(role);
+    return this.getUserRoles().includes(role);
   },
 
   hasAnyRole(roles: UserRole[]): boolean {
@@ -210,17 +167,10 @@ const authService = {
   getUserProfile(): any {
     const user = this.getCurrentUser();
     if (!user) return null;
-
-    if (user.roles.includes('Admin')) {
-      return user.adminProfile;
-    } else if (user.roles.includes('Instructor')) {
-      return user.instructorProfile;
-    } else if (user.roles.includes('Assistant')) {
-      return user.assistantProfile;
-    } else if (user.roles.includes('Student')) {
-      return user.studentProfile;
-    }
-
+    if (user.roles.includes('Admin')) return user.adminProfile;
+    if (user.roles.includes('Instructor')) return user.instructorProfile;
+    if (user.roles.includes('Assistant')) return user.assistantProfile;
+    if (user.roles.includes('Student')) return user.studentProfile;
     return null;
   },
 
@@ -233,21 +183,12 @@ const authService = {
   },
 
   isTokenExpired(): boolean {
-    const expiry = localStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY);
-    if (!expiry) return true;
-
-    try {
-      const expiryDate = new Date(expiry);
-      return expiryDate <= new Date();
-    } catch {
-      return true;
-    }
+    return this.isAccessTokenExpired();
   },
 
   getTokenExpiry(): Date | null {
     const expiry = localStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY);
     if (!expiry) return null;
-
     try {
       return new Date(expiry);
     } catch {
@@ -258,18 +199,14 @@ const authService = {
   getTokenExpirySeconds(): number {
     const expiry = this.getTokenExpiry();
     if (!expiry) return 0;
-
-    const now = new Date();
-    const diff = expiry.getTime() - now.getTime();
+    const diff = expiry.getTime() - new Date().getTime();
     return Math.max(0, Math.floor(diff / 1000));
   },
 
   updateUserData(userData: User): void {
-    // Get current auth data
     const authData = this.getCurrentAuthData();
     if (!authData) return;
 
-    // Update only the fields that exist in both User and AuthData
     const updatedAuthData: AuthData = {
       ...authData,
       name: userData.name || authData.name,

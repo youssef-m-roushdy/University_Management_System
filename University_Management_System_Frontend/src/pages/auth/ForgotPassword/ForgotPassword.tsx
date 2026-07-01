@@ -45,8 +45,12 @@ export default function ForgotPassword() {
           type="button"
           className="theme-toggle"
           onClick={toggleTheme}
-          aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label={
+            mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+          }
+          title={
+            mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+          }
         >
           {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
@@ -74,7 +78,8 @@ export default function ForgotPassword() {
               Reset <span className="brand-heading__accent">Password</span>
             </h1>
             <p className="brand-subtext">
-              Don't worry! Enter your email address and we'll send you a link to reset your password.
+              Don't worry! Enter your email address and we'll send you a link to
+              reset your password.
             </p>
           </div>
 
@@ -140,7 +145,10 @@ export default function ForgotPassword() {
 
               <p className="back-to-login">
                 Remember your password?{' '}
-                <Link to={ROUTES.LOGIN} className="link-button link-button--inline">
+                <Link
+                  to={ROUTES.LOGIN}
+                  className="link-button link-button--inline"
+                >
                   Sign In
                 </Link>
               </p>
@@ -148,7 +156,14 @@ export default function ForgotPassword() {
           ) : (
             <div className="success-container">
               <div className="success-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>

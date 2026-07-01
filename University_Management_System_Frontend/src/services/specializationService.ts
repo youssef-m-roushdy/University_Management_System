@@ -219,10 +219,7 @@ const specializationService = {
   /**
    * Get specializations with students
    */
-  getWithStudents: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getWithStudents: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: SpecializationFilterParams = {
       HasStudents: true,
       PageNumber: pageNumber,
@@ -234,10 +231,7 @@ const specializationService = {
   /**
    * Get specializations with courses
    */
-  getWithCourses: (
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getWithCourses: (pageNumber: number = 1, pageSize: number = 10) => {
     const params: SpecializationFilterParams = {
       HasCourses: true,
       PageNumber: pageNumber,
@@ -249,11 +243,7 @@ const specializationService = {
   /**
    * Get specializations by name
    */
-  getByName: (
-    name: string,
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ) => {
+  getByName: (name: string, pageNumber: number = 1, pageSize: number = 10) => {
     const params: SpecializationFilterParams = {
       Name: name,
       PageNumber: pageNumber,
@@ -274,7 +264,7 @@ const specializationService = {
       SearchTerm: searchTerm,
       PageSize: maxResults,
     };
-    
+
     if (departmentId) {
       return specializationService.getByDepartment(departmentId, params);
     }
@@ -300,20 +290,23 @@ const specializationService = {
     name: string,
     departmentId?: number
   ): Promise<Specialization | null> => {
-    let params: SpecializationFilterParams = {
+    const params: SpecializationFilterParams = {
       Name: name,
       PageSize: 1,
     };
-    
+
     let response;
     if (departmentId) {
-      response = await specializationService.getByDepartment(departmentId, params);
+      response = await specializationService.getByDepartment(
+        departmentId,
+        params
+      );
     } else {
       response = await specializationService.getAllWithFilters(params);
     }
-    
+
     const specializations = response.data || [];
-    return specializations.find((s) => s.name === name) || null;
+    return specializations.find(s => s.name === name) || null;
   },
 
   /**
@@ -332,23 +325,35 @@ const specializationService = {
    * Get specialization statistics
    */
   getStatistics: async () => {
-    const response = await specializationService.getAllWithPagination({}, 1, 1000);
+    const response = await specializationService.getAllWithPagination(
+      {},
+      1,
+      1000
+    );
     const specializations = response.data || [];
-    
+
     const totalSpecializations = specializations.length;
-    const withStudents = specializations.filter((s) => s.studentCount > 0).length;
-    const withCourses = specializations.filter((s) => s.courseCount > 0).length;
-    const totalStudents = specializations.reduce((sum, s) => sum + s.studentCount, 0);
-    const totalCourses = specializations.reduce((sum, s) => sum + s.courseCount, 0);
-    
+    const withStudents = specializations.filter(s => s.studentCount > 0).length;
+    const withCourses = specializations.filter(s => s.courseCount > 0).length;
+    const totalStudents = specializations.reduce(
+      (sum, s) => sum + s.studentCount,
+      0
+    );
+    const totalCourses = specializations.reduce(
+      (sum, s) => sum + s.courseCount,
+      0
+    );
+
     return {
       totalSpecializations,
       withStudents,
       withCourses,
       totalStudents,
       totalCourses,
-      averageStudentsPerSpecialization: totalSpecializations > 0 ? totalStudents / totalSpecializations : 0,
-      averageCoursesPerSpecialization: totalSpecializations > 0 ? totalCourses / totalSpecializations : 0,
+      averageStudentsPerSpecialization:
+        totalSpecializations > 0 ? totalStudents / totalSpecializations : 0,
+      averageCoursesPerSpecialization:
+        totalSpecializations > 0 ? totalCourses / totalSpecializations : 0,
     };
   },
 
@@ -360,17 +365,20 @@ const specializationService = {
       PageSize: 1000,
     });
     const specializations = response.data || [];
-    
+
     return {
       departmentId,
       totalSpecializations: specializations.length,
-      specializations: specializations.map((s) => ({
+      specializations: specializations.map(s => ({
         id: s.id,
         name: s.name,
         studentCount: s.studentCount,
         courseCount: s.courseCount,
       })),
-      totalStudents: specializations.reduce((sum, s) => sum + s.studentCount, 0),
+      totalStudents: specializations.reduce(
+        (sum, s) => sum + s.studentCount,
+        0
+      ),
       totalCourses: specializations.reduce((sum, s) => sum + s.courseCount, 0),
     };
   },

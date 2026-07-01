@@ -160,7 +160,7 @@ const departmentService = {
   getStatistics: async () => {
     const response = await departmentService.getAll();
     const departments = response.data || [];
-    
+
     return {
       totalDepartments: departments.length,
       departments: departments.map((dept: Department) => ({

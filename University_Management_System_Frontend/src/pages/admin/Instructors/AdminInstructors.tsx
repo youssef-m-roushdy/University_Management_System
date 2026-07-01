@@ -21,6 +21,7 @@ import instructorService, {
   Instructor,
 } from '../../../services/instructorService';
 import './AdminInstructors.css';
+import anounmousProfilePic from '../../../assets/images/anonymous-profile.jpg';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // COMPONENTS
@@ -39,7 +40,7 @@ const InstructorCard: React.FC<{
           {instructor.profilePicture ? (
             <img src={instructor.profilePicture} alt={instructor.name} />
           ) : (
-            <span>{instructor.name.charAt(0)}</span>
+            <img src={anounmousProfilePic} alt="Anonymous" />
           )}
         </div>
         <div className="instructor-status-badge">

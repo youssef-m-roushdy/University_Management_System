@@ -19,6 +19,7 @@ import {
 } from '../../../components/icons/Icons';
 import userService, { User } from '../../../services/userService';
 import './AdminUsers.css';
+import anounmousProfilePic from '../../../assets/images/anonymous-profile.jpg';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // COMPONENTS
@@ -37,7 +38,7 @@ const UserCard: React.FC<{
           {user.profilePicture ? (
             <img src={user.profilePicture} alt={user.name} />
           ) : (
-            <span>{user.name.charAt(0)}</span>
+            <img src={anounmousProfilePic} alt="Anonymous" />
           )}
         </div>
         <div className="user-status-badge">

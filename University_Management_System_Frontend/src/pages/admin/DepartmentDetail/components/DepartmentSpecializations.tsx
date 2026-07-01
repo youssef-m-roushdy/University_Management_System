@@ -70,22 +70,22 @@ const SpecializationCard: React.FC<{
           <span>{getInitials(specialization.name)}</span>
         </div>
         <div className="dept-specialization-actions">
-          <button 
-            className="dept-specialization-action-btn view" 
+          <button
+            className="dept-specialization-action-btn view"
             onClick={() => onView(specialization.id)}
             title="View Specialization"
           >
             <EyeIcon width={15} height={15} />
           </button>
-          <button 
-            className="dept-specialization-action-btn edit" 
+          <button
+            className="dept-specialization-action-btn edit"
             onClick={() => onEdit(specialization.id)}
             title="Edit Specialization"
           >
             <EditIcon width={15} height={15} />
           </button>
-          <button 
-            className="dept-specialization-action-btn delete" 
+          <button
+            className="dept-specialization-action-btn delete"
             onClick={() => onDelete(specialization.id)}
             title="Delete Specialization"
           >
@@ -127,9 +127,11 @@ const SpecializationCard: React.FC<{
 
       <div className="dept-specialization-progress">
         <div className="progress-bar">
-          <div 
-            className="progress-fill" 
-            style={{ width: `${Math.min((specialization.courseCount / 10) * 100, 100)}%` }}
+          <div
+            className="progress-fill"
+            style={{
+              width: `${Math.min((specialization.courseCount / 10) * 100, 100)}%`,
+            }}
           ></div>
         </div>
         <span className="progress-label">
@@ -191,7 +193,7 @@ export default function DepartmentSpecializations({
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
-        (s) =>
+        s =>
           s.name.toLowerCase().includes(term) ||
           (s.description && s.description.toLowerCase().includes(term))
       );
@@ -215,11 +217,18 @@ export default function DepartmentSpecializations({
 
   // ─── Statistics ────────────────────────────────────────────────────────────
 
-  const totalStudents = specializations.reduce((sum, s) => sum + s.studentCount, 0);
-  const totalCourses = specializations.reduce((sum, s) => sum + s.courseCount, 0);
-  const avgStudents = specializations.length > 0 
-    ? Math.round(totalStudents / specializations.length) 
-    : 0;
+  const totalStudents = specializations.reduce(
+    (sum, s) => sum + s.studentCount,
+    0
+  );
+  const totalCourses = specializations.reduce(
+    (sum, s) => sum + s.courseCount,
+    0
+  );
+  const avgStudents =
+    specializations.length > 0
+      ? Math.round(totalStudents / specializations.length)
+      : 0;
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -238,7 +247,7 @@ export default function DepartmentSpecializations({
           </div>
         </div>
         <div className="dept-specializations-grid">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map(i => (
             <SpecializationCardSkeleton key={i} />
           ))}
         </div>
@@ -264,13 +273,13 @@ export default function DepartmentSpecializations({
               type="text"
               placeholder="Search specializations..."
               value={searchTerm}
-              onChange={(e) => {
+              onChange={e => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
             />
             {searchTerm && (
-              <button 
+              <button
                 className="search-clear"
                 onClick={() => setSearchTerm('')}
               >
@@ -327,7 +336,7 @@ export default function DepartmentSpecializations({
       ) : (
         <>
           <div className="dept-specializations-grid">
-            {paginatedSpecializations.map((specialization) => (
+            {paginatedSpecializations.map(specialization => (
               <SpecializationCard
                 key={specialization.id}
                 specialization={specialization}
@@ -350,15 +359,17 @@ export default function DepartmentSpecializations({
                 Previous
               </button>
               <div className="pagination-pages">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    className={`page-btn ${page === currentPage ? 'active' : ''}`}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  page => (
+                    <button
+                      key={page}
+                      className={`page-btn ${page === currentPage ? 'active' : ''}`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
               </div>
               <button
                 className="pagination-btn"
