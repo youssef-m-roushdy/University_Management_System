@@ -11,6 +11,7 @@ import AdminRoles from '../pages/admin/Roles/AdminRoles';
 import AdminStudents from '../pages/admin/Students/AdminStudents';
 import AdminAssistants from '../pages/admin/Assistants/AdminAssistants';
 import AdminInstructors from '../pages/admin/Instructors/AdminInstructors';
+import DepartmentDetail from '../pages/admin/DepartmentDetail/DepartmentDetail';
 
 export const adminRoutes: AppRouteConfig[] = [
   {
@@ -21,6 +22,11 @@ export const adminRoutes: AppRouteConfig[] = [
   {
     path: ROUTES.ADMIN.DEPARTMENTS,
     element: <AdminDepartments />,
+    roles: [USER_ROLES.ADMIN],
+  },
+  {
+    path: ROUTES.ADMIN.DEPARTMENTS + '/:departmentId',
+    element: <DepartmentDetail />,
     roles: [USER_ROLES.ADMIN],
   },
   {

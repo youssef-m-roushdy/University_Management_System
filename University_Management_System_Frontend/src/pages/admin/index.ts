@@ -1,9 +1,10 @@
 export { default as AdminDashboard } from './Dashboard/AdminDashboard';
 export { default as AdminDepartments } from './Departments/AdminDepartments';
-export { default as AdminCourses } from './Admins/Admins';
+export { default as Admins } from './Admins/Admins';
 export { default as AdminUsers } from './Users/AdminUsers';
 export { default as AdminStudyYears } from './StudyYears/AdminStudyYears';
 export { default as AdminRoles } from './Roles/AdminRoles';
 export { default as AdminStudents } from './Students/AdminStudents';
 export { default as AdminAssistants } from './Assistants/AdminAssistants';
 export { default as AdminInstructors } from './Instructors/AdminInstructors';
+export { default as DepartmentDetail } from './DepartmentDetail/DepartmentDetail';

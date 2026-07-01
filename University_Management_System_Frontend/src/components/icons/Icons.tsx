@@ -347,3 +347,81 @@ export const XCircleIcon: React.FC<IconProps> = props => (
     <line x1="9" y1="9" x2="15" y2="15" />
   </svg>
 );
+
+// ─── Additional Icons for Courses Page ──────────────────────────────────────
+
+export const FilterIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <polygon points="22 3 2 3 10 13 10 21 14 18 14 13 22 3" />
+  </svg>
+);
+
+export const ChevronDownIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+export const GridIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+    <rect x="14" y="14" width="7" height="7" />
+  </svg>
+);
+
+// src/components/icons/Icons.tsx - Add these exports
+
+// ─── Additional Icons ──────────────────────────────────────────────────────
+
+export const TrendingUpIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+    <polyline points="17 6 23 6 23 12" />
+  </svg>
+);
+
+export const UserPlusIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="8.5" cy="7" r="4" />
+    <line x1="20" y1="8" x2="20" y2="14" />
+    <line x1="23" y1="11" x2="17" y2="11" />
+  </svg>
+);
+
+
+export const LinkIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+  </svg>
+);
+
+export const UnlinkIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <path d="M17 17v4" />
+    <path d="M7 7V3" />
+    <path d="M17 7V3" />
+    <path d="M7 17v4" />
+    <line x1="10" y1="10" x2="14" y2="14" />
+    <line x1="14" y1="10" x2="10" y2="14" />
+    <line x1="8" y1="8" x2="16" y2="16" />
+    <line x1="16" y1="8" x2="8" y2="16" />
+  </svg>
+);
+
+export const PlusCircleIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="16" />
+    <line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+export const ChevronUpIcon: React.FC<IconProps> = props => (
+  <svg {...stroke(props)}>
+    <polyline points="18 15 12 9 6 15" />
+  </svg>
+);

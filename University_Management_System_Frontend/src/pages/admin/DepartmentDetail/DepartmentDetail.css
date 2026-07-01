@@ -1,0 +1,327 @@
+/* pages/admin/DepartmentDetail/DepartmentDetail.css */
+
+.dept-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────────── */
+
+.dept-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dept-detail-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: var(--background);
+  color: var(--text-primary);
+  border-color: var(--primary);
+}
+
+.dept-detail-title h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dept-detail-code {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-light, rgba(59, 130, 246, 0.1));
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+}
+
+.dept-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ─── Description ──────────────────────────────────────────────────────────── */
+
+.dept-detail-description {
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.dept-detail-description p {
+  margin: 0;
+}
+
+/* ─── Tabs ──────────────────────────────────────────────────────────────────── */
+
+.dept-detail-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--background);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.dept-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+}
+
+.dept-tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+.dept-tab-btn.active {
+  background: var(--surface);
+  color: var(--primary);
+}
+
+.dept-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.dept-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--background);
+  color: var(--text-secondary);
+  border-radius: 10px;
+}
+
+.dept-tab-btn.active .dept-tab-count {
+  background: var(--primary);
+  color: white;
+}
+
+/* ─── Content ───────────────────────────────────────────────────────────────── */
+
+.dept-detail-content {
+  min-height: 400px;
+}
+
+/* ─── Loading & Error ──────────────────────────────────────────────────────── */
+
+.dept-detail-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dept-detail-error {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--error, #EF4444);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.dept-detail-error p {
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────────── */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark, #2563EB);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--background);
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .dept-detail-page {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .dept-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dept-detail-header-left {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .dept-detail-actions {
+    width: 100%;
+  }
+
+  .dept-detail-actions .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dept-detail-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .dept-tab-btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 13px;
+    padding: 8px 14px;
+    min-width: 80px;
+  }
+
+  .dept-tab-btn.active::after {
+    left: 30%;
+    right: 30%;
+  }
+
+  .dept-detail-title h1 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dept-detail-page {
+    padding: 12px;
+  }
+
+  .dept-detail-title h1 {
+    font-size: 18px;
+  }
+
+  .dept-tab-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+    gap: 4px;
+  }
+
+  .dept-tab-count {
+    min-width: 16px;
+    height: 16px;
+    font-size: 10px;
+    padding: 0 4px;
+  }
+
+  .back-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .dept-detail-description {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+}
